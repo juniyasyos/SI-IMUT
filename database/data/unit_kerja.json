@@ -1,0 +1,182 @@
+[
+    {
+        "Unit Kerja": "IGD",
+        "Deskripsi": "Unit Gawat Darurat (IGD) menangani kasus-kasus medis darurat yang membutuhkan penanganan cepat dan tepat selama 24 jam.",
+        "Pengumpul Data": "Chahyarina Putri P., S.Kep., Ners",
+        "PIC Indikator": "Suharnanik, AMd. Kep"
+    },
+    {
+        "Unit Kerja": "Rawat Jalan",
+        "Deskripsi": "Unit Rawat Jalan melayani pemeriksaan dan pengobatan pasien tanpa perlu rawat inap, meliputi berbagai poliklinik spesialis.",
+        "Pengumpul Data": "Nur Lela Fitriyani, S.Kep., Ners",
+        "PIC Indikator": "Erni Sulis Setyowati, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "Hemodialisa",
+        "Deskripsi": "Unit Hemodialisa menyediakan layanan cuci darah bagi pasien dengan gangguan fungsi ginjal secara berkala.",
+        "Pengumpul Data": "Mila Dwi Lestari, AMd.Kep",
+        "PIC Indikator": "Elfira Octa Periza, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "OK",
+        "Deskripsi": "Unit Operasi (OK) adalah tempat pelaksanaan tindakan pembedahan dengan standar steril dan tenaga medis profesional.",
+        "Pengumpul Data": "Erik Arisandi, S.Kep., Ners",
+        "PIC Indikator": "Adi Purnomo, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "ICU",
+        "Deskripsi": "Intensive Care Unit (ICU) merupakan unit perawatan intensif untuk pasien dengan kondisi kritis yang memerlukan pemantauan ketat.",
+        "Pengumpul Data": "Hesti Dyah Tri P., AMd.Kep",
+        "PIC Indikator": "Dwi Ningtyas, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "Tulip",
+        "Deskripsi": "Unit Tulip adalah ruang rawat inap khusus dengan layanan keperawatan dan medis yang disesuaikan dengan kebutuhan pasien tertentu.",
+        "Pengumpul Data": "Lidya Octavia Rachmawati, S.Tr.Keb",
+        "PIC Indikator": "Erna Wayanti, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "Rosalina",
+        "Deskripsi": "Unit Rosalina memberikan pelayanan rawat inap dengan fasilitas dan perawatan yang mengutamakan kenyamanan dan keselamatan pasien.",
+        "Pengumpul Data": "Ika Rahmawati, S.Kep., Ners",
+        "PIC Indikator": "Ida Istianah, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "Alamanda",
+        "Deskripsi": "Unit Alamanda merupakan salah satu ruang rawat inap yang mendukung pemulihan pasien melalui perawatan medis dan keperawatan terstandar.",
+        "Pengumpul Data": "Diah Arum, AMd.Kep",
+        "PIC Indikator": "Erfina Lestari, AMd.Kep"
+    },
+    {
+        "Unit Kerja": "Teratai",
+        "Deskripsi": "Unit Teratai menyediakan layanan rawat inap dengan pendekatan asuhan keperawatan holistik dan berorientasi pada kebutuhan pasien.",
+        "Pengumpul Data": "Muslehatun Hasanah, S.Kep., Ners",
+        "PIC Indikator": "Yeni Susilowati, S.Kep., Ners"
+    },
+    {
+        "Unit Kerja": "Anturium",
+        "Deskripsi": "Unit Anturium melayani perawatan pasien rawat inap dengan dukungan tenaga medis dan keperawatan yang profesional dan responsif.",
+        "Pengumpul Data": "Afhton Yazid, S.Kep., Ners",
+        "PIC Indikator": "Ahmad Irfan R., S.Kep., Ners"
+    },
+    {
+        "Unit Kerja": "Laboratorium",
+        "Deskripsi": "Unit Laboratorium menyediakan layanan pemeriksaan sampel biologis untuk mendukung diagnosis, pemantauan, dan evaluasi kondisi medis pasien.",
+        "Pengumpul Data": "Zatika Budianti, AMd.Kes",
+        "PIC Indikator": "Leanidha Erywiyatno, AMd.Kes"
+    },
+    {
+        "Unit Kerja": "Radiologi",
+        "Deskripsi": "Unit Radiologi melakukan pemeriksaan pencitraan medis seperti rontgen, CT-scan, dan USG untuk membantu diagnosa dan tindakan medis.",
+        "Pengumpul Data": "Vidia Dwi Yatmasari, AMd.Rad1",
+        "PIC Indikator": "Winda Ulifia, AMd.Rad"
+    },
+    {
+        "Unit Kerja": "Farmasi Rawat Jalan",
+        "Deskripsi": "Unit Farmasi Rawat Jalan bertanggung jawab dalam penyediaan dan pelayanan obat bagi pasien yang menjalani perawatan tanpa rawat inap.",
+        "Pengumpul Data": "Lutvi Anggraeni, S.Farm., Apt",
+        "PIC Indikator": "Utari Ardinningdyah, S.Farm., Apt"
+    },
+    {
+        "Unit Kerja": "Farmasi Rawat Inap",
+        "Deskripsi": "Unit Farmasi Rawat Inap mengelola kebutuhan obat dan bahan medis habis pakai bagi pasien yang dirawat di rumah sakit.",
+        "Pengumpul Data": "Fatima Azzahra, S.Farm., Apt",
+        "PIC Indikator": "Elly Febry T., S.Farm., Apt"
+    },
+    {
+        "Unit Kerja": "Gudang Farmasi",
+        "Deskripsi": "Gudang Farmasi bertugas dalam pengelolaan logistik obat, alat kesehatan, dan distribusinya ke seluruh unit pelayanan rumah sakit.",
+        "Pengumpul Data": "Muhamad Yunus, AMd.Farm",
+        "PIC Indikator": "Jalu Anggara W., S.Farm., Apt"
+    },
+    {
+        "Unit Kerja": "Rekam Medis",
+        "Deskripsi": "Unit Rekam Medis menyimpan, mengelola, dan menjaga kerahasiaan data medis pasien sebagai bagian dari sistem informasi rumah sakit.",
+        "Pengumpul Data": "Siti Syarifah, S.ST",
+        "PIC Indikator": "Fitri Nur Azizah, AMd.Per.Kes., S.H"
+    },
+    {
+        "Unit Kerja": "Gizi",
+        "Deskripsi": "Unit Gizi bertanggung jawab dalam penyusunan dan penyediaan makanan bergizi bagi pasien sesuai dengan kondisi kesehatan masing-masing.",
+        "Pengumpul Data": "Freshtin Yuldhialita, S.ST",
+        "PIC Indikator": "Faidatul Andawiyah, S.ST"
+    },
+    {
+        "Unit Kerja": "Kepegawaian & Diklat",
+        "Deskripsi": "Unit Kepegawaian & Diklat menangani administrasi SDM dan pengembangan kompetensi staf melalui pelatihan dan pendidikan berkelanjutan.",
+        "Pengumpul Data": "Etty Rochayati, SE",
+        "PIC Indikator": "Brigitta Bika, S.KM"
+    },
+    {
+        "Unit Kerja": "Sanitasi & Kebersihan",
+        "Deskripsi": "Unit Sanitasi & Kebersihan menjaga kebersihan, kenyamanan, dan sanitasi lingkungan rumah sakit demi terciptanya pelayanan yang higienis.",
+        "Pengumpul Data": "Dhigandhini Nala W., AMd.Kes",
+        "PIC Indikator": "Ageng Supriyadi, S.Pd"
+    },
+    {
+        "Unit Kerja": "Pemulasaraan Jenazah",
+        "Deskripsi": "Unit Pemulasaraan Jenazah bertugas menangani proses perawatan, penyimpanan, dan penyerahan jenazah dengan tata cara yang layak dan manusiawi.",
+        "Pengumpul Data": "Moh. Solihin",
+        "PIC Indikator": "Ageng Supriyadi, S.Pd"
+    },
+    {
+        "Unit Kerja": "PSRS",
+        "Deskripsi": "Unit PSRS (Patient Safety and Risk Management) bertugas mengelola keselamatan pasien dan manajemen risiko untuk mencegah insiden di rumah sakit.",
+        "Pengumpul Data": "Yuliantri Selvi A., AMd.Kes",
+        "PIC Indikator": "Ageng Supriyadi, S.Pd"
+    },
+    {
+        "Unit Kerja": "Linen & Laundry",
+        "Deskripsi": "Unit Linen & Laundry bertanggung jawab dalam pengelolaan, pencucian, dan distribusi linen bersih bagi seluruh unit pelayanan rumah sakit.",
+        "Pengumpul Data": "Tedi Rahmat Permadi",
+        "PIC Indikator": "Ageng Supriyadi, S.Pd"
+    },
+    {
+        "Unit Kerja": "Konstruksi & Renovasi",
+        "Deskripsi": "Unit ini mengelola perencanaan, pembangunan, dan renovasi infrastruktur rumah sakit untuk mendukung pelayanan yang optimal dan aman.",
+        "Pengumpul Data": "Nanang Wulid",
+        "PIC Indikator": "Ageng Supriyadi, S.Pd"
+    },
+    {
+        "Unit Kerja": "Keamanan & Transportasi",
+        "Deskripsi": "Unit Keamanan & Transportasi memastikan keamanan lingkungan rumah sakit dan menyediakan layanan transportasi untuk pasien dan operasional.",
+        "Pengumpul Data": "Abdul Wahab",
+        "PIC Indikator": "Ageng Supriyadi, S.Pd"
+    },
+    {
+        "Unit Kerja": "Informasi dan Komplain",
+        "Deskripsi": "Unit ini melayani kebutuhan informasi pasien serta menampung dan menindaklanjuti keluhan demi peningkatan mutu pelayanan rumah sakit.",
+        "Pengumpul Data": "Eka Meidawati, AMd",
+        "PIC Indikator": "Ratih Ika M., S.KM"
+    },
+    {
+        "Unit Kerja": "TIK",
+        "Deskripsi": "Unit Teknologi Informasi dan Komunikasi (TIK) mendukung pengelolaan sistem informasi rumah sakit dan infrastruktur teknologi yang andal.",
+        "Pengumpul Data": "Rani Ekasari Pratiwi, AMd",
+        "PIC Indikator": "Ratih Ika M., S.KM"
+    },
+    {
+        "Unit Kerja": "Keuangan",
+        "Deskripsi": "Unit Keuangan bertugas dalam pengelolaan anggaran, pencatatan transaksi keuangan, dan pelaporan keuangan rumah sakit secara transparan.",
+        "Pengumpul Data": "Nila Kurnia Trisnowati, AMd",
+        "PIC Indikator": "Valentina Dini P., AMd"
+    },
+    {
+        "Unit Kerja": "Kasir",
+        "Deskripsi": "Unit Kasir melaksanakan penerimaan pembayaran dan transaksi keuangan pasien serta mendukung administrasi keuangan rumah sakit.",
+        "Pengumpul Data": "Endah Saripeni",
+        "PIC Indikator": "Valentina Dini P., AMd"
+    },
+    {
+        "Unit Kerja": "Akuntansi",
+        "Deskripsi": "Unit Akuntansi mencatat, mengolah, dan melaporkan data keuangan secara akurat untuk mendukung pengambilan keputusan manajerial.",
+        "Pengumpul Data": "Mareta Almalia, AMd",
+        "PIC Indikator": "Andre Kartawidjaja, B.Sc"
+    },
+    {
+        "Unit Kerja": "Perpajakan",
+        "Deskripsi": "Unit Perpajakan bertanggung jawab atas pengelolaan dan pelaporan kewajiban pajak rumah sakit sesuai peraturan perpajakan yang berlaku.",
+        "Pengumpul Data": "Fafan Yuda Nugraha, S.Pn",
+        "PIC Indikator": "Andre Kartawidjaja, B.Sc"
+    }
+]

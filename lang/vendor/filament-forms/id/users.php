@@ -1,0 +1,112 @@
+<?php
+
+return [
+
+    // Navigation & General Labels
+    'navigation' => [
+        'group' => 'Manajemen Akses Pengguna',
+        'title' => 'Pengguna',
+        'plural' => 'Pengguna',
+        'description' => 'Kelola akun pengguna dan hak akses di dalam sistem.',
+    ],
+
+    // Fields
+    'fields' => [
+        'id' => 'ID',
+        'name' => 'Nama Lengkap',
+        'nik' => 'Nomor Induk Kependudukan (NIK)', // Field NIK
+        'email' => 'Alamat Email',
+        'password' => 'Kata Sandi',
+        'created_at' => 'Tanggal Dibuat',
+        'updated_at' => 'Tanggal Diperbarui',
+        'avatar_url' => 'Foto Profil',
+        'roles' => 'Peran',
+        'role' => 'Peran',
+        'position_id' => 'Posisi',
+        'position' => 'Posisi',
+        'place_of_birth' => 'Tempat Lahir', // Tempat Lahir
+        'date_of_birth' => 'Tanggal Lahir', // Tanggal Lahir
+        'gender' => 'Jenis Kelamin', // Jenis Kelamin
+        'address_ktp' => 'Alamat KTP', // Alamat KTP
+        'phone_number' => 'Nomor Telepon', // Nomor Telepon
+        'status' => 'Status', // Status Pengguna
+    ],
+
+    // Form Sections
+    'form' => [
+        'user' => [
+            'title' => 'Informasi Pengguna',
+            'description' => 'Isi data pengguna dengan lengkap. Pastikan email valid dan peran dipilih dengan benar.',
+            'name_placeholder' => 'Masukkan nama lengkap',
+            'nik_placeholder' => 'Masukkan NIK', // Placeholder NIK
+            'email_placeholder' => 'example@email.com',
+            'password_placeholder' => 'Masukkan kata sandi',
+            'helper_text' => 'Pastikan email unik dan kata sandi aman.',
+        ],
+        'position' => [
+            'title' => 'Posisi & Akses',
+            'description' => 'Pilih posisi pengguna di organisasi.',
+            'select_placeholder' => 'Pilih posisi',
+            'create_label' => 'Nama Posisi',
+            'create_description' => 'Deskripsi Posisi',
+            'no_position' => 'Tidak ada posisi yang ditetapkan',
+        ],
+        'personal_info' => [
+            'title' => 'Informasi Pribadi',
+            'description' => 'Berikan detail pribadi pengguna.',
+            'place_of_birth_placeholder' => 'Masukkan tempat lahir',
+            'date_of_birth_placeholder' => 'Masukkan tanggal lahir',
+            'gender_placeholder' => 'Pilih jenis kelamin',
+        ],
+        'contact_info' => [
+            'title' => 'Informasi Kontak',
+            'description' => 'Berikan detail kontak pengguna.',
+            'address_placeholder' => 'Masukkan alamat KTP',
+            'phone_number_placeholder' => 'Masukkan nomor telepon',
+        ],
+    ],
+
+    // Buttons / UI
+    'buttons' => [
+        'add_role' => 'Tambah Peran',
+        'remove_role' => 'Hapus Peran',
+        'impersonate' => 'Masuk Sebagai Pengguna',
+        'set_role' => 'Tetapkan Peran',
+        'actions' => 'Tindakan',
+        'add_user' => 'Tambah Pengguna',
+        'update_user' => 'Perbarui Pengguna', // Tombol untuk memperbarui pengguna
+    ],
+
+    'filters' => [
+        'roles' => 'Filter berdasarkan Peran',
+        'position' => 'Filter berdasarkan Posisi',
+        'status' => 'Filter berdasarkan Status', // Menambahkan filter berdasarkan status
+    ],
+
+    'actions' => [
+        'activities' => 'Aktivitas',
+        'set_role' => 'Tetapkan Peran',
+        'impersonate' => 'Masuk Sebagai',
+        'group' => 'Tindakan',
+        'change_status' => 'Ubah Status', 
+        'delete_user' => 'Hapus Pengguna', // Aksi untuk menghapus pengguna
+    ],
+
+    'infolist' => [
+        'personal_info_title' => 'Profil Pengguna',
+        'copy_email' => 'Klik untuk menyalin email',
+        'status' => 'Status', 
+        'gender' => 'Jenis Kelamin',
+        'place_of_birth' => 'Tempat Lahir', 
+        'date_of_birth' => 'Tanggal Lahir', // Tanggal Lahir di infolist
+        'phone_number' => 'Nomor Telepon', // Nomor Telepon di infolist
+        'address_ktp' => 'Alamat KTP', 
+        'contact_info_title' => 'Informasi Kontak',
+        'account_info_title' => 'Informasi Akun',
+    ],
+
+    'model' => [
+        'label' => 'Manajemen Pengguna',
+        'plural_label' => 'Manajemen Pengguna',
+    ],
+];

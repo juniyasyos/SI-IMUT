@@ -1,0 +1,5 @@
+models:
+    Book: { title: string, author: string, description: text }
+    Contact: { name: string }
+    Post: { title: string, content: text }
+    User: { name: string, email: string, email_verified_at: 'timestamp nullable', password: 'string nullable', remember_token: 'string:100 nullable', avatar_url: 'string nullable' }

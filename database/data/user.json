@@ -1,0 +1,442 @@
+[
+  {
+    "nama": "Chahyarina Putri Pangesti, S.Kep., Ners",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1990-05-18",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM.TEGAL BESAR PERMAI I BLOK AH 13",
+    "id": "0120.01173"
+  },
+  {
+    "nama": "Suharnanik, Amd. Kep",
+    "tempat_lahir": "Kediri",
+    "tanggal_lahir": "1983-10-14",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.A YANI NO.69 DUSUN KRAJAN RT.02 RW.03 TANGGUL WETAN JEMBER",
+    "id": "0309.01022"
+  },
+  {
+    "nama": "Nur Lela Fitriyani, S.Kep., Ners",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1995-03-02",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN KRAJAN TENGAH RT.003 RW.006 DESA GUMELAR KEC.BALUNG JEMBER",
+    "id": "0220.01176"
+  },
+  {
+    "nama": "Yasinta Fransisca Anjela Egho, Amd. Kep",
+    "tempat_lahir": "Bondowoso",
+    "tanggal_lahir": "1990-05-30",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM.ARJASA ASRI II BLOK B.8 ARJASA JEMBER",
+    "id": "0220.01175"
+  },
+  {
+    "nama": "Mila Dwi Lestari, Amd. Kep",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1993-10-04",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM ISTANA TEGAL BESAR BLOK TARUNA NEGARA E 28",
+    "id": "0415.01125"
+  },
+  {
+    "nama": "Elfira Octa Periza, Amd. Kep",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1987-10-24",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM BUMI TEGAL BESAR BLOK BT NO.43 JEMBER",
+    "id": "0109.01008"
+  },
+  {
+    "nama": "Hesti Diah Tri Pangranti, Amd. Kep",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1985-09-06",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN SUMBER LANAS BARAT RT/RW 002/015 DESA HARJOMULYO KEC. SILO KAB. JEMBER",
+    "id": "0313.01026"
+  },
+  {
+    "nama": "Dwi Ningtyas Anggraeni, Amd. Kep",
+    "tempat_lahir": "Situbondo",
+    "tanggal_lahir": "1987-03-26",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "LINGK.TANJUNG MANGLI RT.03/01 NO.95 KALIWATES JEMBER",
+    "id": "0110.01016"
+  },
+  {
+    "nama": "Lidya Octavia Putri, S.Tr. Keb",
+    "tempat_lahir": "Surabaya",
+    "tanggal_lahir": "1996-10-22",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN KRAJAN RT 003 RW 001, DS. KERTOSARI, KEC.PAKUSARI, KAB.JEMBER",
+    "id": "1218.01115"
+  },
+  {
+    "nama": "Selfi Eka Suraidha, Amd. Keb",
+    "tempat_lahir": "Banyuwangi",
+    "tanggal_lahir": "1985-09-16",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM TAMAN KAMPUS BLOK A5 NO 7 TEGALGEDE SUMBERSARI",
+    "id": "111001042"
+  },
+  {
+    "nama": "Fareintis Rahayu Idamiah, Amd. Keb",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1992-03-04",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. DANAU TOBA VII BLOK 1 NO. 169 LINGK. PANJI KEL. TEGAL GEDE KEC. SUMBERSARI KAB. JEMBER",
+    "id": "1014.01113"
+  },
+  {
+    "nama": "Erna Wayanti, Amd. Keb",
+    "tempat_lahir": "Banyuwangi",
+    "tanggal_lahir": "1983-04-04",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DS. WONOASRI RT. 1 RW. 3 TEMPUREJO - JEMBER",
+    "id": "0109.01043"
+  },
+  {
+    "nama": "Ika Rahmawati, S.Kep., Ners",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1989-09-05",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN KRAJAN RT.001 RW.008 PUGER JEMBER",
+    "id": "0919.01135"
+  },
+  {
+    "nama": "Ida Istianah, Amd. Kep",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1988-07-14",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "BERNADY LAND SLAWU CLUSTER MAGNOLIA BLOK A10",
+    "id": "1213.01086"
+  },
+  {
+    "nama": "Diah Arum Indiastuti, Amd. Kep",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1993-09-17",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN BATAAN RT.001 RW.003 DESA CANDU KEC.ARJASA JEMBER",
+    "id": "0819.01129"
+  },
+  {
+    "nama": "Erfina Lestari, Amd. Kep",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1989-01-20",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DSN KLANCENG RT.003 RW.002 AJUNG JEMBER",
+    "id": "0817.01168"
+  },
+  {
+    "nama": "Muslehatun Hasanah ,S.Kep.Ners",
+    "tempat_lahir": "Situbondo",
+    "tanggal_lahir": "1998-08-29",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.KASUARI PERUM.RICH VILLAGE PHASE 2BLOK RH 95 JEMBER",
+    "id": "1022.02172"
+  },
+  {
+    "nama": "Yeni Susilowati, S.Kep., Ners",
+    "tempat_lahir": "Banyuwangi",
+    "tanggal_lahir": "1987-12-29",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN KRAJAN RT.02 RW.02 TISNOGAMBIR BANGSALSARI JEMBER",
+    "id": "0316.01139"
+  },
+  {
+    "nama": "Afthon Yazid Abrori, S.Kep., Ners",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1993-11-21",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "JL.KAMBOJA 2 DUSUN KRAJAN TENGAH RT.002 RW.011 DS.BALUNG KEC.BALUNG JEMBER",
+    "id": "1220.01204"
+  },
+  {
+    "nama": "Ahmad Irvan Roviqi, S.Kep., Ners",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1994-09-17",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "DSN SUMBER KETANGI RT/RW.002/025 BANGSALSARI JEMBER",
+    "id": "0518.01186"
+  },
+  {
+    "nama": "Zatika Budianti, Amd. Kes",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1994-04-25",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. LETD. SUTOYO I BLOK J/16 JEMBER",
+    "id": "1112.01068"
+  },
+  {
+    "nama": "Leanidha Erywiyatno, Amd. AK",
+    "tempat_lahir": "Malang",
+    "tanggal_lahir": "1987-08-05",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "MANGLI RESIDANCE BARONANG 01 NO. 14",
+    "id": "0212.01069"
+  },
+  {
+    "nama": "Winda Ulifia c., Amd. Rad",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1996-09-11",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. MARTOPAWIRO DSN KRAJAN RT.008 RW.004 UMBULSARI JEMBER",
+    "id": "0119.01105"
+  },
+  {
+    "nama": "Vidia Yatmasari, Amd. Kes",
+    "tempat_lahir": "MALANG",
+    "tanggal_lahir": "2000-12-06",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "Amadanom Tengah Rt 06 Rw 02 Desa Amadanom Kec. Dampit Kab. Malang",
+    "id": "1122.02174"
+  },
+  {
+    "nama": "Lutvi Anggraeni, S.Farm., Apt.",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1996-08-27",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.KACA PIRING III-7/123 JEMBER",
+    "id": "0220.01141"
+  },
+  {
+    "nama": "Utari Ardiningdyah, S.Farm., Apt",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1992-03-17",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "Perumahan Istana Tegal Besar Cl. Queen Kutai A 17",
+    "id": "0319.01114"
+  },
+  {
+    "nama": "Fatima Azzahra, S.Farm., Apt.",
+    "tempat_lahir": "Pekalongan",
+    "tanggal_lahir": "1994-12-20",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.MELATI NO. 51 RT. 001 RW. 026 LINGK.PATTIMURA JEMBER",
+    "id": "102.202.173"
+  },
+  {
+    "nama": "Elly Febry Taufany, S.Farm., Apt.",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1992-08-02",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.RADEN PATAH XXIII/39 JEMBER",
+    "id": "0121.01220"
+  },
+  {
+    "nama": "Jalu Anggara Winadi, S.Farm., Apt.",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1995-10-24",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "JL. HAYAM WURUK IV LINGK. GERDU NO 145 RT 2 RW 13, SEMPUSARI",
+    "id": "0918.01194"
+  },
+  {
+    "nama": "Avan Aji Pratama, Amd. Farm.",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "2000-01-13",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "PERUMAHAN MAHtempat_lahir RAYA RENGGANIS BLOK C2.46 ANTIROGO, JEMBER",
+    "id": "0422.01253"
+  },
+  {
+    "nama": "Siti Syarifah, S.ST",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1990-10-19",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. MANGGAR 4 NO.19 JEMBER",
+    "id": "0813.01059"
+  },
+  {
+    "nama": "Fitri Nur Azizah, Amd. Per. Kes",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1989-06-24",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN KRAJAN RT 03 RW 05 KALISAT",
+    "id": "0111.01058"
+  },
+  {
+    "nama": "Freshtin Yuldhialita, S.ST",
+    "tempat_lahir": "Sumenep",
+    "tanggal_lahir": "1995-02-08",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. KERTAJAYA I NO 144, RT 004 RW 033, LINGK. PATTIMURA, KEL. JEMBER KIDUL, KEC. KALIWATES",
+    "id": "0419.01119"
+  },
+  {
+    "nama": "Faidatul Andawiyah, S.ST",
+    "tempat_lahir": "Situbondo",
+    "tanggal_lahir": "1994-06-26",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUMAHAN PURI BUNGA NIRWANA 2,CLUSTER NUSA DUA, BLOK B-2, KARANGREJO, SUMBERSARI, JEMBER",
+    "id": "0316.01140"
+  },
+  {
+    "nama": "Etty Rochayati, SE",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1982-11-11",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM DARMA ALAM BLOK S 19 SEMPUSARI JEMBER",
+    "id": "0113.02099"
+  },
+  {
+    "nama": "Brigitta Bika Indiati, S.KM",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1984-05-18",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. LETJEN SUPRAPTO VI/110 JEMBER",
+    "id": "0613.02097"
+  },
+  {
+    "nama": "Firdha Aura Alvareza, Amd.Kes",
+    "tempat_lahir": "Surabaya",
+    "tanggal_lahir": "1999-07-25",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "Dusun Agal Agil RT.005 RW.002 Candi Sidoarjo Jawa Timur",
+    "id": "0124.02277"
+  },
+  {
+    "nama": "Ageng Supriyadi",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1986-10-25",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "JL.MADURA III/20 SUMBERSARI JEMBER",
+    "id": "0816.02139"
+  },
+  {
+    "nama": "MOH.SOLIHIN",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1990-11-02",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "Jl.Teratai Gang Masjid RT.002 RW.011 Desa Gebang Kec.Patrang Jember",
+    "id": "0122.00046"
+  },
+  {
+    "nama": "Nanang Wulid",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1989-05-07",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "DUSUN GLENGSERAN RT.003 RW.006 DESA SUCI KEC. PANTI JEMBER",
+    "id": "0215.02117"
+  },
+  {
+    "nama": "Abdul Wahab",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1981-09-25",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "DUSUN GADUNGAN RT 001 RW. 004 KLATAKAN, TANGGUL, JEMBER",
+    "id": "0520.02223"
+  },
+  {
+    "nama": "Eka Meidawati, Amd",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1993-05-24",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.SLAMET RIYADI IV/15 PATRANG JEMBER",
+    "id": "0220.02192"
+  },
+  {
+    "nama": "Ratih Ika Maharani, S.KM",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1990-03-08",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUMAHAN DARMA ALAM BLOK BF 03 KALIWATES - JEMBER",
+    "id": "1212.02100"
+  },
+  {
+    "nama": "Nila Kurnia Trisnovita, Amd.",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1982-11-25",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. LET JEND SOEPRAPTO IIIA / 67 JEMBER",
+    "id": "0112.02082"
+  },
+  {
+    "nama": "Valentina Dini Pangesti, Amd.",
+    "tempat_lahir": "Kediri",
+    "tanggal_lahir": "1978-11-15",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.SUMATERA GG.VI NO.06 SUMBERSARI JEMBER",
+    "id": "0109.02086"
+  },
+  {
+    "nama": "Rani Ekasari Pratiwi, Amd.",
+    "tempat_lahir": "JEMBER",
+    "tanggal_lahir": "1995-04-28",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL. HAYAM WURUK IV LINGK. GERDU RT/RW 002/013 SEMPUSARI, KALIWATES, JEMBER",
+    "id": "0518.02163"
+  },
+  {
+    "nama": "Endah Saripeni",
+    "tempat_lahir": "Banyuwangi",
+    "tanggal_lahir": "1987-12-31",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "JL.BRAWIJAYA GG 12 RT.01 RW.04 PONTANG TENGAH AMBULU JEMBER",
+    "id": "0610.02084"
+  },
+  {
+    "nama": "Mareta Almalia, Amd.",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1993-03-30",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "DUSUN MRAPEN RT. 001 RW. 013 SUMBER KEJAYAN MAYANG",
+    "id": "1122.02238"
+  },
+  {
+    "nama": "Andre Kartawidjaja, B.Sc",
+    "tempat_lahir": "Lumajang",
+    "tanggal_lahir": "1981-08-08",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "Perum Surya Milenia Blok C-2 Kaliwates",
+    "id": "0309.02117"
+  },
+  {
+    "nama": "Fafan Yuda Nugraha, S.Pn",
+    "tempat_lahir": "Lumajang",
+    "tanggal_lahir": "1991-03-13",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "PERUM DIM JUBUNG RT.007 RW.004 SUKORAMBI JEMBER",
+    "id": "0121.02229"
+  },
+  {
+    "nama": "Yuliantri Selvi Anugrahni, Amd. Kes",
+    "tempat_lahir": "Tanah Laut",
+    "tanggal_lahir": "1999-07-30",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "Jl. Pucang Anom VII No.46, Surabaya",
+    "id": "0222.01241"
+  },
+  {
+    "nama": "TEDY RACHMAD PERMADI",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1986-09-18",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "Jl. Sriti VI No. 3 Ling. Krajan, RT 01 RW 02, Desa Banjar Sengon, Patrang",
+    "id": "0222.00060"
+  },
+  {
+    "nama": "Yohana Karolina Patty, Amd. Kep",
+    "tempat_lahir": "Kediri",
+    "tanggal_lahir": "1982-01-11",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUM.PESONA WIROLEGI BLOK O-7 RT.05 RW.05 JEMBER",
+    "id": "0119.01102"
+  },
+  {
+    "nama": "Idza Amruhu Rochim, S.Kep., Ners",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1989-03-29",
+    "jenis_kelamin": "Perempuan",
+    "alamat": "PERUMAHAN PERMATA INDAH BLOK D NO.06 SUMBERSARI JEMBER",
+    "id": "0519.01124"
+  },
+  {
+    "nama": "Agung Sunaryo, S.I.Kom",
+    "tempat_lahir": "Jember",
+    "tanggal_lahir": "1993-06-02",
+    "jenis_kelamin": "Laki-laki",
+    "alamat": "Jl. Imam Bonjol No 299 Jember",
+    "id": "0715.02124"
+  }
+]

@@ -1,0 +1,14 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@import '/resources/css/filament/dash-stack-theme-juniyasyos/theme.css';
+
+/* @import '/vendor/awcodes/filament-table-repeater/resources/css/plugin.css'; */
+
+@config 'tailwind.config.js';
+
+
+@layer utilities {
+    .bg-gray-50 {
+        @apply bg-gray-100;
+    }
+}
