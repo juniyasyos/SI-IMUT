@@ -40,7 +40,7 @@ class UserFactory extends Factory
             // Keamanan & Status
             'password' => static::$password ??= Hash::make('password'),
             'email_verified_at' => now(),
-            'status' => fake()->randomElement(['active', 'inactive', 'suspended']), // Status bisa bervariasi
+            'status' => 'active',
             'remember_token' => Str::random(10),
 
             // Relasi

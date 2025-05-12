@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Position;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,15 +19,13 @@ class AccessTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::where('name', 'admin')->first();
-
-        if (!$this->admin) {
-            $this->admin = User::factory()->create([
-                'name' => 'admin',
-                'nik' => '0000.00000',
-                'password' => Hash::make('password'),
-            ]);
-        }
+        $this->admin = User::factory()->create([
+            'nik' => '0000.00000',
+            'name' => 'admin',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('adminpassword'),
+            'status' => 'active',
+        ]);
     }
 
     /**
@@ -69,4 +68,30 @@ class AccessTest extends TestCase
             }
         }
     }
+
+    // public function test_all_induk_routes_status_code()
+    // {
+    //     $this->actingAs($this->admin);
+
+    //     $routes = $this->getIndukGetRoutes();
+
+    //     foreach ($routes as $route) {
+    //         $uri = '/' . ltrim($route->uri(), '/');
+    //         $response = $this->get($uri);
+            
+    //         $response->assertStatus(function ($status) {
+    //             return $status < 500 && $status !== 405;
+    //         });
+    //     }
+    // }
+
+    public function test_page_not_found()
+    {
+        $response = $this->get('/page-not-found');
+
+        $response->assertStatus(404);
+    }
+
 }
+
+

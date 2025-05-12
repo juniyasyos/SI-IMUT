@@ -15,6 +15,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "bepsvpt/secure-headers": "^9.0",
         "bezhansalleh/filament-shield": "^3.3",
         "dedoc/scramble": "^0.12.10",
         "diogogpinto/filament-auth-ui-enhancer": "^1.0",

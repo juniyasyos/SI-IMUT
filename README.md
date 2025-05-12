@@ -1,260 +1,141 @@
-# 🚀 Kaido Kit FilamentPhp Starter Code
+# 🏥 SIIMUT - Sistem Indikator Mutu untuk Rumah Sakit  
 
-A powerful and opinionated FilamentPHP starter kit designed to accelerate your admin panel development. Kaido Kit provides a robust foundation with pre-configured plugins, configuration and best practices for building feature-rich admin interfaces.
-
-![GitHub stars](https://img.shields.io/github/stars/siubie/kaido-kit?style=flat-square)
-![GitHub forks](https://img.shields.io/github/forks/siubie/kaido-kit?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/siubie/kaido-kit?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![PHP Version](https://img.shields.io/badge/PHP-8.2-blue?style=flat-square&logo=php)
+![PHP Version](https://img.shields.io/badge/PHP-8.3-blue?style=flat-square&logo=php)
 ![Laravel Version](https://img.shields.io/badge/Laravel-11.0-red?style=flat-square&logo=laravel)
 ![Filament Version](https://img.shields.io/badge/Filament-3.2-purple?style=flat-square)
-## Introduction Video
-[![Build FilamentPhp Apps 10x Faster | Kaido-Kit Starter Kit (Complete Demo)](https://img.youtube.com/vi/t6q1zBqaBGU/maxresdefault.jpg)](http://www.youtube.com/watch?v=t6q1zBqaBGU "Build FilamentPhp Apps 10x Faster | Kaido-Kit Starter Kit (Complete Demo)")
-## ✨ Features
-
-### 🛠️ Developer Experience
-
-- ⚡ Quick CRUD generation with customized [FilamentPHP](https://filamentphp.com/) stubs
-    - Optimized UX out of the box
-    - No need to modify generated resources
-- 🔄 Auto reload on save for rapid development
-- 📚 Easy API documentation using [Scramble](https://scramble.dedoc.co/)
-- 📤 Built-in Export and Import examples in Filament resources
 
-### 🔐 Authentication & Authorization
+**SIIMUT (Sistem Indikator Mutu untuk Rumah Sakit)** adalah platform berbasis web yang dirancang untuk **memantau, menganalisis, dan meningkatkan mutu layanan kesehatan** di rumah sakit Indonesia. Sistem ini selaras dengan standar **Kementerian Kesehatan RI, Komisi Akreditasi Rumah Sakit (KARS), dan SNARS**, memungkinkan institusi kesehatan untuk **mengotomatiskan pengelolaan indikator mutu** guna mendukung peningkatan kualitas layanan berbasis data.  
 
-- 🛡️ Role-Based Access Control (RBAC) using [Filament Shield](https://filamentphp.com/plugins/bezhansalleh-shield)
-- 🔑 Enhanced login page with custom design
-- 🌐 Social login with Google via [Filament Socialite](https://filamentphp.com/plugins/dododedodonl-socialite)
-- 👤 User profile management with [Filament Breezy](https://filamentphp.com/plugins/jeffgreco-breezy)
-- 🔒 Instant 2-Factor Authentication capabilities
-- 👥 Simple user-to-role assignment
-- 🎭 User impersonation via [Filament Impersonate](https://filamentphp.com/plugins/joseph-szobody-impersonate)
+Dengan meningkatnya tuntutan transparansi, akuntabilitas, dan efisiensi dalam pelayanan kesehatan, SIIMUT hadir sebagai solusi yang **terintegrasi, adaptif, dan berbasis teknologi** untuk membantu rumah sakit dalam pengambilan keputusan strategis serta pemenuhan regulasi nasional.  
 
-### 📡 API & Integration
+## 🎯 Tujuan  
 
-- 🚀 Full API support with [Filament API Service](https://filamentphp.com/plugins/rupadana-api-service)
-    - Seamlessly integrated with Shield
-    - Ready-to-use API endpoints
-- 📨 Email integration using [Resend](https://resend.com/)
-- 📝 Auto-generated API documentation
+SIIMUT dirancang untuk membantu rumah sakit dalam:  
 
-### 📁 Media & Content Management
+✅ **Efisiensi & Akurasi** – Digitalisasi pencatatan dan analisis untuk mengurangi kesalahan manual.  
+✅ **Kepatuhan Standar** – Memastikan standar **KARS & SNARS** melalui pemantauan sistematis.  
+✅ **Analisis Data** – Laporan real-time dan visualisasi untuk keputusan berbasis bukti.  
+✅ **Peningkatan Mutu** – Identifikasi tren, analisis masalah, dan optimalisasi layanan.  
+✅ **Akses & Integrasi** – Data terstruktur untuk manajemen, tenaga medis, dan unit mutu. terkoneksi.  
 
-- 🖼️ Integrated [Filament Media Library](https://filamentphp.com/plugins/filament-spatie-media-library)
-    - Easy media handling process
-    - [Spatie Media Library](https://spatie.be/docs/laravel-medialibrary) support
+---
 
-### ⚙️ Configuration & Settings
+## 🚀 Quick Start  
 
-- 🎛️ Dynamic plugin management via [Filament Settings](https://filamentphp.com/plugins/filament-spatie-settings)
-    - Enable/disable features on the fly
-    - [Spatie Laravel Settings](https://github.com/spatie/laravel-settings) integration
+Untuk menginstal dan menjalankan **SIIMUT**, ikuti langkah-langkah berikut:  
 
-## 🚀 Quick Start
+### 1️⃣ Clone Repository  
+```sh
+git clone https://github.com/juniyasyos/siimut_rs_citrahusada.git SIIMUT
+cd SIIMUT
+```  
 
-1. Create new project using composer
+### 2️⃣ Install Dependensi  
+```sh
+composer install && npm install
+composer run post-root-package-install
+```  
 
-    ```php
-    composer create-project siubie/kaido-kit
-    ```
+### 3️⃣ Konfigurasi Lingkungan  
+```sh
+composer run post-update-cmd
+composer run post-create-project-cmd
+```  
+Sesuaikan file `.env` untuk konfigurasi **database** dan integrasi lainnya.  
 
-2. Composer install
+### 4️⃣ Migrasi Database  
+```sh
+composer run setup
+```  
 
-    ```php
-    composer install
-    ```
+### 5️⃣ Jalankan Aplikasi  
+```sh
+composer run dev
+```  
 
-3. Npm Install
+---
 
-    ```php
-    npm install
-    ```
+## ⚙️ Fitur Utama  
 
-4. Copy .env
+### 🏥 **Manajemen Indikator Mutu yang Efisien**  
+- Pemantauan indikator mutu berdasarkan **standar KARS & SNARS**.  
+- Penyimpanan data historis untuk **analisis tren dan evaluasi mutu**.  
 
-    ```php
-    cp .env.example .env
-    ```
+### 📊 **Dashboard & Analitik Real-Time**  
+- **Visualisasi data indikator mutu** dalam bentuk grafik dan tabel interaktif.  
+- **Laporan otomatis** yang dapat diekspor ke berbagai format (PDF, Excel).  
 
-5. Configure your database in .env
+### 🔐 **Keamanan & Akses Kontrol**  
+- **Role-Based Access Control (RBAC)** untuk memastikan akses data hanya bagi pihak yang berwenang.  
+- **Audit log** untuk melacak perubahan dan aktivitas pengguna.  
 
-    ```php
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=kaido_kit
-    DB_USERNAME=root
-    DB_PASSWORD=
-    ```
+### 🔄 **Integrasi & Skalabilitas**  
+- **Dukungan API** untuk menghubungkan SIIMUT dengan sistem lain di rumah sakit.  
+- **Struktur modular** yang dapat dikembangkan sesuai kebutuhan rumah sakit.  
 
-6. Configure your google sign in cliend id and secret (optional)
+### ⚙️ **Kustomisasi & Kemudahan Penggunaan**  
+- **Antarmuka intuitif** untuk tenaga medis dan administrator.  
+- **Konfigurasi fleksibel** untuk menyesuaikan dengan kebijakan mutu masing-masing rumah sakit.  
 
-    ```php
-    #google auth
-    GOOGLE_CLIENT_ID=
-    GOOGLE_CLIENT_SECRET=
-    GOOGLE_REDIRECT_URI=http://localhost:8000/admin/oauth/callback/google
-    ```
+---
 
-7. Configure your resend for email sending (optional)
+## 🔧 Konfigurasi  
 
-    ```php
-    #resend
-    MAIL_MAILER=resend
-    MAIL_HOST=127.0.0.1
-    MAIL_PORT=2525
-    MAIL_USERNAME=null
-    MAIL_PASSWORD=null
-    MAIL_ENCRYPTION=null
-    RESEND_API_KEY=
-    MAIL_FROM_ADDRESS="admin@domain.com"
-    MAIL_FROM_NAME="${APP_NAME}"
-    ```
+### **Konfigurasi Database**  
+Edit file `.env` dengan kredensial database:  
+```ini
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=siimut
+DB_USERNAME=root
+DB_PASSWORD=
+```  
 
-8. Migrate your database
+### **Konfigurasi Email (Opsional)**  
+```ini
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS="admin@rs-example.com"
+MAIL_FROM_NAME="SIIMUT RS"
+```  
 
-    ```php
-    php artisan migrate --seed
-    ```
+---
 
-9. Serve the Application
+## 📢 Mengapa Memilih SIIMUT?  
 
-    ```script
-    composer run dev
-    ```
+SIIMUT dirancang khusus untuk mendukung **rumah sakit di Indonesia** dalam:  
+✔ **Efisiensi Pemantauan** – Proses pelacakan indikator mutu lebih cepat dan akurat.  
+✔ **Kepatuhan Regulasi** – Memastikan rumah sakit memenuhi standar **KARS & SNARS**.  
+✔ **Dukungan Keputusan** – Laporan berbasis data untuk perbaikan mutu berkelanjutan.  
+✔ **Keamanan & Skalabilitas** – Sistem aman dengan kemampuan ekspansi yang fleksibel.  
 
-11. If run successfully you will get this login interface
+---
 
-    ![image.png](.github/images/login-screen.png)
+## 🤝 Kontribusi  
 
-12. When signed in it will show this (not much yet but it getting there :) )
+Kami menyambut kontribusi dari komunitas! Untuk berkontribusi:  
+1. **Fork repositori ini**  
+2. **Buat branch fitur baru** (`git checkout -b feature/nama-fitur`)  
+3. **Commit perubahan Anda** (`git commit -m 'Menambahkan fitur baru'`)  
+4. **Push ke branch Anda** (`git push origin feature/nama-fitur`)  
+5. **Buka Pull Request**  
 
-    ![image.png](.github/images/after-login-without-rbac.png)
+---
 
-13. Next step is to setup the RBAC, first generate the role and permission
+## 💬 Dukungan & Komunitas  
 
-    ```php
-    php artisan shield:generate --all
-    ```
+📌 **Laporkan Bug** – [Buka Issue](https://github.com/juniyasyos/siimut_rs_citrahusada/issues)  
+💡 **Usulan Fitur** – [Request Fitur](https://github.com/juniyasyos/siimut_rs_citrahusada/issues)  
+📧 **Kontak** – [Email Support](mailto:your-email@example.com)  
 
-14. It will ask which panel do you want to generate permission/policies for choose the admin panel.
-15. Setup the super admin using this command
+---
 
-    ```php
-    php artisan shield:super-admin
-    ```
+## ⭐ Dukung Proyek Ini  
 
-    ![image.png](.github/images/provide-superadmin.png)
+Jika **SIIMUT** bermanfaat, jangan lupa **beri ⭐ di GitHub** dan bantu sebarkan! 🚀  
 
-16. Choose your super admin user and login again.
-
-    ![image.png](.github/images/after-login-rbac.png)
-
-## Running on Docker with Laravel Sail
-
-1. Clone the repository
-
-```bash
-git clone https://github.com/siubie/kaido-kit.git
-```
-
-2. Copy .env.example to .env
-
-```bash
-cp .env.example .env
-```
-
-3. Install dependencies
-
-```bash
-composer install
-```
-
-4. Install Laravel Sail
-
-```bash
-composer require laravel/sail --dev
-php artisan sail:install
-```
-
-5. Run Sail
-
-```bash
-./vendor/bin/sail up -d
-```
-
-6. Generate App Key
-
-```bash
-./vendor/bin/sail artisan key:generate
-```
-
-7. Run migration
-
-```bash
-./vendor/bin/sail artisan migrate --seed
-```
-
-8. Next step is to setup the RBAC, first generate the role and permission
-
-```bash
-./vendor/bin/sail artisan shield:generate --all
-```
-
-9. Setup the super admin using this command
-
-```bash
-./vendor/bin/sail artisan shield:super-admin
-```
-
-10. Serve the Application
-
-```bash
-./vendor/bin/sail composer run dev
-```
-
-## Security
-Set your app Debug to false in .env file
-```php
-APP_NAME="Kaido-Kit"
-APP_ENV=local
-APP_KEY=base64:gWUd7RPrCZm6iu7qFddY3039BQLroNHJ0nqKcBr8eeA=
-APP_DEBUG=false
-APP_TIMEZONE=UTC
-APP_URL=https://localhost:8000
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 🙏 Acknowledgments
-
-- [FilamentPHP](https://filamentphp.com/)
-- [Laravel](https://laravel.com/)
-- All our amazing contributors
-
-## 💬 Support
-
-- 🐛 [Report a bug](https://github.com/siubie/kaido-kit/issues)
-- 💡 [Request a feature](https://github.com/siubie/kaido-kit/issues)
-- 📧 [Email support](mailto:putraprima@gmail.com)
-- 💬 [Discord community](https://discord.com/invite/RwqXDUJGPg)
-- 💬 [Whatsapp community](https://chat.whatsapp.com/HJtRp9Eo5wl6NhYIJbkuZL)
-
-## ⭐ Show your support
-For Indonesian community you can get support and the recording course for how to create this kit here :
-https://www.dosenngoding.com/courses/8
-
-Give a ⭐️ if this project helped you!
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=siubie/kaido-kit&type=Date)](https://star-history.com/#siubie/kaido-kit&Date)
