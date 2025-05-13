@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Illuminate\Contracts\View\View;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
@@ -36,15 +37,34 @@ class Login extends BaseLogin
         // Ganti pencarian user dari email ke nik
         $user = User::where('nik', $data['nik'])->first();
 
-        if ($user && is_null($user->password)) {
-            throw ValidationException::withMessages([
-                'data.nik' => 'This account was created using social login. Please login with Google.',
-            ]);
-        }
+        // if ($user && is_null($user->password)) {
+        //     throw ValidationException::withMessages([
+        //         'data.nik' => 'This account was created using social login. Please login with Google.',
+        //     ]);
+        // }
 
         if ($user && in_array($user->status, ['inactive', 'suspended'])) {
+            // Tentukan isi pesan dan tipe notifikasi berdasarkan status
+            $statusMessage = match ($user->status) {
+                'inactive' => 'Akun Anda belum diaktifkan. Silakan hubungi administrator.',
+                'suspended' => 'Akun Anda sedang ditangguhkan karena pelanggaran atau alasan lain.',
+            };
+
+            $notificationType = match ($user->status) {
+                'inactive' => 'warning',
+                'suspended' => 'danger',
+            };
+
+            // Tampilkan notifikasi sesuai status
+            Notification::make()
+                        ->title('Akses Ditolak')
+                        ->body($statusMessage)
+                ->$notificationType()
+                    ->persistent()
+                    ->send();
+
             throw ValidationException::withMessages([
-                'data.nik' => 'Akun Anda tidak aktif atau sedang ditangguhkan.',
+                'data.nik' => $statusMessage,
             ]);
         }
 

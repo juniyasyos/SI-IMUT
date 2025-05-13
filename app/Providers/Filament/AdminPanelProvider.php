@@ -6,7 +6,6 @@ use Filament\Pages;
 use Filament\Panel;
 use App\Models\User;
 use Filament\Widgets;
-
 use Filament\PanelProvider;
 use App\Filament\Pages\Login;
 use App\Settings\KaidoSetting;
@@ -30,6 +29,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Laravel\Socialite\Contracts\User as SocialiteUserContract;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -98,6 +98,7 @@ class AdminPanelProvider extends PanelProvider
     private function getPlugins(): array
     {
         $plugins = [
+            ActivitylogPlugin::make(),
             DashStackThemePlugin::make(),
             FilamentShieldPlugin::make(),
             FilamentPWAPlugin::make(),

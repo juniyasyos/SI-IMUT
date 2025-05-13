@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Models\Role;
 use App\Models\User;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -137,13 +138,18 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->label('Tanggal Lahir')
                             ->nullable(),
                     ]),
-                    Select::make('gender')
+                    ToggleButtons::make('gender')
                         ->label('Jenis Kelamin')
                         ->options([
                             'Laki-laki' => 'Laki-laki',
                             'Perempuan' => 'Perempuan',
                         ])
-                        ->required(),
+                        ->required()
+                        ->inline()
+                        ->colors([
+                            'Laki-laki' => 'primary',
+                            'Perempuan' => 'success',
+                        ])
                 ]),
 
             // === Section: Kontak & Alamat ===
@@ -180,15 +186,21 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->dehydrateStateUsing(fn($state) => $state ? bcrypt($state) : null)
                             ->required(fn($livewire) => $livewire instanceof CreateRecord),
 
-                        Select::make('status')
+                        ToggleButtons::make('status')
                             ->label('Status')
-                            ->required()
-                            ->default('active')
                             ->options([
                                 'active' => 'Aktif',
                                 'inactive' => 'Tidak Aktif',
                                 'suspended' => 'Ditangguhkan',
-                            ]),
+                            ])
+                            ->required()
+                            ->default('active')
+                            ->inline()
+                            ->colors([
+                                'active' => 'success',
+                                'inactive' => 'warning',
+                                'suspended' => 'danger',
+                            ])
                     ]),
                 ]),
 

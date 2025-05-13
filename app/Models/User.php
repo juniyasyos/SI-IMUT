@@ -100,7 +100,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     /**
      * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @return array<string, string, string>
      */
     protected function casts(): array
     {
@@ -110,6 +110,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             'password' => 'hashed',
         ];
     }
+
 
     /**
      * Relasi User ke Position (One to One)
@@ -160,7 +161,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      */
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logAll();
+        return LogOptions::defaults()->logOnlyDirty();
     }
 
     /**
