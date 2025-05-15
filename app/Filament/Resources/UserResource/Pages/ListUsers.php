@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\User;
 use Filament\Actions;
 use Illuminate\Support\Facades\Gate;
 use Filament\Resources\Pages\ListRecords;
@@ -18,7 +19,8 @@ class ListUsers extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->visible(fn() => Gate::allows('create', \App\Models\User::class)),
+                ->visible(fn() => Gate::allows('create', User::class))
+                ->icon('heroicon-m-user-plus'),
             ExportAction::make()
                 ->exports([
                     ExcelExport::make()
@@ -28,7 +30,8 @@ class ListUsers extends ListRecords
                         ->withColumns([
                             Column::make('updated_at'),
                         ])
-                ]),
+                ])
+                ->visible(fn() => Gate::allows('export', User::class)),
         ];
     }
 }

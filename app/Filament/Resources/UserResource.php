@@ -363,9 +363,20 @@ class UserResource extends Resource implements HasShieldPermissions
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make()
-                        ->visible(fn($record) => Gate::allows('restore', $record)),
+                        ->visible(
+                            fn($record) =>
+                            Gate::allows('restore', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                        ),
+
                     ForceDeleteAction::make()
-                        ->visible(fn($record) => Gate::allows('forceDelete', $record)),
+                        ->visible(
+                            fn($record) =>
+                            Gate::allows('forceDelete', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                        ),
                 ])->button()->label(__('filament-forms::users.actions.group')),
             ])
             ->bulkActions([

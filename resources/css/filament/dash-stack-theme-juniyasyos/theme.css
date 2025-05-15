@@ -525,7 +525,6 @@
 
                         .fi-ta-record {
                             @apply rounded-3xl ring-0 border shadow-sm bg-gray-50 dark:bg-[var(--ds-dark-bg-tertiary-color)];
-                            @apply bg-[url(/resource/assets/dash-stack-theme/card-bg-pattern.svg)];
                         }
                     }
 
