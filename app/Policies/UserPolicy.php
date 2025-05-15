@@ -84,7 +84,7 @@ class UserPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_user');
     }
 
     /**
@@ -95,7 +95,7 @@ class UserPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('{{ ForceDeleteAny }}');
+        return $user->can('force_delete_any_user');
     }
 
     /**
@@ -106,7 +106,7 @@ class UserPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_user');
     }
 
     /**
@@ -117,28 +117,50 @@ class UserPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('{{ RestoreAny }}');
+        return $user->can('restore_any_user');
     }
 
     /**
-     * Determine whether the user can bulk restore.
+     * Determine whether the user can view activity logs of another user.
      *
      * @param  \App\Models\User  $user
      * @return bool
      */
-    public function replicate(User $user): bool
+    public function viewActivities(User $user): bool
     {
-        return $user->can('{{ Replicate }}');
+        return $user->can('view_activities_user');
     }
 
     /**
-     * Determine whether the user can reorder.
+     * Determine whether the user can assign roles to another user.
      *
      * @param  \App\Models\User  $user
      * @return bool
      */
-    public function reorder(User $user): bool
+    public function setRole(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return $user->can('set_role_user');
+    }
+
+    /**
+     * Determine whether the user can impersonate another user.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function impersonate(User $user): bool
+    {
+        return $user->can('impersonate_user');
+    }
+
+    /**
+     * Determine whether the user can export users data.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function export(User $user): bool
+    {
+        return $user->can('export_user');
     }
 }

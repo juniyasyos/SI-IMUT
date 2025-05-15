@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\HasActiveIcon;
 use Filament\Forms;
+use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Facades\Filament;
 use Illuminate\Support\HtmlString;
-use App\Filament\Resources\BaseResource;
 use Illuminate\Contracts\Support\Arrayable;
 use App\Filament\Resources\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Support\Utils;
@@ -17,9 +18,11 @@ use BezhanSalleh\FilamentShield\Forms\ShieldSelectAllToggle;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use BezhanSalleh\FilamentShield\Traits\HasShieldFormComponents;
 
-class RoleResource extends BaseResource implements HasShieldPermissions
+class RoleResource extends Resource implements HasShieldPermissions
 {
-    use HasShieldFormComponents;
+    use HasActiveIcon, HasShieldFormComponents;
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
 

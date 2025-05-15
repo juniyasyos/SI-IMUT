@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Role;
 use App\Models\User;
+use App\Traits\HasActiveIcon;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Position;
 use Filament\Forms\Form;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -40,6 +43,7 @@ use Filament\Infolists\Components\ImageEntry;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\UserResource\Pages;
+use Illuminate\Support\Facades\Gate;
 use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 use Filament\Forms\Components\Actions\Action as FieldAction;
 use Filament\Infolists\Components\Section as InfolistSection;
@@ -49,8 +53,9 @@ use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
 
 class UserResource extends Resource implements HasShieldPermissions
 {
+    use HasActiveIcon;
     protected static ?string $model = User::class;
-
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -58,12 +63,23 @@ class UserResource extends Resource implements HasShieldPermissions
     public static function getPermissionPrefixes(): array
     {
         return [
+            // Default permissions
             'view',
             'view_any',
             'create',
             'update',
+            'restore',
+            'restore_any',
             'delete',
             'delete_any',
+            'force_delete',
+            'force_delete_any',
+
+            // Custom permissions
+            'view_activities',
+            'set_role',
+            'impersonate',
+            'export'
         ];
     }
 
@@ -321,10 +337,12 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->preload(),
             ])
             ->actions([
-                ActivityLogTimelineTableAction::make(__('filament-forms::users.actions.activities')),
+                ActivityLogTimelineTableAction::make(__('filament-forms::users.actions.activities'))
+                    ->visible(fn() => Gate::allows('viewActivities', User::class)),
+
                 Action::make(__('filament-forms::users.actions.set_role'))
                     ->icon('heroicon-m-adjustments-vertical')
-                    ->form(form: [
+                    ->form([
                         Select::make('role')
                             ->label(__('filament-forms::users.fields.roles'))
                             ->relationship('roles', 'name')
@@ -333,20 +351,38 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->preload()
                             ->optionsLimit(10)
                             ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
-                    ]),
-                Impersonate::make()->label(__('filament-forms::users.actions.impersonate')),
+                    ])
+                    ->visible(fn() => Gate::allows('setRole', User::class)),
+
+                Impersonate::make()
+                    ->label(__('filament-forms::users.actions.impersonate'))
+                    ->visible(fn() => Gate::allows('impersonate', User::class)),
+
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
+                    RestoreAction::make()
+                        ->visible(fn($record) => Gate::allows('restore', $record)),
+                    ForceDeleteAction::make()
+                        ->visible(fn($record) => Gate::allows('forceDelete', $record)),
                 ])->button()->label(__('filament-forms::users.actions.group')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn() => Gate::allows('deleteAny', User::class)),
+
+                    RestoreBulkAction::make()
+                        ->visible(fn() => Gate::allows('restoreAny', User::class)),
+
+                    ForceDeleteBulkAction::make()
+                        ->visible(fn() => Gate::allows('forceDeleteAny', User::class)),
+
+                    ExportBulkAction::make()
+                        ->exporter(UserExporter::class)
+                        ->visible(fn() => Gate::allows('export', User::class)),
                 ]),
-                ExportBulkAction::make()
-                    ->exporter(UserExporter::class)
             ]);
     }
 
