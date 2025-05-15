@@ -72,10 +72,13 @@ return [
         ],
 
         'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+            'AccountWidget',
+            'FilamentInfoWidget',
         ],
 
-        'resources' => [],
+        'resources' => [
+            'ActivityLogResource'
+        ],
     ],
 
     'discovery' => [

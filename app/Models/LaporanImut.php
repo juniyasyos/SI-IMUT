@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Support\Str;
+use App\Models\ImutPenilaian;
+use App\Models\LaporanUnitKerja;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class LaporanImut extends Model
+{
+    use HasFactory, SoftDeletes, LogsActivity;
+
+    public const string STATUS_PROCESS = 'process';
+    public const string STATUS_COMPLETE = 'complete';
+    public const string STATUS_CANCELED = 'canceled';
+
+    protected $fillable = [
+        'name',
+        'status',
+        'assessment_period_start',
+        'assessment_period_end',
+    ];
+
+    protected $guarded = ['id'];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+        'assessment_period_start' => 'date',
+        'assessment_period_end' => 'date',
+    ];
+
+    protected static function booted()
+    {
+        static::creating(function ($laporan) {
+            if (empty($laporan->slug)) {
+                $laporan->slug = Str::slug($laporan->name ?? $laporan->id . '-' . now()->timestamp);
+            }
+        });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logAll();
+    }
+
+    public function unitKerjas()
+    {
+        return $this->belongsToMany(UnitKerja::class, 'laporan_unit_kerjas', 'laporan_imut_id', 'unit_kerja_id')
+            ->withTimestamps();
+    }
+
+    public function imutPenilaians()
+    {
+        return $this->hasManyThrough(
+            ImutPenilaian::class,
+            LaporanUnitKerja::class,
+            'laporan_imut_id',
+            'laporan_unit_kerja_id',
+            'id',
+            'id'
+        );
+    }
+}

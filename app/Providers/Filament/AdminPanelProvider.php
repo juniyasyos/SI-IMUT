@@ -98,10 +98,14 @@ class AdminPanelProvider extends PanelProvider
     private function getPlugins(): array
     {
         $plugins = [
-            ActivitylogPlugin::make(),
             DashStackThemePlugin::make(),
             FilamentShieldPlugin::make(),
             FilamentPWAPlugin::make(),
+            ActivitylogPlugin::make()
+                ->navigationIcon('heroicon-o-clock')
+                ->navigationItem()
+                ->navigationGroup('User & Access Control')
+                ->label('Audit & Activity Logs'),
             AuthUIEnhancerPlugin::make()
                 ->showEmptyPanelOnMobile(false)
                 ->formPanelPosition('right')

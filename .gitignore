@@ -7,7 +7,9 @@
 /storage/pail
 /vendor
 .env
+.env.ngrok
 .env.backup
+.env.development
 .env.production
 .phpactor.json
 .phpunit.result.cache
@@ -21,5 +23,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-/.devbox
-devbox*
+
+**/caddy
+frankenphp
+frankenphp-worker.php
