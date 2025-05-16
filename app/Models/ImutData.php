@@ -29,7 +29,7 @@ class ImutData extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['title', 'imut_kategori_id', 'slug'];
+    protected $fillable = ['title', 'imut_kategori_id', 'slug', 'status'];
 
     protected static function boot()
     {
@@ -68,6 +68,7 @@ class ImutData extends Model
     {
         return [
             'deleted_at' => 'datetime',
+            'status' => 'boolean',
         ];
     }
 
@@ -123,6 +124,4 @@ class ImutData extends Model
     {
         return $this->hasOne(ImutProfile::class)->where('id', $profileId);
     }
-
-
 }

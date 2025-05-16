@@ -56,4 +56,21 @@ return [
             'description_helper' => 'Berikan penjelasan rinci mengenai tujuan dan penggunaan indikator.',
         ],
     ],
+
+    'actions' => [
+        'delete' => [
+            'label' => 'Hapus Data',
+            'modal_heading' => 'Hapus Data ImutData',
+            'modal_description' => 'Menghapus ImutData ini akan memengaruhi data terkait. Data tidak akan dihapus secara permanen, melainkan dinonaktifkan (soft delete) dan masih dapat dipulihkan kembali jika diperlukan.',
+            'modal_submit_label' => 'Ya, Hapus',
+        ],
+    ],
+    
+    'notifications' => [
+        'deleted' => [
+            'title' => 'Data Dinonaktifkan',
+            'body' => 'ImutData dan data terkait telah dinonaktifkan (soft delete). Anda masih dapat memulihkannya melalui filter di menu list IMUT Data.',
+        ],
+    ],
+
 ];

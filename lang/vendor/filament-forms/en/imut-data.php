@@ -22,10 +22,10 @@ return [
         'slug' => 'Slug',
         'year' => 'Year',
         'version' => 'Version',
-        
+
         // Tambahan untuk field description
         'description' => 'Description',
-        
+
         // Tambahan untuk field status
         'status' => 'Status',
         'status_helper' => 'Active or Inactive',
@@ -54,6 +54,22 @@ return [
             // Tambahan untuk field description
             'description_placeholder' => 'Enter a brief description of the indicator',
             'description_helper' => 'Provide a detailed explanation of the indicator\'s purpose and usage.',
+        ],
+    ],
+
+    'actions' => [
+        'delete' => [
+            'label' => 'Hapus Data',
+            'modal_heading' => 'Hapus Data ImutData',
+            'modal_description' => 'Menghapus ImutData ini akan memengaruhi data terkait. Data tidak akan dihapus secara permanen, melainkan dinonaktifkan (soft delete) dan masih dapat dipulihkan kembali jika diperlukan.',
+            'modal_submit_label' => 'Ya, Hapus',
+        ],
+    ],
+    
+    'notifications' => [
+        'deleted' => [
+            'title' => 'Data Dinonaktifkan',
+            'body' => 'ImutData dan data terkait telah dinonaktifkan (soft delete). Anda masih dapat memulihkannya melalui filter di menu list IMUT Data.',
         ],
     ],
 ];

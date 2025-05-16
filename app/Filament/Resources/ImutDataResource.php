@@ -188,6 +188,12 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->color('primary')
                     ->toggleable(isToggledHiddenByDefault: false),
 
+                \Filament\Tables\Columns\ToggleColumn::make('status')
+                    ->label(__('filament-forms::imut-data.fields.status'))
+                    ->sortable()
+                    ->onColor('success')
+                    ->offColor('gray'),
+
                 TextColumn::make('created_at')
                     ->label(__('filament-forms::imut-data.fields.created_at'))
                     ->dateTime('d M Y H:i')
@@ -196,9 +202,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make()
-                    ->label('Status Data'),
-
+                TrashedFilter::make(),
                 SelectFilter::make('imut_kategori_id')
                     ->label('Kategori IMUT')
                     ->relationship('categories', 'short_name')
@@ -228,7 +232,6 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                 ]),
             ]);
     }
-
 
     public static function getRelations(): array
     {

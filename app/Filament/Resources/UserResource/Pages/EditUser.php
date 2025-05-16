@@ -15,7 +15,6 @@ class EditUser extends EditRecord
     {
         return [
             Impersonate::make()->record($this->getRecord())
-            // <--
         ];
     }
 

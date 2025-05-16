@@ -8,6 +8,8 @@ use Filament\Actions\Concerns\CanNotify;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ImutDataResource;
+use App\Models\ImutData;
+use Illuminate\Support\Facades\Gate;
 
 class EditImutData extends EditRecord
 {
@@ -19,13 +21,7 @@ class EditImutData extends EditRecord
     {
         return [
             $this->getDeleteAction(),
-            $this->getSaveAction(),
         ];
-    }
-
-    protected function getFormActions(): array
-    {
-        return [];
     }
 
     public function getBreadcrumbs(): array
@@ -49,37 +45,26 @@ class EditImutData extends EditRecord
             ->send();
     }
 
-    // 💾 Save action
-    protected function getSaveAction(): Action
-    {
-        return Action::make('save')
-            ->label('Simpan Perubahan')
-            ->icon('heroicon-o-check-circle')
-            ->color('primary')
-            ->action(function () {
-                $this->record->save();
-                $this->notifyUser('success', 'Data berhasil disimpan.');
-            });
-    }
-
     // 🗑️ Delete action
     protected function getDeleteAction(): DeleteAction
     {
         return DeleteAction::make()
-            ->label('Hapus Data')
+            ->label(__('filament-forms::imut-data.actions.delete.label'))
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
-            ->modalHeading('Hapus Data ImutData')
-            ->modalDescription('Menghapus ImutData ini akan memengaruhi data terkait. Data tidak akan dihapus secara permanen, melainkan dinonaktifkan (soft delete) dan masih dapat dipulihkan kembali jika diperlukan.')
+            ->visible(fn() => Gate::allows('delete_imut::data', ImutData::class))
+            ->modalHeading(__('filament-forms::imut-data.actions.delete.modal_heading'))
+            ->modalDescription(__('filament-forms::imut-data.actions.delete.modal_description'))
             ->modalIcon('heroicon-o-exclamation-triangle')
             ->modalIconColor('danger')
-            ->modalSubmitActionLabel('Ya, Hapus')
+            ->modalSubmitActionLabel(__('filament-forms::imut-data.actions.delete.modal_submit_label'))
             ->successNotification(
                 Notification::make()
                     ->success()
-                    ->title('Data Dinonaktifkan')
-                    ->body('ImutData dan data terkait telah dinonaktifkan (soft delete). Anda masih dapat memulihkannya melalui filter di menu list IMUT Data.')
+                    ->title(__('filament-forms::imut-data.notifications.deleted.title'))
+                    ->body(__('filament-forms::imut-data.notifications.deleted.body'))
             );
     }
+
 }
