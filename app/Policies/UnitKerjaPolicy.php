@@ -15,15 +15,15 @@ class UnitKerjaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_unit_kerja');
+        return $user->can('view_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, UnitKerja $unitKerja): bool
+    public function view(User $user): bool
     {
-        return $user->can('view_unit_kerja');
+        return $user->can('view_unit::kerja');
     }
 
     /**
@@ -31,23 +31,23 @@ class UnitKerjaPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_unit_kerja');
+        return $user->can('create_unit::kerja');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, UnitKerja $unitKerja): bool
+    public function update(User $user): bool
     {
-        return $user->can('update_unit_kerja');
+        return $user->can('update_unit::kerja');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, UnitKerja $unitKerja): bool
+    public function delete(User $user): bool
     {
-        return $user->can('delete_unit_kerja');
+        return $user->can('delete_unit::kerja');
     }
 
     /**
@@ -55,15 +55,15 @@ class UnitKerjaPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_unit_kerja');
+        return $user->can('delete_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, UnitKerja $unitKerja): bool
+    public function forceDelete(User $user): bool
     {
-        return $user->can('force_delete_unit_kerja');
+        return $user->can('force_delete_unit::kerja');
     }
 
     /**
@@ -71,15 +71,15 @@ class UnitKerjaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_unit_kerja');
+        return $user->can('force_delete_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, UnitKerja $unitKerja): bool
+    public function restore(User $user): bool
     {
-        return $user->can('restore_unit_kerja');
+        return $user->can('restore_unit::kerja');
     }
 
     /**
@@ -87,6 +87,6 @@ class UnitKerjaPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_unit_kerja');
+        return $user->can('restore_any_unit::kerja');
     }
 }
