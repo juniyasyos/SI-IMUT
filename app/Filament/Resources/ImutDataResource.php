@@ -27,11 +27,12 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Forms\Components\Actions\Action;
 use App\Filament\Resources\ImutDataResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\ImutDataResource\RelationManagers\ProfilesRelationManager;
 use Filament\Tables\Actions\{EditAction, ViewAction, DeleteAction, RestoreAction, ForceDeleteAction};
 use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkAction, ForceDeleteBulkAction};
 
-class ImutDataResource extends Resource
+class ImutDataResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = ImutData::class;
 
