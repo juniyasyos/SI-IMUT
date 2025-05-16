@@ -34,6 +34,7 @@ use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkActio
 
 class ImutDataResource extends Resource implements HasShieldPermissions
 {
+    use \App\Traits\HasActiveIcon;
     protected static ?string $model = ImutData::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';

@@ -40,6 +40,7 @@ use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkActio
 
 class LaporanImutResource extends Resource implements HasShieldPermissions
 {
+    use \App\Traits\HasActiveIcon;
     protected static ?string $model = LaporanImut::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';

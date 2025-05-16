@@ -29,6 +29,7 @@ use Filament\Tables\Actions\{
 
 class ImutCategoryResource extends Resource implements HasShieldPermissions
 {
+    use \App\Traits\HasActiveIcon;
     protected static ?string $model = ImutCategory::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
     protected static ?int $navigationSort = 2;
@@ -40,14 +41,8 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
             'view_any',
             'create',
             'update',
-            'restore',
-            'restore_any',
-            'replicate',
-            'reorder',
             'delete',
             'delete_any',
-            'force_delete',
-            'force_delete_any',
         ];
     }
 
@@ -119,12 +114,13 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ])
                         ->default('internal')
                         ->required()
+                        ->inline()
                         ->columnSpan(1)
                         ->colors([
                             'internal' => 'success',
-                            'national' => 'primary',
-                            'unit' => 'warning',
-                            'global' => 'danger',
+                            'national' => 'warning',
+                            'unit' => 'gray',
+                            'global' => 'primary',
                         ])
                         ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
 

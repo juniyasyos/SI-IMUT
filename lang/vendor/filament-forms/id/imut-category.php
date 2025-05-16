@@ -35,4 +35,8 @@ return [
         'short_placeholder' => 'Contoh: IMP-RS',
         'short_helper_text' => 'Nama singkat harus unik dan tidak lebih dari 50 karakter.',
     ],
+
+    'buttons' => [
+        'add_data' => 'Buat Imut Kategori'
+    ]
 ];

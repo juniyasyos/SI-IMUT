@@ -35,4 +35,8 @@ return [
         'short_placeholder' => 'Example: IMP-RS',
         'short_helper_text' => 'The short name must be unique and no longer than 50 characters.',
     ],
+
+    'buttons' => [
+        'add_data' => 'Create Imut Category',
+    ]
 ];
