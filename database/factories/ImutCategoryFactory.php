@@ -16,9 +16,14 @@ class ImutCategoryFactory extends Factory
      */
     public function definition(): array
     {
+        // Contoh: "Mutu Pelayanan Rawat" → MPR
+        $categoryWords = $this->faker->unique()->words(3);
+        $categoryName = implode(' ', $categoryWords);
+        $shortName = strtoupper(collect($categoryWords)->map(fn($word) => $word[0])->implode(''));
+
         return [
-            'category_name' => $this->faker->unique()->words(3, true),
-            'short_name' => $this->faker->unique()->words(3, true),
+            'category_name' => $categoryName,
+            'short_name' => $shortName,
             'description' => $this->faker->sentence(),
         ];
     }
