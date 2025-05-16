@@ -112,10 +112,10 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     \Filament\Forms\Components\ToggleButtons::make('scope')
                         ->label(__('filament-forms::imut-category.fields.scope'))
                         ->options([
-                            'internal' => __('filament-forms::imut-category.fields.internal'),
-                            'national' => __('filament-forms::imut-category.fields.national'),
-                            'unit' => __('filament-forms::imut-category.fields.unit'),
-                            'global' => __('filament-forms::imut-category.fields.global'),
+                            'internal' => __('filament-forms::imut-category.fields.scope_internal'),
+                            'national' => __('filament-forms::imut-category.fields.scope_national'),
+                            'unit' => __('filament-forms::imut-category.fields.scope_unit'),
+                            'global' => __('filament-forms::imut-category.fields.scope_global'),
                         ])
                         ->default('internal')
                         ->required()
@@ -126,7 +126,7 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                             'unit' => 'warning',
                             'global' => 'danger',
                         ])
-                        ->helperText(__('filament-forms::imut-category.form.scope_helper_text')),
+                        ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
 
                     Textarea::make('description')
                         ->label(__('filament-forms::imut-category.fields.description'))
