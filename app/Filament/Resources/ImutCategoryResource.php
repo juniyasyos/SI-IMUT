@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Section;
@@ -26,11 +27,29 @@ use Filament\Tables\Actions\{
     ForceDeleteBulkAction
 };
 
-class ImutCategoryResource extends Resource
+class ImutCategoryResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = ImutCategory::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
     protected static ?int $navigationSort = 2;
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+        ];
+    }
 
     public static function getGloballySearchableAttributes(): array
     {

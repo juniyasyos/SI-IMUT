@@ -17,7 +17,13 @@ return [
         'description_helpertext' => 'Enter a brief description of the category',
         'description_placeholder' => 'Enter description here',
         'data_count' => 'IMUT Data Count',
-
+        'short_name' => 'Short Name',
+        'scope' => 'Scope',
+        'scope_internal' => 'Internal',
+        'scope_national' => 'National',
+        'scope_unit' => 'Unit Level',
+        'scope_global' => 'Global',
+        'scope_helper_text' => 'Define the applicable scope for this category.',
     ],
 
     'form' => [

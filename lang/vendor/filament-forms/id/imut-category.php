@@ -17,6 +17,13 @@ return [
         'description_helpertext' => 'Masukkan deskripsi singkat untuk kategori',
         'description_placeholder' => 'Masukkan deskripsi di sini',
         'data_count' => 'Jumlah Data IMUT',
+        'short_name' => 'Nama Singkat',
+        'scope' => 'Lingkup',
+        'scope_internal' => 'Internal',
+        'scope_national' => 'Nasional',
+        'scope_unit' => 'Unit',
+        'scope_global' => 'Global',
+        'scope_helper_text' => 'Tentukan lingkup yang berlaku untuk kategori ini.',
     ],
 
     'form' => [
