@@ -29,6 +29,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Laravel\Socialite\Contracts\User as SocialiteUserContract;
+use Juniyasyos\FilamentMediaManager\FilamentMediaManagerPlugin;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use Juniyasyos\FilamentLaravelBackup\FilamentLaravelBackupPlugin;
 
@@ -103,6 +104,7 @@ class AdminPanelProvider extends PanelProvider
             FilamentShieldPlugin::make(),
             FilamentPWAPlugin::make(),
             FilamentLaravelBackupPlugin::make(),
+            FilamentMediaManagerPlugin::make()->allowUserAccess()->allowSubFolders(),
             ActivitylogPlugin::make()
                 ->navigationIcon('heroicon-o-clock')
                 ->navigationItem()
