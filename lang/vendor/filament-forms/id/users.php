@@ -73,7 +73,7 @@ return [
         'impersonate' => 'Masuk Sebagai Pengguna',
         'set_role' => 'Tetapkan Peran',
         'actions' => 'Tindakan',
-        'add_user' => 'Tambah Pengguna',
+        'add_user' => 'Buat Pengguna',
         'update_user' => 'Perbarui Pengguna', // Tombol untuk memperbarui pengguna
     ],
 

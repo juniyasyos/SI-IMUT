@@ -36,7 +36,7 @@ return [
     'form' => [
         'user' => [
             'title' => 'User Information',
-            'description' => 'Fill in the user data completely. Ensure the email is valid and the role is correctly selected.',
+            'description' => 'Fill in the user data completely. Ensure the role is correctly selected.',
             'name_placeholder' => 'Enter full name',
             'nik_placeholder' => 'Enter NIK', // NIK Placeholder
             'email_placeholder' => 'example@email.com',
@@ -73,8 +73,8 @@ return [
         'impersonate' => 'Impersonate User',
         'set_role' => 'Set Role',
         'actions' => 'Actions',
-        'add_user' => 'Add User',
-        'update_user' => 'Update User', // Tombol untuk update user
+        'add_user' => 'Create User',
+        'update_user' => 'Update User', 
     ],
 
     'filters' => [

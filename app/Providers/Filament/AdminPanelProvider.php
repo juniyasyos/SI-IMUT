@@ -13,6 +13,7 @@ use Filament\Support\Colors\Color;
 use Filament\Forms\Components\FileUpload;
 use Filament\Http\Middleware\Authenticate;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -29,7 +30,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Laravel\Socialite\Contracts\User as SocialiteUserContract;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
-use Rmsramos\Activitylog\ActivitylogPlugin;
+use Juniyasyos\FilamentLaravelBackup\FilamentLaravelBackupPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -101,6 +102,7 @@ class AdminPanelProvider extends PanelProvider
             DashStackThemePlugin::make(),
             FilamentShieldPlugin::make(),
             FilamentPWAPlugin::make(),
+            FilamentLaravelBackupPlugin::make(),
             ActivitylogPlugin::make()
                 ->navigationIcon('heroicon-o-clock')
                 ->navigationItem()

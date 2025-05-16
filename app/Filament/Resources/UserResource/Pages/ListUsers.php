@@ -14,11 +14,11 @@ use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
 class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
-
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()
+                ->label('filament-forms::users.buttons.add_user')
                 ->visible(fn() => Gate::allows('create', User::class))
                 ->icon('heroicon-m-user-plus'),
             ExportAction::make()
