@@ -652,7 +652,7 @@
 
             /* Notification Wrapper */
             &>div {
-                @apply border-none my-2;
+                @apply border-none m-2;
 
                 &::before {
                     @apply rounded-lg w-3 -translate-x-1/2 rtl:translate-x-1/2 h-[90%] top-1/2 -translate-y-1/2 left-0;

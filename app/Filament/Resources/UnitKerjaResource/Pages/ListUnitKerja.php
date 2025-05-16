@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\UnitKerjaResource\Pages;
 
-use App\Filament\Resources\UnitKerjaResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\UnitKerjaResource;
 
 class ListUnitKerja extends ListRecords
 {
@@ -14,7 +14,7 @@ class ListUnitKerja extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label(__('filament-actions::create.single.modal.actions.create.label')),
+                ->label(__('filament-forms::unit-kerja.actions.add')),
         ];
     }
 }

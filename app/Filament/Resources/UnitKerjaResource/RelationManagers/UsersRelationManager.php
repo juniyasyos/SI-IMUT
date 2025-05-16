@@ -26,15 +26,18 @@ class UsersRelationManager extends RelationManager
             ->columns([
                 Split::make([
                     ImageColumn::make('avatar_url')
+                        ->searchable()
                         ->circular()
                         ->grow(false)
                         ->getStateUsing(fn($record) => $record->avatar_url ?: "https://ui-avatars.com/api/?name=" . urlencode($record->name)),
                     Stack::make([
                         TextColumn::make('name')
                             ->label(__('filament-forms::users.fields.name'))
+                            ->searchable()
                             ->weight(FontWeight::Bold),
                         TextColumn::make('position.name')
                             ->label(__('filament-forms::users.fields.position'))
+                            ->searchable()
                             ->sortable()
                             ->icon('heroicon-o-briefcase')
                             ->badge()
@@ -43,33 +46,41 @@ class UsersRelationManager extends RelationManager
                     Stack::make([
                         TextColumn::make('roles.name')
                             ->label(__('filament-forms::users.fields.roles'))
+                            ->searchable()
                             ->icon('heroicon-o-shield-check')
                             ->grow(false),
-                        TextColumn::make('email')
+                        TextColumn::make('nik')
                             ->label(__('filament-forms::users.fields.email'))
-                            ->icon('heroicon-m-envelope')
+                            ->icon('heroicon-m-finger-print')
+                            ->searchable()
                             ->grow(false),
                     ])->alignStart()->visibleFrom('lg')->space(1)
-                ]),
+                ])
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
-                    ->label(__('filament-forms::users.buttons.add_user'))
                     ->color('primary')
                     ->form(fn() => [
                         Select::make('recordId')
-                            ->label(__('filament-forms::users.forms.user.title'))
-                            ->options(fn() => User::with('position')->get()
-                                ->mapWithKeys(fn($user) => [
-                                    $user->id => "{$user->name} - " . ($user->position->name ?? __('filament-forms::users.forms.position.no_position')),
-                                ])
-                                ->toArray())
+                            ->options(function () {
+                                $relatedIds = $this->getRelationship()->pluck('id')->toArray();
+
+                                return User::with('position')
+                                    ->whereNotIn('id', $relatedIds)
+                                    ->get()
+                                    ->mapWithKeys(fn($user) => [
+                                        $user->id => "{$user->name} - " . ($user->position->name ?? '-'),
+                                    ])
+                                    ->toArray();
+                            })
                             ->searchable()
                             ->preload()
                             ->required(),
                     ])
+                    ->attachAnother(false)
                     ->preloadRecordSelect()
                     ->recordSelectSearchColumns(['name']),
+
             ])
             ->actions([
                 Tables\Actions\DetachAction::make()

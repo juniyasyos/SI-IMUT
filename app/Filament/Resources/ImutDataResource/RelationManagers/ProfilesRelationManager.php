@@ -4,6 +4,8 @@ namespace App\Filament\Resources\ImutDataResource\RelationManagers;
 
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\ImutProfile;
+use Illuminate\Support\Facades\Gate;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +50,7 @@ class ProfilesRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->visible(fn() => Gate::allows('create', ImutProfile::class))
                     ->url(fn($livewire) => ImutDataResource::getUrl('create-profile', [
                         'imutDataSlug' => $livewire->ownerRecord->slug,
                     ])),
@@ -56,7 +59,14 @@ class ProfilesRelationManager extends RelationManager
                 TrashedFilter::make(),
             ])
             ->actions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->slideOver()
+                    ->form([
+                        TextInput::make('version')->disabled(),
+                        TextInput::make('indicator_type')->disabled(),
+                        TextInput::make('responsible_person')->disabled(),
+                        // tambah field lain yang mau ditampilkan, disabled supaya cuma info
+                    ]),
                 EditAction::make()
                     ->url(fn($record, $livewire) => ImutDataResource::getUrl('edit-profile', [
                         'imutDataSlug' => $livewire->ownerRecord->slug,

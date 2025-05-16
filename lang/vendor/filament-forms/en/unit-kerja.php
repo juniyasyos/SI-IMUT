@@ -38,4 +38,9 @@ return [
             'remove_button' => 'Remove User',
         ],
     ],
+
+        'actions' => [
+            'attach' => 'Attach User',
+            'add' => 'Add Work Unit'
+        ]
 ];

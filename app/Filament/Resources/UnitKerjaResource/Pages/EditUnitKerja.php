@@ -6,6 +6,8 @@ use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UnitKerjaResource;
+use Guava\FilamentModalRelationManagers\Actions\Action\RelationManagerAction;
+use App\Filament\Resources\UnitKerjaResource\RelationManagers\UsersRelationManager;
 
 class EditUnitKerja extends EditRecord
 {
@@ -14,22 +16,13 @@ class EditUnitKerja extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('save')
-                ->label(__('filament-actions::edit.single.modal.actions.save.label'))
-                ->action('save')
-                ->requiresConfirmation(false),
-
-            Action::make('delete')
-                ->label(__('filament-actions::delete.single.modal.actions.delete.label'))
-                ->color('danger')
-                ->requiresConfirmation()
-                ->action('delete'),
+            RelationManagerAction::make()
+                ->label(__('filament-forms::unit-kerja.actions.attach'))
+                ->icon('heroicon-o-user')
+                ->record($this->getRecord())
+                ->slideOver()
+                ->relationManager(UsersRelationManager::make()),
         ];
-    }
-
-    protected function getFormActions(): array
-    {
-        return [];
     }
 
     //customize redirect after create

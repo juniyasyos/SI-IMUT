@@ -2,7 +2,7 @@
 
 @import '/resources/css/filament/dash-stack-theme-juniyasyos/theme.css';
 
-/* @import '/vendor/awcodes/filament-table-repeater/resources/css/plugin.css'; */
+@import '/vendor/awcodes/filament-table-repeater/resources/css/plugin.css';
 
 @config 'tailwind.config.js';
 

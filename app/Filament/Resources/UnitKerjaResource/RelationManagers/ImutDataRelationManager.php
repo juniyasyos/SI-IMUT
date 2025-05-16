@@ -33,39 +33,39 @@ class ImutDataRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('imut_kategori_id')
                     ->label(__('filament-forms::imut-data-relationship-user.filters.category'))
+                    ->multiple()
                     ->relationship('categories', 'short_name'),
-            ], layout: FiltersLayout::AboveContent)
+            ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label(__('filament-forms::imut-data-relationship-user.actions.attach.label'))
                     ->color('primary')
-                    ->form(function () {
-                        $relatedIds = $this->getRelationship()->pluck('id')->toArray();
+                    ->recordSelect(function ($livewire) {
+                        // Ambil ID yang sudah terkait
+                        $relatedIds = $livewire->ownerRecord->imutData()->pluck('id')->toArray();
 
-                        return [
-                            Select::make('recordId')
-                                ->label(__('filament-forms::imut-data-relationship-user.form.select_imut.label'))
-                                ->placeholder(__('filament-forms::imut-data-relationship-user.form.select_imut.placeholder'))
-                                ->helperText(__('filament-forms::imut-data-relationship-user.form.select_imut.helper'))
-                                ->options(
-                                    ImutData::with('categories')
-                                        ->whereNotIn('id', $relatedIds)
-                                        ->get()
-                                        ->mapWithKeys(fn($imut) => [
-                                            $imut->id => "({$imut->categories->short_name}) - {$imut->title}",
-                                        ])
-                                        ->toArray()
-                                )
-                                ->searchable()
-                                ->preload()
-                                ->required(),
-                        ];
+                        return Select::make('recordId')
+                            ->label(__('filament-forms::imut-data-relationship-user.form.select_imut.label'))
+                            ->placeholder(__('filament-forms::imut-data-relationship-user.form.select_imut.placeholder'))
+                            ->helperText(__('filament-forms::imut-data-relationship-user.form.select_imut.helper'))
+                            ->options(
+                                ImutData::with('categories')
+                                    ->whereNotIn('id', $relatedIds)
+                                    ->get()
+                                    ->mapWithKeys(fn($imut) => [
+                                        $imut->id => "({$imut->categories->short_name}) - {$imut->title}",
+                                    ])
+                                    ->toArray()
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->required();
                     })
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.modal.heading'))
                     ->modalSubmitActionLabel(__('filament-forms::imut-data-relationship-user.modal.submit_label'))
                     ->preloadRecordSelect()
-                    ->recordSelectSearchColumns(['title']),
-
+                    ->attachAnother(false)
+                    ->recordSelectSearchColumns(['title'])
             ])
             ->actions([
                 Tables\Actions\DetachAction::make()

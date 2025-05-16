@@ -38,4 +38,9 @@ return [
             'remove_button' => 'Hapus Pengguna',
         ],
     ],
+
+    'actions' => [
+       'attach' => 'Kaitkan Pengguna',
+       'add' => 'Tambah Unit Kerja'
+    ]
 ];

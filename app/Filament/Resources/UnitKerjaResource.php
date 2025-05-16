@@ -13,9 +13,11 @@ use App\Models\UserUnitKerja;
 use Filament\Resources\Resource;
 use Awcodes\TableRepeater\Header;
 use Filament\Forms\Components\Card;
+use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Illuminate\Database\Eloquent\Model;
@@ -29,8 +31,9 @@ use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use App\Filament\Resources\UnitKerjaResource\Pages;
 use Awcodes\TableRepeater\Components\TableRepeater;
-use Filament\Forms\Components\{TextInput, Textarea, Select, Grid};
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\{TextInput, Textarea, Select, Grid};
+use Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction;
 use App\Filament\Resources\UnitKerjaResource\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\UnitKerjaResource\RelationManagers\ImutDataRelationManager;
 
@@ -121,7 +124,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
             ->columns([
                 Tables\Columns\TextColumn::make('unit_name')
                     ->label(__('filament-forms::unit-kerja.fields.unit_name'))
-                    ->description(fn(UnitKerja $record) => Str::limit($record->description, 100))
+                    ->description(fn(UnitKerja $record) => Str::limit($record->description, 60))
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('imut_data_count')
@@ -135,10 +138,38 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                 TrashedFilter::make(),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-                RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
-                ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                RelationManagerAction::make('user-relation-manager')
+                    ->label('User Attach')
+                    ->icon('heroicon-o-user')
+                    ->slideOver()
+                    ->relationManager(UsersRelationManager::make()),
+
+                RelationManagerAction::make('imutData-relation-manager')
+                    ->label('Imut Data Attach')
+                    ->icon('heroicon-o-chart-bar')
+                    ->slideOver()
+                    ->relationManager(ImutDataRelationManager::make()),
+                    
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make()
+                        ->visible(
+                            fn($record) =>
+                            Gate::allows('restore', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                        ),
+
+                    ForceDeleteAction::make()
+                        ->visible(
+                            fn($record) =>
+                            Gate::allows('forceDelete', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                        ),
+                ])->button()->label(__('filament-forms::users.actions.group')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -152,7 +183,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
-            UsersRelationManager::class,
+                // UsersRelationManager::class,
             ImutDataRelationManager::class,
         ];
     }
@@ -162,7 +193,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
         return [
             'index' => Pages\ListUnitKerja::route('/'),
             'create' => Pages\CreateUnitKerja::route('/create'),
-            'edit' => Pages\EditUnitKerja::route('/{record}/edit'),
+            'edit' => Pages\EditUnitKerja::route('/{record:unit_name}/edit'),
         ];
     }
 }
