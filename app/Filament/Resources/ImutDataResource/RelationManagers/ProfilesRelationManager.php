@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Filament\Resources\ImutDataResource\RelationManagers;
+
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
+use App\Filament\Resources\ImutDataResource;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\{CreateAction, EditAction, DeleteAction, DeleteBulkAction, BulkActionGroup};
+
+class ProfilesRelationManager extends RelationManager
+{
+    protected static string $relationship = 'profiles';
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->recordTitleAttribute('version')
+            ->columns([
+                TextColumn::make('version')
+                    ->label('Versi')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('indicator_type')
+                    ->label('Tipe Indikator')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'process' => 'info',
+                        'output' => 'warning',
+                        'outcome' => 'success',
+                        default => 'gray',
+                    }),
+
+                TextColumn::make('responsible_person')
+                    ->label('Penanggung Jawab')
+                    ->searchable()
+                    ->limit(50),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->url(fn($livewire) => ImutDataResource::getUrl('create-profile', [
+                        'imutDataSlug' => $livewire->ownerRecord->slug,
+                    ])),
+            ])
+            ->filters([
+                TrashedFilter::make(),
+            ])
+            ->actions([
+                ViewAction::make(),
+                EditAction::make()
+                    ->url(fn($record, $livewire) => ImutDataResource::getUrl('edit-profile', [
+                        'imutDataSlug' => $livewire->ownerRecord->slug,
+                        'record' => $record->slug,
+                    ])),
+                DeleteAction::make(),
+                RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make()
+                ]),
+            ])
+            ->paginated(true)
+            ->defaultPaginationPageOption(10);
+    }
+}

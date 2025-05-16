@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\PositionSeeder;
+use Database\Seeders\ImutDataSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,9 +20,9 @@ class DatabaseSeeder extends Seeder
                 UserSeeder::class,
                 ShieldSeeder::class,
                 UnitKerjaSeeder::class,
-                // ImutCategorySeeder::class,
-                // RegionTypeSeeder::class,
-                // ImutDataSeeder::class,
+                ImutCategorySeeder::class,
+                RegionTypeSeeder::class,
+                ImutDataSeeder::class,
             ]
         );
     }
