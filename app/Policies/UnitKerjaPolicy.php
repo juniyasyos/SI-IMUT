@@ -15,7 +15,7 @@ class UnitKerjaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any::unit_kerja');
+        return $user->can('view_any_unit_kerja');
     }
 
     /**
@@ -23,7 +23,7 @@ class UnitKerjaPolicy
      */
     public function view(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('view::unit_kerja');
+        return $user->can('view_unit_kerja');
     }
 
     /**
@@ -31,7 +31,7 @@ class UnitKerjaPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create::unit_kerja');
+        return $user->can('create_unit_kerja');
     }
 
     /**
@@ -39,7 +39,7 @@ class UnitKerjaPolicy
      */
     public function update(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('update::unit_kerja');
+        return $user->can('update_unit_kerja');
     }
 
     /**
@@ -47,7 +47,7 @@ class UnitKerjaPolicy
      */
     public function delete(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('delete::unit_kerja');
+        return $user->can('delete_unit_kerja');
     }
 
     /**
@@ -55,7 +55,7 @@ class UnitKerjaPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any::unit_kerja');
+        return $user->can('delete_any_unit_kerja');
     }
 
     /**
@@ -63,7 +63,7 @@ class UnitKerjaPolicy
      */
     public function forceDelete(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('force_delete::unit_kerja');
+        return $user->can('force_delete_unit_kerja');
     }
 
     /**
@@ -71,7 +71,7 @@ class UnitKerjaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any::unit_kerja');
+        return $user->can('force_delete_any_unit_kerja');
     }
 
     /**
@@ -79,7 +79,7 @@ class UnitKerjaPolicy
      */
     public function restore(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('restore::unit_kerja');
+        return $user->can('restore_unit_kerja');
     }
 
     /**
@@ -87,22 +87,6 @@ class UnitKerjaPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any::unit_kerja');
-    }
-
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, UnitKerja $unitKerja): bool
-    {
-        return $user->can('replicate::unit_kerja');
-    }
-
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder::unit_kerja');
+        return $user->can('restore_any_unit_kerja');
     }
 }

@@ -30,16 +30,35 @@ use Filament\Tables\Actions\ForceDeleteBulkAction;
 use App\Filament\Resources\UnitKerjaResource\Pages;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Filament\Forms\Components\{TextInput, Textarea, Select, Grid};
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\UnitKerjaResource\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\UnitKerjaResource\RelationManagers\ImutDataRelationManager;
 
-class UnitKerjaResource extends Resource
+class UnitKerjaResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = UnitKerja::class;
 
     protected static ?string $slug = 'unit-kerjas';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            // Default permissions
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'restore',
+            'restore_any',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+        ];
+    }
+
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -54,24 +73,6 @@ class UnitKerjaResource extends Resource
     public static function getGlobalSearchResultTitle(Model $record): string
     {
         return $record->unit_name;
-    }
-
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view',
-            'view_any',
-            'create',
-            'update',
-            'restore',
-            'restore_any',
-            'replicate',
-            'reorder',
-            'delete',
-            'delete_any',
-            'force_delete',
-            'force_delete_any'
-        ];
     }
 
     public static function getLabel(): ?string
