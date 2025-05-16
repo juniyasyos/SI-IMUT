@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('imut_kategori', function (Blueprint $table) {
             $table->id();
             $table->string('category_name', 100)->unique();
-            $table->string('short_name', 30)->nullable();
+            $table->string('short_name', 20)->nullable();
             $table->enum('scope', ['global', 'internal', 'unit'])->default('internal');
             $table->string('description', 255);
             $table->timestamps();
