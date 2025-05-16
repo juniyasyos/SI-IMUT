@@ -25,6 +25,7 @@ it('can check if the permission name can be configured using the closure', funct
     expect(FilamentShield::getPermissionIdentifier($resource))->toBe('role');
 });
 
+
 uses(RefreshDatabase::class);
 
 // Test Seeder Berjalan dan Role/Permission Terbentuk
