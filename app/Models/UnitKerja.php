@@ -9,6 +9,7 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Juniyasyos\FilamentMediaManager\Models\Folder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -98,6 +99,12 @@ class UnitKerja extends Model
     public function laporanImut()
     {
         return $this->belongsTo(LaporanImut::class, 'laporan_imut_id');
+    }
+
+    public function folder()
+    {
+        return $this->hasOne(Folder::class, 'model_id')
+            ->where('model_type', self::class);
     }
 
 }

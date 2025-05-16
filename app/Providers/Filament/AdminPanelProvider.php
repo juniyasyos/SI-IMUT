@@ -13,6 +13,7 @@ use Filament\Support\Colors\Color;
 use Filament\Forms\Components\FileUpload;
 use Filament\Http\Middleware\Authenticate;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Rmsramos\Activitylog\ActivitylogPlugin;
 use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
 use Illuminate\Session\Middleware\StartSession;
@@ -100,6 +101,7 @@ class AdminPanelProvider extends PanelProvider
     private function getPlugins(): array
     {
         $plugins = [
+            FilamentApexChartsPlugin::make(),
             DashStackThemePlugin::make(),
             FilamentShieldPlugin::make(),
             FilamentPWAPlugin::make(),

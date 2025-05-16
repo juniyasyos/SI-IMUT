@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Spatie\Activitylog\Models\Activity;
+use App\Models\UnitKerja;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class ActivityPolicy
+class UnitKerjaPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class ActivityPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_activitylog');
+        return $user->can('view_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Activity $activity): bool
+    public function view(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('view_activitylog');
+        return $user->can('view_unit::kerja');
     }
 
     /**
@@ -31,23 +31,23 @@ class ActivityPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('{{ Create }}');
+        return $user->can('create_unit::kerja');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Activity $activity): bool
+    public function update(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('{{ Update }}');
+        return $user->can('update_unit::kerja');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Activity $activity): bool
+    public function delete(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('{{ Delete }}');
+        return $user->can('delete_unit::kerja');
     }
 
     /**
@@ -55,15 +55,15 @@ class ActivityPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('{{ DeleteAny }}');
+        return $user->can('delete_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Activity $activity): bool
+    public function forceDelete(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_unit::kerja');
     }
 
     /**
@@ -71,15 +71,15 @@ class ActivityPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('{{ ForceDeleteAny }}');
+        return $user->can('force_delete_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Activity $activity): bool
+    public function restore(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_unit::kerja');
     }
 
     /**
@@ -87,15 +87,15 @@ class ActivityPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('{{ RestoreAny }}');
+        return $user->can('restore_any_unit::kerja');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Activity $activity): bool
+    public function replicate(User $user, UnitKerja $unitKerja): bool
     {
-        return $user->can('{{ Replicate }}');
+        return $user->can('replicate_unit::kerja');
     }
 
     /**
@@ -103,6 +103,6 @@ class ActivityPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return $user->can('reorder_unit::kerja');
     }
 }

@@ -17,7 +17,11 @@ class DatabaseSeeder extends Seeder
             [
                 PositionSeeder::class,
                 UserSeeder::class,
-                ShieldSeeder::class
+                ShieldSeeder::class,
+                UnitKerjaSeeder::class,
+                // ImutCategorySeeder::class,
+                // RegionTypeSeeder::class,
+                // ImutDataSeeder::class,
             ]
         );
     }

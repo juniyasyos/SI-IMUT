@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\UnitKerja;
+use App\Observers\UnitKerjaObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Blade;
@@ -31,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        UnitKerja::observe(UnitKerjaObserver::class);
+
         collect(glob(app_path('Models') . '/*.php'))
             ->map(fn($file) => [
                 'model' => "App\\Models\\" . pathinfo($file, PATHINFO_FILENAME),
