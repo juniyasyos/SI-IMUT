@@ -5,8 +5,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\UnitKerja;
+use TomatoPHP\FilamentMediaManager\Models\Folder; // Pastikan import model Folder
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class UnitKerjaSeeder extends Seeder
 {
@@ -48,7 +50,6 @@ class UnitKerjaSeeder extends Seeder
                 return $percent;
             })->first();
 
-
             // Relasikan jika ditemukan
             $userIds = collect([$pengumpul, $pic])
                 ->filter() // buang null
@@ -57,6 +58,27 @@ class UnitKerjaSeeder extends Seeder
 
             if ($userIds->isNotEmpty()) {
                 $unitKerja->users()->syncWithoutDetaching($userIds);
+            }
+
+            // ======= CREATE FOLDER UNTUK UNIT KERJA =======
+            $existingFolder = Folder::where('name', Str::slug($unitKerja->unit_name) . '-' . $unitKerja->id)->first();
+
+            if (!$existingFolder) {
+                Folder::create([
+                    'name' => Str::slug($unitKerja->unit_name) . '-' . $unitKerja->id,
+                    'description' => 'Media untuk Unit Kerja: ' . $unitKerja->unit_name,
+                    'collection' => 'unitkerja',
+                    'color' => null,
+                    'is_protected' => false,
+                    'is_hidden' => false,
+                    'is_favorite' => false,
+                    'is_public' => true,
+                    'has_user_access' => false,
+                    'model_type' => null,
+                    'model_id' => null,
+                    'user_id' => 1, // Hardcoded user ID
+                    'user_type' => \App\Models\User::class, // Hardcoded user class
+                ]);
             }
         }
     }

@@ -33,9 +33,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
-        UnitKerja::observe(UnitKerjaObserver::class);
-
         collect(glob(app_path('Models') . '/*.php'))
             ->map(fn($file) => [
                 'model' => "App\\Models\\" . pathinfo($file, PATHINFO_FILENAME),
