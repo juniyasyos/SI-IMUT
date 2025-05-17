@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\UnitKerja;
-use Juniyasyos\FilamentMediaManager\Models\Folder;
+use TomatoPHP\FilamentMediaManager\Models\Folder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 

@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Juniyasyos\FilamentMediaManager\Models\Media;
+use TomatoPHP\FilamentMediaManager\Models\Media;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MediaPolicy
