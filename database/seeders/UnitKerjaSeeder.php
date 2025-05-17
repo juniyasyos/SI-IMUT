@@ -61,12 +61,12 @@ class UnitKerjaSeeder extends Seeder
             }
 
             // ======= CREATE FOLDER UNTUK UNIT KERJA =======
-            $existingFolder = Folder::where('name', Str::slug($unitKerja->unit_name) . '-' . $unitKerja->id)->first();
+            $existingFolder = Folder::where('name', Str::slug($unitKerja->unit_name))->first();
 
             if (!$existingFolder) {
                 Folder::create([
-                    'name' => Str::slug($unitKerja->unit_name) . '-' . $unitKerja->id,
-                    'description' => 'Media untuk Unit Kerja: ' . $unitKerja->unit_name,
+                    'name' => Str::slug($unitKerja->unit_name),
+                    'description' => "Media untuk Unit Kerja: {$unitKerja->unit_name}",
                     'collection' => 'unitkerja',
                     'color' => null,
                     'is_protected' => false,
@@ -76,8 +76,8 @@ class UnitKerjaSeeder extends Seeder
                     'has_user_access' => false,
                     'model_type' => null,
                     'model_id' => null,
-                    'user_id' => 1, // Hardcoded user ID
-                    'user_type' => \App\Models\User::class, // Hardcoded user class
+                    'user_id' => 1,
+                    'user_type' => User::class, 
                 ]);
             }
         }
