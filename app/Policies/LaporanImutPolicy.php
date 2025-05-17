@@ -89,4 +89,24 @@ class LaporanImutPolicy
     {
         return $user->can('restore_any_laporan::imut');
     }
+    
+    public function viewUnitKerjaReport(User $user): bool
+    {
+        return $user->can('view_unit_kerja_report_laporan::imut');
+    }
+
+    public function viewUnitKerjaReportDetail(User $user): bool
+    {
+        return $user->can('view_unit_kerja_report_detail_laporan::imut');
+    }
+    
+    public function viewImutDataReport(User $user): bool
+    {
+        return $user->can('view_imut_data_report_laporan::imut');
+    }
+
+    public function viewImutDataReportDetail(User $user): bool
+    {
+        return $user->can('view_imut_data_report_detail_laporan::imut');
+    }
 }

@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Cache;
 use App\Tables\Columns\ProgressColumn;
@@ -30,6 +31,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\ToggleButtons;
 use App\Filament\Resources\LaporanImutResource\Pages;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataReport;
 use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaReport;
@@ -87,10 +89,10 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             'delete_any',
             'force_delete',
             'force_delete_any',
-            'view_unit_report_laporan',
-            'view_unit_detail_report_laporan',
-            'view_imut_report_laporan',
-            'view_imut_detail_report_laporan',
+            'view_unit_kerja_report',
+            'view_unit_kerja_report_detail',
+            'view_imut_data_report',
+            'view_imut_data_report_detail',
         ]);
     }
 
@@ -243,21 +245,10 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                         ->label('Summary')
                         ->icon('heroicon-o-clipboard-document-list')
                         ->color('success')
-                        ->visible(function () {
-                            /** @var User $user */
-                            $user = Auth::user();
-
-                            dd($user, $user?->can('view_unit_report_laporan::imut'), $user?->can('view_imut_report_laporan::imut'));
-
-                            return $user?->can('view_unit_report_laporan::imut') || $user?->can('view_imut_report_laporan::imut');
-                        })
-                        ->action(function ($record, $data) {
-                            if ($data['summary_type'] === 'unit_kerja') {
-                                return redirect()->to(UnitKerjaReport::getUrl(['laporan_id' => $record->id]));
-                            }
-
-                            return redirect()->to(ImutDataReport::getUrl(['laporan_id' => $record->id]));
-                        })
+                        ->visible(fn() => Gate::any([
+                            'view_unit_kerja_report_laporan::imut',
+                            'view_imut_data_report_laporan::imut',
+                        ]))
                         ->form([
                             Select::make('summary_type')
                                 ->label('Pilih Tipe Summary')
@@ -265,10 +256,32 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                                     'unit_kerja' => 'Summary Unit Kerja – menampilkan rekapitulasi per unit kerja',
                                     'imut_data' => 'Summary IMUT DATA – menampilkan detail tiap IMUT',
                                 ])
-                                ->required()
+                                ->required(),
                         ])
                         ->modalHeading('Pilih Summary')
                         ->modalSubmitActionLabel('Lihat')
+                        ->action(function ($record, array $data) {
+                            $type = $data['summary_type'];
+
+                            $map = [
+                                'unit_kerja' => [
+                                    'permission' => 'view_unit_kerja_report_laporan::imut',
+                                    'redirect' => UnitKerjaReport::getUrl(['laporan_id' => $record->id]),
+                                ],
+                                'imut_data' => [
+                                    'permission' => 'view_imut_data_report_laporan::imut',
+                                    'redirect' => ImutDataReport::getUrl(['laporan_id' => $record->id]),
+                                ],
+                            ];
+
+                            abort_unless(
+                                isset($map[$type]) && Gate::allows($map[$type]['permission']),
+                                403,
+                                'Anda tidak memiliki izin untuk mengakses summary ini.'
+                            );
+
+                            return redirect()->to($map[$type]['redirect']);
+                        })
                 ]),
             ])
             ->bulkActions([
@@ -279,8 +292,6 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
-
 
     public static function getRelations(): array
     {

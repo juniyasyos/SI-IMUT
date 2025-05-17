@@ -21,7 +21,7 @@ class MediaPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Media $media): bool
+    public function view(User $user): bool
     {
         return $user->can('view_media');
     }
@@ -37,7 +37,7 @@ class MediaPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Media $media): bool
+    public function update(User $user): bool
     {
         return $user->can('update_media');
     }

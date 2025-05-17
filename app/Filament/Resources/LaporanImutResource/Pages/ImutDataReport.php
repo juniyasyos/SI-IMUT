@@ -28,8 +28,7 @@ class ImutDataReport extends Page
         /** @var User $user */
         $user = Auth::user();
 
-        return app(\App\Policies\LaporanImutPolicy::class)
-            ->canViewImutReport($user);
+        return $user->can('view_imut_data_report_laporan::imut');
     }
 
     public function mount(): void

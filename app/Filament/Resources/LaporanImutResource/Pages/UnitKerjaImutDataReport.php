@@ -25,9 +25,8 @@ class UnitKerjaImutDataReport extends Page
         /** @var User $user */
         $user = Auth::user();
 
-        return app(\App\Policies\LaporanImutPolicy::class)
-            ->canViewUnitDetailReport($user);
-    }    
+        return $user->can('view_unit_kerja_report_detail_laporan::imut');
+    }
 
     public array $data = [];
 
