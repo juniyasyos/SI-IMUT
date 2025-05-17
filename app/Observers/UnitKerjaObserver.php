@@ -23,18 +23,22 @@ class UnitKerjaObserver
                 return;
             }
 
-            // Buat folder
             Folder::create([
                 'name' => Str::slug($unitKerja->unit_name) . '-' . $unitKerja->id,
                 'description' => 'Media untuk Unit Kerja: ' . $unitKerja->unit_name,
-                'model_type' => UnitKerja::class,
-                'model_id' => $unitKerja->id,
                 'collection' => 'unitkerja',
+                'color' => null, 
                 'is_protected' => false,
                 'is_hidden' => false,
                 'is_favorite' => false,
                 'is_public' => true,
+                'has_user_access' => false,
+                'model_type' => null,   
+                'model_id' => null,     
+                'user_id' => auth()->id(),
+                'user_type' => get_class(auth()->user()),
             ]);
+
         } catch (\Throwable $e) {
             Log::error('Gagal membuat folder untuk UnitKerja ID: ' . $unitKerja->id, [
                 'error' => $e->getMessage(),
