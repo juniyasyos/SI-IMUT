@@ -95,6 +95,10 @@ class AdminPanelProvider extends PanelProvider
             ->plugins(
                 $this->getPlugins()
             )
+            ->resources([
+                \App\Filament\Resources\FolderResource::class,   
+                // \TomatoPHP\FilamentMediaManager\Resources\MediaResource::class,
+            ])
             ->databaseNotifications();
     }
 
