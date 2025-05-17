@@ -14,6 +14,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Support\Facades\Gate;
 
 class UsersRelationManager extends RelationManager
 {
@@ -79,11 +80,13 @@ class UsersRelationManager extends RelationManager
                     ])
                     ->attachAnother(false)
                     ->preloadRecordSelect()
+                    ->visible(fn() => Gate::allows('attach_user_to_unit::kerja', User::class))
                     ->recordSelectSearchColumns(['name']),
 
             ])
             ->actions([
                 Tables\Actions\DetachAction::make()
+                    ->visible(fn() => Gate::allows('attach_user_to_unit::kerja', User::class))
                     ->requiresConfirmation(),
             ])
             ->bulkActions([

@@ -17,11 +17,11 @@ class EditUnitKerja extends EditRecord
     {
         return [
             RelationManagerAction::make()
-                ->label(__('filament-forms::unit-kerja.actions.attach'))
+                ->slideOver()
                 ->icon('heroicon-o-user')
                 ->record($this->getRecord())
-                ->slideOver()
-                ->relationManager(UsersRelationManager::make()),
+                ->label(__('filament-forms::unit-kerja.actions.attach'))
+                ->relationManager(UsersRelationManager::make())
         ];
     }
 

@@ -59,6 +59,8 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
             'delete_any',
             'force_delete',
             'force_delete_any',
+            'attach_user_to_unit_kerja',
+            'attach_imut_data_to_unit_kerja'
         ];
     }
 
@@ -139,17 +141,19 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 RelationManagerAction::make('user-relation-manager')
+                    ->slideOver()
                     ->label('User Attach')
                     ->icon('heroicon-o-user')
-                    ->slideOver()
-                    ->relationManager(UsersRelationManager::make()),
+                    ->relationManager(UsersRelationManager::make())
+                    ->visible(fn() => Gate::allows('attach_user_to_unit::kerja', User::class)),
 
                 RelationManagerAction::make('imutData-relation-manager')
+                    ->slideOver()
                     ->label('Imut Data Attach')
                     ->icon('heroicon-o-chart-bar')
-                    ->slideOver()
-                    ->relationManager(ImutDataRelationManager::make()),
-                    
+                    ->relationManager(ImutDataRelationManager::make())
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit::kerja', User::class)),
+
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
@@ -193,7 +197,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
         return [
             'index' => Pages\ListUnitKerja::route('/'),
             'create' => Pages\CreateUnitKerja::route('/create'),
-            'edit' => Pages\EditUnitKerja::route('/{record:unit_name}/edit'),
+            'edit' => Pages\EditUnitKerja::route('/{record}/edit'),
         ];
     }
 }

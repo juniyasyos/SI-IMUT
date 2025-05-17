@@ -89,4 +89,14 @@ class UnitKerjaPolicy
     {
         return $user->can('restore_any_unit::kerja');
     }
+
+    public function attachUser(User $user): bool
+    {
+        return $user->can('attach_user_to_unit::kerja');
+    }
+
+    public function AttachImutData(User $user): bool
+    {
+        return $user->can('attach_imut_data_to_unit::kerja');
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UnitKerjaResource\RelationManagers;
 
+use App\Models\User;
 use Filament\Tables;
 use App\Models\ImutData;
 use Filament\Tables\Table;
@@ -11,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Support\Facades\Gate;
 
 class ImutDataRelationManager extends RelationManager
 {
@@ -61,6 +63,7 @@ class ImutDataRelationManager extends RelationManager
                             ->preload()
                             ->required();
                     })
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit::kerja', User::class))
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.modal.heading'))
                     ->modalSubmitActionLabel(__('filament-forms::imut-data-relationship-user.modal.submit_label'))
                     ->preloadRecordSelect()
@@ -70,6 +73,7 @@ class ImutDataRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make()
                     ->requiresConfirmation()
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit::kerja', User::class))
                     ->label(__('filament-forms::imut-data-relationship-user.actions.detach.label'))
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.actions.detach.heading'))
                     ->modalDescription(__('filament-forms::imut-data-relationship-user.actions.detach.description')),
