@@ -32,39 +32,54 @@ return [
         'status' => 'Status', // Status Pengguna
     ],
 
-    // Form Sections
-    'form' => [
-        'user' => [
-            'title' => 'Informasi Pengguna',
-            'description' => 'Isi data pengguna dengan lengkap. Pastikan email valid dan peran dipilih dengan benar.',
-            'name_placeholder' => 'Masukkan nama lengkap',
-            'nik_placeholder' => 'Masukkan NIK', // Placeholder NIK
-            'email_placeholder' => 'example@email.com',
-            'password_placeholder' => 'Masukkan kata sandi',
-            'helper_text' => 'Pastikan email unik dan kata sandi aman.',
-        ],
-        'position' => [
-            'title' => 'Posisi & Akses',
-            'description' => 'Pilih posisi pengguna di organisasi.',
-            'select_placeholder' => 'Pilih posisi',
-            'create_label' => 'Nama Posisi',
-            'create_description' => 'Deskripsi Posisi',
-            'no_position' => 'Tidak ada posisi yang ditetapkan',
-        ],
-        'personal_info' => [
-            'title' => 'Informasi Pribadi',
-            'description' => 'Berikan detail pribadi pengguna.',
-            'place_of_birth_placeholder' => 'Masukkan tempat lahir',
-            'date_of_birth_placeholder' => 'Masukkan tanggal lahir',
-            'gender_placeholder' => 'Pilih jenis kelamin',
-        ],
-        'contact_info' => [
-            'title' => 'Informasi Kontak',
-            'description' => 'Berikan detail kontak pengguna.',
-            'address_placeholder' => 'Masukkan alamat KTP',
-            'phone_number_placeholder' => 'Masukkan nomor telepon',
-        ],
+'status' => [
+    'active' => 'Aktif',
+    'inactive' => 'Tidak Aktif',
+    'suspended' => 'Ditangguhkan'
+],
+
+// Form Sections
+'form' => [
+    'user' => [
+        'title' => 'Informasi Pengguna',
+        'description' => 'Isi data pengguna dengan lengkap. Pastikan peran dipilih dengan benar.',
+        'name_placeholder' => 'Masukkan nama lengkap',
+        'nik_placeholder' => 'Masukkan NIK',
+        'email_placeholder' => 'contoh@email.com',
+        'password_placeholder' => 'Masukkan kata sandi',
+        'helper_text' => 'Pastikan email unik dan kata sandi aman.',
     ],
+    'position' => [
+        'title' => 'Jabatan & Akses',
+        'description' => 'Pilih jabatan pengguna dalam organisasi.',
+        'select_placeholder' => 'Pilih jabatan',
+        'create_label' => 'Nama Jabatan',
+        'create_description' => 'Deskripsi Jabatan',
+        'no_position' => 'Belum ada jabatan',
+        'edit_modal_title' => 'Ubah Jabatan'
+    ],
+    'personal_info' => [
+        'title' => 'Informasi Pribadi',
+        'description' => 'Isi data pribadi pengguna.',
+        'place_of_birth_placeholder' => 'Masukkan tempat lahir',
+        'date_of_birth_placeholder' => 'Masukkan tanggal lahir',
+        'gender_placeholder' => 'Pilih jenis kelamin',
+        'gender_male' => 'Laki-laki',
+        'gender_female' => 'Perempuan'
+    ],
+    'contact_info' => [
+        'title' => 'Informasi Kontak',
+        'description' => 'Isi detail kontak pengguna.',
+        'address_placeholder' => 'Masukkan alamat KTP',
+        'phone_number_placeholder' => 'Masukkan nomor telepon',
+    ],
+
+    'account' => [
+        'title' => 'Pengaturan Akun',
+        'description' => 'Atur kredensial login dan izin akses.'
+    ]
+],
+
 
     // Buttons / UI
     'buttons' => [
@@ -88,19 +103,19 @@ return [
         'set_role' => 'Tetapkan Peran',
         'impersonate' => 'Masuk Sebagai',
         'group' => 'Tindakan',
-        'change_status' => 'Ubah Status', 
+        'change_status' => 'Ubah Status',
         'delete_user' => 'Hapus Pengguna', // Aksi untuk menghapus pengguna
     ],
 
     'infolist' => [
         'personal_info_title' => 'Profil Pengguna',
         'copy_email' => 'Klik untuk menyalin email',
-        'status' => 'Status', 
+        'status' => 'Status',
         'gender' => 'Jenis Kelamin',
-        'place_of_birth' => 'Tempat Lahir', 
+        'place_of_birth' => 'Tempat Lahir',
         'date_of_birth' => 'Tanggal Lahir', // Tanggal Lahir di infolist
         'phone_number' => 'Nomor Telepon', // Nomor Telepon di infolist
-        'address_ktp' => 'Alamat KTP', 
+        'address_ktp' => 'Alamat KTP',
         'contact_info_title' => 'Informasi Kontak',
         'account_info_title' => 'Informasi Akun',
     ],

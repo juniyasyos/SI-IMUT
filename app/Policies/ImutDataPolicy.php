@@ -37,7 +37,7 @@ class ImutDataPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, ImutData $imutData): bool
+    public function update(User $user): bool
     {
         return $user->can('update_imut::data');
     }

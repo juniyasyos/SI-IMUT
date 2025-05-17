@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "caf771d5e5f748b5367583ee50f7fc94",
+    "content-hash": "79a5513ced848603e0693b5d92ac15c0",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -71,6 +71,82 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.3.1"
             },
             "time": "2025-04-06T06:54:34+00:00"
+        },
+        {
+            "name": "archilex/filament-toggle-icon-column",
+            "version": "v3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/archilex/filament-toggle-icon-column.git",
+                "reference": "0898857a5517c870b37b073527bc4edfd7185532"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/archilex/filament-toggle-icon-column/zipball/0898857a5517c870b37b073527bc4edfd7185532",
+                "reference": "0898857a5517c870b37b073527bc4edfd7185532",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.2.4",
+                "illuminate/contracts": "^10.45|^11.0|^12.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.13.5"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "pestphp/pest": "^2.0|^3.0",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "ToggleIconColumn": "Archilex\\ToggleIconColumn\\Facades\\ToggleIconColumn"
+                    },
+                    "providers": [
+                        "Archilex\\ToggleIconColumn\\ToggleIconColumnServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Archilex\\ToggleIconColumn\\": "src",
+                    "Archilex\\ToggleIconColumn\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kenneth Sese",
+                    "email": "kmsese@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A toggle icon column for Filament",
+            "homepage": "https://github.com/archilex/filament-toggle-icon-column",
+            "keywords": [
+                "admin panel",
+                "archilex",
+                "column",
+                "filament-toggle-icon-column",
+                "laravel",
+                "tables"
+            ],
+            "support": {
+                "issues": "https://github.com/archilex/filament-toggle-icon-column/issues",
+                "source": "https://github.com/archilex/filament-toggle-icon-column/tree/v3.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/archilex",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-25T15:42:44+00:00"
         },
         {
             "name": "awcodes/filament-table-repeater",

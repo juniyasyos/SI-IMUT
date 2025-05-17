@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\User;
 use App\Models\ImutData;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -188,11 +189,14 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->color('primary')
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                \Filament\Tables\Columns\ToggleColumn::make('status')
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('status')
                     ->label(__('filament-forms::imut-data.fields.status'))
-                    ->sortable()
-                    ->onColor('success')
-                    ->offColor('gray'),
+                    ->translateLabel()
+                    ->alignCenter()
+                    ->size('xl')
+                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::allows('update', User::class))
+                    ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
+                    ->sortable(),
 
                 TextColumn::make('created_at')
                     ->label(__('filament-forms::imut-data.fields.created_at'))
@@ -210,14 +214,32 @@ class ImutDataResource extends Resource implements HasShieldPermissions
 
             ])
             ->actions([
-                ViewAction::make(),
+                \Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction::make('user-relation-manager')
+                    ->slideOver()
+                    ->label('Imut Profile')
+                    ->color('success')
+                    ->icon('heroicon-c-document-plus')
+                    ->relationManager(ProfilesRelationManager::make())
+                    ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
+
+                ViewAction::make()->slideOver(),
                 EditAction::make(),
                 ActionGroup::make([
                     RestoreAction::make()
-                        ->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                        ->visible(
+                            fn($record) =>
+                            \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                        ),
 
                     ForceDeleteAction::make()
-                        ->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                        ->visible(
+                            fn($record) =>
+                            \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                        ),
                 ])
             ])
             ->bulkActions([
