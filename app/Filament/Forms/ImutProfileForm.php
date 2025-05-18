@@ -49,7 +49,7 @@ class ImutProfileForm
     {
         return [
             Section::make('Informasi Dasar')
-                ->description('Isi data umum indikator mutu.')
+                ->description('Isi data umum indikator mutu profil.')
                 ->schema([
                     Grid::make(2)->schema([
                         TextInput::make('version')

@@ -77,6 +77,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
     public static function getPermissionPrefixes(): array
     {
         return array_merge([
+            // default Filament Shield permissions
             'view',
             'view_any',
             'create',
@@ -89,10 +90,18 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             'delete_any',
             'force_delete',
             'force_delete_any',
+
+            // custom laporan report
             'view_unit_kerja_report',
             'view_unit_kerja_report_detail',
             'view_imut_data_report',
             'view_imut_data_report_detail',
+
+            // custom penilaian actions
+            'view_imut_penilaian',
+            'update_numerator_denominator',
+            'update_profile_penilaian',
+            'create_recommendation_penilaian',
         ]);
     }
 
