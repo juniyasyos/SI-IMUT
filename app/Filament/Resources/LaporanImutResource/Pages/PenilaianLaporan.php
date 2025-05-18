@@ -11,6 +11,7 @@ use App\Models\ImutData;
 use App\Models\ImutProfile;
 use App\Models\ImutStandard;
 use App\Models\User;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
@@ -26,6 +27,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Set;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 
@@ -457,20 +459,47 @@ class PenilaianLaporan extends Page implements HasForms
     {
         return [
             Section::make('Perhitungan')
-                ->disabled(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
                 ->schema([
                     TextInput::make('numerator_value')
                         ->label('Numerator')
                         ->numeric()
                         ->placeholder('0.00')
-                        ->suffix('%')
-                        ->required(),
+                        ->readOnly(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set, $state, callable $get) {
+                            $denominator = $get('denominator_value') ?? 0;
+                            $result = ($denominator == 0) ? 0 : round(($state / $denominator) * 100, 2);
+                            $set('result_operation', $result);
+                        }),
 
                     TextInput::make('denominator_value')
                         ->label('Denominator')
+                        ->readOnly(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
                         ->numeric()
                         ->placeholder('0.00')
-                        ->required(),
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set, $state, callable $get) {
+                            $numerator = $get('numerator_value') ?? 0;
+                            $result = ($state == 0) ? 0 : round(($numerator / $state) * 100, 2);
+                            $set('result_operation', $result);
+                        }),
+
+                    TextInput::make('result_operation')
+                        ->label('Result (%)')
+                        ->numeric()
+                        ->placeholder('0.00')
+                        ->readOnly()
+                        ->dehydrated(false)
+                        ->afterStateHydrated(function (callable $set, $state, callable $get) {
+                            $numerator = $get('numerator_value') ?? 0;
+                            $denominator = $get('denominator_value') ?? 0;
+
+                            $result = ($denominator == 0) ? 0 : round(($numerator / $denominator) * 100, 2);
+
+                            $set('result_operation', $result);
+                        }),
 
                     FileUpload::make('document_upload')
                         ->label('Unggah Dokumen Pendukung')
@@ -490,7 +519,7 @@ class PenilaianLaporan extends Page implements HasForms
                         ])
                         ->helperText('File yang didukung: PDF, Word, Excel, Gambar. Maks. 20MB'),
                 ])
-                ->columns(2),
+                ->columns(3),
 
             Section::make('Analisis dan Rekomendasi')
                 ->schema([
