@@ -11,17 +11,17 @@ class ListUnitKerja extends ListRecords
 {
     protected static string $resource = UnitKerjaResource::class;
 
-    public function mount(): void
-    {
-        parent::mount();
+    // public function mount(): void
+    // {
+    //     parent::mount();
 
-        $user = Auth::user();
+    //     $user = Auth::user();
 
-        // Menampilkan semua permission user yang aktif
-        $permissions = $user->getAllPermissions()->pluck('name');
+    //     // Menampilkan semua permission user yang aktif
+    //     $permissions = $user->getAllPermissions()->pluck('name');
 
-        dd($permissions); // Lihat daftar permission yang dimiliki
-    }
+    //     dd($permissions); // Lihat daftar permission yang dimiliki
+    // }
 
     protected function getHeaderActions(): array
     {
