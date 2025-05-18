@@ -308,6 +308,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             'unit-kerja-imut-data-report-detail' => UnitKerjaImutDataReport::route('/unit-kerja-imut-data-report'),
             'imut-data-report' => ImutDataReport::route('/imut-data-report'),
             'imut-data-unit-kerja-report-detail' => ImutDataUnitKerjaReport::route('/imut-data-unit-kerja-report'),
+            'edit-penilaian' => Pages\PenilaianLaporan::route('/penilaian'),
         ];
     }
 

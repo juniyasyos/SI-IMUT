@@ -66,14 +66,13 @@ class LaporanUnitKerja extends Model
 
     public static function getReportByImutData(int $laporanId)
     {
-        $query = self::query()
+        return self::query()
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->leftJoin('imut_standar', 'imut_penilaians.imut_standar_id', '=', 'imut_standar.id')
             ->leftJoin('imut_profil', 'imut_standar.imut_profile_id', '=', 'imut_profil.id')
             ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->select(
-                // 'laporan_unit_kerjas.id',
                 'imut_data.id as id',
                 'imut_data.title as imut_data_title',
                 'laporan_unit_kerjas.laporan_imut_id',
@@ -89,14 +88,13 @@ class LaporanUnitKerja extends Model
             ) as percentage")
             )
             ->groupBy(
-                // 'laporan_unit_kerjas.id',
                 'imut_data.id',
                 'imut_data.title',
                 'laporan_unit_kerjas.laporan_imut_id',
+                'laporan_unit_kerjas.id'
             );
-
-        return $query;
     }
+
 
     public static function getReportByUnitKerjaDetails(int $laporanId, int $unitKerjaId)
     {
@@ -112,6 +110,7 @@ class LaporanUnitKerja extends Model
             ->select(
                 'imut_penilaians.id',
                 'laporan_unit_kerjas.id as laporan_unit_kerja_id',
+                'laporan_unit_kerjas.laporan_imut_id',
                 'laporan_unit_kerjas.unit_kerja_id',
                 'unit_kerja.unit_name',
                 'imut_data.title as imut_data',
@@ -138,7 +137,7 @@ class LaporanUnitKerja extends Model
 
     public static function getReportByImutDataDetails(int $laporanId = 1, int $imutDataId = 1)
     {
-        return self::query()
+        $query = self::query()
             ->join('unit_kerja', 'laporan_unit_kerjas.unit_kerja_id', '=', 'unit_kerja.id')
             ->join('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->join('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
@@ -148,7 +147,8 @@ class LaporanUnitKerja extends Model
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->where('imut_profil.imut_data_id', $imutDataId)
             ->select(
-                'imut_penilaians.id',
+                'imut_penilaians.id as id',
+                'laporan_unit_kerjas.laporan_imut_id',
                 'laporan_unit_kerjas.id as laporan_unit_kerja_id',
                 'laporan_unit_kerjas.unit_kerja_id',
                 'unit_kerja.unit_name as unit_kerja',
@@ -172,6 +172,9 @@ class LaporanUnitKerja extends Model
             "),
                 DB::raw('ROUND(CAST(imut_standar.value AS FLOAT), 2) as standard')
             );
+
+        dd($query->get());
+        return $query;
     }
 
 }

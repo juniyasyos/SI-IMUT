@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Filament\Resources\LaporanImutResource\Pages\PenilaianLaporan;
+use Filament\Tables\Actions\Action;
 use Livewire\Component;
 use Filament\Tables\Table;
 use App\Models\ImutCategory;
@@ -130,6 +132,14 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                     ->placeholder('Semua Kategori'),
             ])
             ->actions([
+                Action::make('edit_penilaian')
+                    ->label('Edit Penilaian')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('info')
+                    // ->action(dd(fn($record) => dd($record->laporan_imut_id) ))
+                    ->url(fn($record) => url()->route('filament.admin.resources.laporan-imuts.edit-penilaian') .
+                        '?laporan_id=' . $record->laporan_imut_id .
+                        '&penilaian_id=' . $record->id)
             ])
             ->bulkActions([
                 // Define bulk actions here
