@@ -15,7 +15,7 @@ class UnitKerjaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any');
+        return $user->can('view_any_unit::kerja');
     }
 
     /**
@@ -23,7 +23,7 @@ class UnitKerjaPolicy
      */
     public function view(User $user): bool
     {
-        return $user->can('view');
+        return $user->can('view_unit::kerja');
     }
 
     /**
@@ -31,7 +31,7 @@ class UnitKerjaPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create');
+        return $user->can('create_unit::kerja');
     }
 
     /**
@@ -39,7 +39,7 @@ class UnitKerjaPolicy
      */
     public function update(User $user): bool
     {
-        return $user->can('update');
+        return $user->can('update_unit::kerja');
     }
 
     /**
@@ -47,7 +47,7 @@ class UnitKerjaPolicy
      */
     public function delete(User $user): bool
     {
-        return $user->can('delete');
+        return $user->can('delete_unit::kerja');
     }
 
     /**
@@ -55,7 +55,7 @@ class UnitKerjaPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any');
+        return $user->can('delete_any_unit::kerja');
     }
 
     /**
@@ -63,7 +63,7 @@ class UnitKerjaPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->can('force_delete');
+        return $user->can('force_delete_unit::kerja');
     }
 
     /**
@@ -71,7 +71,7 @@ class UnitKerjaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any');
+        return $user->can('force_delete_any_unit::kerja');
     }
 
     /**
@@ -79,7 +79,7 @@ class UnitKerjaPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->can('restore');
+        return $user->can('restore_unit::kerja');
     }
 
     /**
@@ -87,16 +87,16 @@ class UnitKerjaPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any');
+        return $user->can('restore_any_unit::kerja');
     }
 
     public function attachUser(User $user): bool
     {
-        return $user->can('attach_user_to_unitKerja');
+        return $user->can('attach_user_to_unit_kerja_unit::kerja');
     }
 
     public function AttachImutData(User $user): bool
     {
-        return $user->can('attach_imut_data_to_unitKerja');
+        return $user->can('attach_imut_data_to_unit_kerja_unit::kerja');
     }
 }

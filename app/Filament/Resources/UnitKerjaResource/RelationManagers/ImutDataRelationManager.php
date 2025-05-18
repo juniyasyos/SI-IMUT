@@ -63,7 +63,7 @@ class ImutDataRelationManager extends RelationManager
                             ->preload()
                             ->required();
                     })
-                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit::kerja', User::class))
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.modal.heading'))
                     ->modalSubmitActionLabel(__('filament-forms::imut-data-relationship-user.modal.submit_label'))
                     ->preloadRecordSelect()
@@ -73,7 +73,7 @@ class ImutDataRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make()
                     ->requiresConfirmation()
-                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit::kerja', User::class))
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
                     ->label(__('filament-forms::imut-data-relationship-user.actions.detach.label'))
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.actions.detach.heading'))
                     ->modalDescription(__('filament-forms::imut-data-relationship-user.actions.detach.description')),

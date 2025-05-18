@@ -145,14 +145,14 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                     ->label('User Attach')
                     ->icon('heroicon-o-user')
                     ->relationManager(UsersRelationManager::make())
-                    ->visible(fn() => Gate::any(['attach_user_to_unit::kerja'])),
+                    ->visible(fn() => Gate::any(['attach_user_to_unit_kerja_unit::kerja'])),
 
                 RelationManagerAction::make('imutData-relation-manager')
                     ->slideOver()
                     ->label('Imut Data Attach')
                     ->icon('heroicon-o-chart-bar')
                     ->relationManager(ImutDataRelationManager::make())
-                    ->visible(fn() => Gate::any(['attach_imut_data_to_unit::kerja'])),
+                    ->visible(fn() => Gate::any(['attach_imut_data_to_unit_kerja_unit::kerja'])),
 
                 ActionGroup::make([
                     ViewAction::make(),

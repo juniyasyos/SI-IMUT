@@ -80,13 +80,12 @@ class UsersRelationManager extends RelationManager
                     ])
                     ->attachAnother(false)
                     ->preloadRecordSelect()
-                    // ->visible(fn() => Gate::any(['attach_imut_data_to_unit::kerja']))
+                    ->visible(fn() => Gate::any(['attach_user_to_unit_kerja_unit::kerja']))
                     ->recordSelectSearchColumns(['name']),
-
             ])
             ->actions([
                 Tables\Actions\DetachAction::make()
-                    // ->visible(fn() => Gate::any(['attach_imut_data_to_unit::kerja']))
+                    ->visible(fn() => Gate::any(['attach_user_to_unit_kerja_unit::kerja']))
                     ->requiresConfirmation(),
             ])
             ->bulkActions([
