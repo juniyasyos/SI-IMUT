@@ -247,6 +247,12 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Action::make('isi_penilaian')
+                    ->label('Isi Penilaian')
+                    ->icon('heroicon-s-clipboard-document-list')
+                    ->color('warning')
+                    ->visible(fn($record) => self::userHasAccessToLaporan($record))
+                    ->url(fn($record) => self::getIsiPenilaianUrl($record)),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
@@ -326,4 +332,32 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         return parent::getEloquentQuery()
             ->orderByDesc('assessment_period_start');
     }
+
+    protected static function userHasAccessToLaporan($record): bool
+    {
+        $user = Auth::user();
+
+        $userUnitKerjaIds = $user->unitKerjas->pluck('id')->toArray();
+        $laporanUnitKerjaIds = $record->unitKerjas->pluck('id')->toArray();
+
+        return !empty(array_intersect($userUnitKerjaIds, $laporanUnitKerjaIds));
+    }
+
+    protected static function getIsiPenilaianUrl($record): ?string
+    {
+        $user = Auth::user();
+
+        $matchingUnitKerja = $user->unitKerjas()
+            ->whereIn('unit_kerja.id', $record->unitKerjas->pluck('id'))
+            ->first();
+
+        return $matchingUnitKerja
+            ? UnitKerjaImutDataReport::getUrl([
+                'laporan_id' => $record->id,
+                'unit_kerja_id' => $matchingUnitKerja->id,
+            ])
+            : null;
+    }
+
+
 }

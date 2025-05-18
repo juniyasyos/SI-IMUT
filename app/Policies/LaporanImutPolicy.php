@@ -18,26 +18,70 @@ class LaporanImutPolicy
 
     protected function userCanAccessPenilaian(User $user, ImutPenilaian $penilaian): bool
     {
-        return $penilaian->laporanUnitKerja?->unitKerja?->id === $user->unit_kerja_id;
+        $unitKerjaId = $penilaian->laporanUnitKerja?->unitKerja?->id;
+
+        return $unitKerjaId && $user->unitKerjas()->where('unit_kerja.id', $unitKerjaId)->exists();
     }
 
     // LaporanImut permissions
-    public function viewAny(User $user): bool { return $user->can('view_any_laporan::imut'); }
-    public function view(User $user, LaporanImut $model): bool { return $user->can('view_laporan::imut'); }
-    public function create(User $user): bool { return $user->can('create_laporan::imut'); }
-    public function update(User $user, LaporanImut $model): bool { return $user->can('update_laporan::imut'); }
-    public function delete(User $user, LaporanImut $model): bool { return $user->can('delete_laporan::imut'); }
-    public function deleteAny(User $user): bool { return $user->can('delete_any_laporan::imut'); }
-    public function forceDelete(User $user, LaporanImut $model): bool { return $user->can('force_delete_laporan::imut'); }
-    public function forceDeleteAny(User $user): bool { return $user->can('force_delete_any_laporan::imut'); }
-    public function restore(User $user, LaporanImut $model): bool { return $user->can('restore_laporan::imut'); }
-    public function restoreAny(User $user): bool { return $user->can('restore_any_laporan::imut'); }
+    public function viewAny(User $user): bool
+    {
+        return $user->can('view_any_laporan::imut');
+    }
+    public function view(User $user, LaporanImut $model): bool
+    {
+        return $user->can('view_laporan::imut');
+    }
+    public function create(User $user): bool
+    {
+        return $user->can('create_laporan::imut');
+    }
+    public function update(User $user, LaporanImut $model): bool
+    {
+        return $user->can('update_laporan::imut');
+    }
+    public function delete(User $user, LaporanImut $model): bool
+    {
+        return $user->can('delete_laporan::imut');
+    }
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('delete_any_laporan::imut');
+    }
+    public function forceDelete(User $user, LaporanImut $model): bool
+    {
+        return $user->can('force_delete_laporan::imut');
+    }
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('force_delete_any_laporan::imut');
+    }
+    public function restore(User $user, LaporanImut $model): bool
+    {
+        return $user->can('restore_laporan::imut');
+    }
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('restore_any_laporan::imut');
+    }
 
     // Report-related
-    public function viewUnitKerjaReport(User $user): bool { return $user->can('view_unit_kerja_report_laporan::imut'); }
-    public function viewUnitKerjaReportDetail(User $user): bool { return $user->can('view_unit_kerja_report_detail_laporan::imut'); }
-    public function viewImutDataReport(User $user): bool { return $user->can('view_imut_data_report_laporan::imut'); }
-    public function viewImutDataReportDetail(User $user): bool { return $user->can('view_imut_data_report_detail_laporan::imut'); }
+    public function viewUnitKerjaReport(User $user): bool
+    {
+        return $user->can('view_unit_kerja_report_laporan::imut');
+    }
+    public function viewUnitKerjaReportDetail(User $user): bool
+    {
+        return $user->can('view_unit_kerja_report_detail_laporan::imut');
+    }
+    public function viewImutDataReport(User $user): bool
+    {
+        return $user->can('view_imut_data_report_laporan::imut');
+    }
+    public function viewImutDataReportDetail(User $user): bool
+    {
+        return $user->can('view_imut_data_report_detail_laporan::imut');
+    }
 
     // ImutPenilaian (child) permissions
     public function viewPenilaian(User $user, ImutPenilaian $penilaian): bool

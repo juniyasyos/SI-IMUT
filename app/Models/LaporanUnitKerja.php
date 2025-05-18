@@ -108,7 +108,7 @@ class LaporanUnitKerja extends Model
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->where('laporan_unit_kerjas.unit_kerja_id', $unitKerjaId)
             ->select(
-                'imut_penilaians.id',
+                'imut_penilaians.id as id',
                 'laporan_unit_kerjas.id as laporan_unit_kerja_id',
                 'laporan_unit_kerjas.laporan_imut_id',
                 'laporan_unit_kerjas.unit_kerja_id',
