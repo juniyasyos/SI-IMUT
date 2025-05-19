@@ -199,49 +199,108 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
 
                 ProgressColumn::make('progress')
                     ->label('Progress')
-                    ->getStateUsing(function ($record) {
-                        $cacheKey = "imut_progress_{$record->id}";
-
-                        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($record) {
-                            $unitKerjaIds = $record->unitKerjas()->pluck('unit_kerja_id')->toArray();
-
-                            $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
-                                ->where('laporan_imut_id', $record->id)
-                                ->pluck('id')
-                                ->toArray();
-
-                            $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
-
-                            $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
-                                ->whereNotNull('numerator_value')
-                                ->whereNotNull('denominator_value')
-                                ->count();
-
-                            return $total > 0 ? round(($filled / $total) * 100, 2) : 0;
-                        });
+                    ->visible(function () {
+                        $user = Auth::user();
+                        return $user && $user->unitKerjas()->exists();
                     })
-                    ->tooltip(function ($record) {
-                        $cacheKey = "imut_progress_{$record->id}";
+                    ->getStateUsing(function ($record) {
+                        $user = Auth::user();
 
-                        $data = Cache::get($cacheKey);
+                        $userUnitIds = $user->unitKerjas?->pluck('id')->toArray() ?? [];
+                        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
+                            ->where('laporan_imut_id', $record->id)
+                            ->whereIn('unit_kerja_id', $userUnitIds)
+                            ->pluck('id')
+                            ->toArray();
 
-                        if (!is_array($data)) {
-                            $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
-                                ->where('laporan_imut_id', $record->id)
-                                ->pluck('id')
-                                ->toArray();
-
-                            $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
-                            $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
-                                ->whereNotNull('numerator_value')
-                                ->whereNotNull('denominator_value')
-                                ->count();
-
-                            return "$filled / $total Penilaian selesai";
+                        if (empty($laporanUnitKerjaIds) || !self::userHasAccessToLaporan($record)) {
+                            return null;
                         }
 
-                        return "{$data['progress']}%";
+                        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
+                        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
+                            ->whereNotNull('numerator_value')
+                            ->whereNotNull('denominator_value')
+                            ->count();
+
+                        return $total > 0 ? round(($filled / $total) * 100, 2) : 0;
+                    })
+                    ->tooltip(function ($record) {
+                        $user = Auth::user();
+
+                        $userUnitIds = $user->unitKerjas?->pluck('id')->toArray() ?? [];
+                        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
+                            ->where('laporan_imut_id', $record->id)
+                            ->whereIn('unit_kerja_id', $userUnitIds)
+                            ->pluck('id')
+                            ->toArray();
+
+                        if (empty($laporanUnitKerjaIds)) {
+                            return null;
+                        }
+
+                        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
+                        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
+                            ->whereNotNull('numerator_value')
+                            ->whereNotNull('denominator_value')
+                            ->count();
+
+                        return "$filled / $total Penilaian selesai";
                     }),
+
+                ProgressColumn::make('unit_kerja_terisi')
+                    ->label('Unit Kerja Terisi')
+                    ->visible(function () {
+                        return Gate::any([
+                            'view_unit_kerja_report_laporan::imut',
+                            'view_imut_data_report_laporan::imut',
+                        ]);
+                    })
+                    ->getStateUsing(function ($record) {
+                        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
+                            ->where('laporan_imut_id', $record->id)
+                            ->get(['id']);
+
+                        $totalUnitKerja = $laporanUnitKerjas->count();
+                        $filledCount = 0;
+
+                        foreach ($laporanUnitKerjas as $unit) {
+                            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
+                            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
+                                ->whereNotNull('numerator_value')
+                                ->whereNotNull('denominator_value')
+                                ->count();
+
+                            if ($total > 0 && $total === $filled) {
+                                $filledCount++;
+                            }
+                        }
+
+                        return $totalUnitKerja > 0 ? round(($filledCount / $totalUnitKerja) * 100, 2) : 0;
+                    })
+                    ->tooltip(function ($record) {
+                        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
+                            ->where('laporan_imut_id', $record->id)
+                            ->get(['id']);
+
+                        $totalUnitKerja = $laporanUnitKerjas->count();
+                        $filledCount = 0;
+
+                        foreach ($laporanUnitKerjas as $unit) {
+                            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
+                            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
+                                ->whereNotNull('numerator_value')
+                                ->whereNotNull('denominator_value')
+                                ->count();
+
+                            if ($total > 0 && $total === $filled) {
+                                $filledCount++;
+                            }
+                        }
+
+                        return "{$filledCount} dari {$totalUnitKerja} unit kerja sudah mengisi";
+                    })
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -358,6 +417,4 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             ])
             : null;
     }
-
-
 }
