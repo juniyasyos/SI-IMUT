@@ -173,6 +173,7 @@ class LaporanUnitKerja extends Model
                 DB::raw('ROUND(CAST(imut_standar.value AS FLOAT), 2) as standard')
             );
 
+        // dd($query->get());
         return $query;
     }
 

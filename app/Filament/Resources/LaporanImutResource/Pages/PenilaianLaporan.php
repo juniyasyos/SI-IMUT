@@ -11,13 +11,11 @@ use App\Models\ImutData;
 use App\Models\ImutProfile;
 use App\Models\ImutStandard;
 use App\Models\User;
-use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
@@ -27,7 +25,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Set;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 
@@ -74,23 +71,24 @@ class PenilaianLaporan extends Page implements HasForms
         $laporanId = request()->integer('laporan_id');
         $penilaianId = request()->integer('penilaian_id');
 
-        // dd(request());
-
-        if (!$laporanId || !$penilaianId) {
-            abort(404, 'Invalid request parameters.');
-        }
+        // if (!$laporanId || !$penilaianId) {
+        //     abort(404, 'Invalid request parameters.');
+        // }
 
         // Verify laporan has the penilaian with the given ID
         $this->laporan = LaporanImut::select(['id', 'name'])
-            ->whereHas('imutPenilaians', fn($query) => $query->where('imut_penilaians.id', $penilaianId))
+            // ->whereHas('imutPenilaians', fn($query) => $query->where('imut_penilaians.id', $penilaianId))
             ->findOrFail($laporanId);
 
+        // dd($this->laporan);
 
         // Fetch the specific penilaian for this laporan
         $penilaian = ImutPenilaian::with('profile')
             ->where('id', $penilaianId)
-            ->where('laporan_unit_kerja_id', $laporanId)
+            // ->where('laporan_unit_kerja_id', $laporanId)
             ->firstOrFail();
+
+        // dd($this->laporan, $penilaian);
 
         $this->profile = $penilaian->profile;
         $this->imutStandard = $penilaian->standar;
