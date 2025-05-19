@@ -8,6 +8,7 @@ use App\Models\ImutPenilaian;
 use App\Models\LaporanUnitKerja;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\LaporanImutResource;
+use Illuminate\Database\Eloquent\Builder;
 
 class CreateLaporanImut extends CreateRecord
 {
@@ -24,8 +25,8 @@ class CreateLaporanImut extends CreateRecord
         $record = $this->record;
         $unitKerjaIds = $record->unitKerjas()->pluck('unit_kerja_id')->toArray();
 
-        $imutDataWithLatestProfile = ImutData::whereHas('categories', function ($query) {
-            $query->where('scope', 'national');
+        $imutDataWithLatestProfile = ImutData::whereHas('categories', function (Builder $query) {
+            $query->where('scope', 'global');
         })->with([
                     'latestProfile' => fn($query) => $query->latest('created_at')->limit(1),
                 ])->get();
@@ -38,10 +39,16 @@ class CreateLaporanImut extends CreateRecord
 
             foreach ($imutDataWithLatestProfile as $imutData) {
                 $latestProfile = $imutData->latestProfile;
-                if (!$latestProfile)
-                    continue;
 
-                $imutStandard = $latestProfile->imutStandards()->orderByDesc('created_at')->first();
+                if (!$latestProfile) {
+                    continue;
+                }
+
+                $imutStandard = $latestProfile->imutStandards()->latest('created_at')->first();
+
+                if (!$imutStandard) {
+                    continue;
+                }
 
                 ImutPenilaian::firstOrCreate([
                     'imut_profil_id' => $latestProfile->id,
@@ -51,6 +58,7 @@ class CreateLaporanImut extends CreateRecord
             }
         }
     }
+
 
     public function getBreadcrumbs(): array
     {
