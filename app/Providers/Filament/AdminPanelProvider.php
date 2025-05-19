@@ -14,6 +14,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Http\Middleware\Authenticate;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Rmsramos\Activitylog\ActivitylogPlugin;
+use Asmit\ResizedColumn\ResizedColumnPlugin;
 use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -105,6 +106,7 @@ class AdminPanelProvider extends PanelProvider
     private function getPlugins(): array
     {
         $plugins = [
+            ResizedColumnPlugin::make(),
             FilamentApexChartsPlugin::make(),
             DashStackThemePlugin::make(),
             FilamentShieldPlugin::make(),
