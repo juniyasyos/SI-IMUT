@@ -9,40 +9,41 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ImutCategory extends Model
 {
     use HasFactory;
+
     /**
-     * The table associated with the model.
+     * Table terkait dengan model ini.
      *
-     * @var string|null
+     * @var string
      */
     protected $table = 'imut_kategori';
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang bisa diisi secara massal.
      *
      * @var array<int, string>
      */
-    protected $fillable = ['category_name', 'scope', 'short_name', 'description'];
+    protected $fillable = [
+        'category_name',
+        'scope',
+        'short_name',
+        'description',
+        'is_standardized_category',
+        'is_imut_bencmarking',
+    ];
 
     /**
-     * The attributes that are guarded.
-     *
-     * @var array<int, string>
-     */
-    protected $guarded = ['id'];
-
-    /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang disembunyikan saat serialisasi.
      *
      * @var array<int, string>
      */
     protected $hidden = ['created_at', 'updated_at'];
 
     /**
-     * imutData func relation to ImutData model.
+     * Relasi ke model ImutData.
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function imutData():HasMany
+    public function imutData(): HasMany
     {
         return $this->hasMany(ImutData::class, 'imut_kategori_id');
     }

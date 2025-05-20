@@ -24,6 +24,11 @@ return [
         'scope_unit' => 'Unit',
         'scope_global' => 'Global',
         'scope_helper_text' => 'Tentukan lingkup yang berlaku untuk kategori ini.',
+
+        'is_standardized_category' => 'Kategori Standar',
+        'is_standardized_category_helper' => 'Tandai jika kategori ini merupakan bagian dari standar IMUT.',
+        'is_benchmark_category' => 'Kategori Benchmarking',
+        'is_benchmark_category_helper' => 'Tandai jika kategori ini digunakan sebagai acuan benchmarking IMUT.',
     ],
 
     'form' => [

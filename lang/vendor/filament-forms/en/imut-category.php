@@ -14,17 +14,23 @@ return [
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
         'description' => 'Description',
-        'description_helpertext' => 'Enter a brief description of the category',
+        'description_helpertext' => 'Enter a brief description for the category',
         'description_placeholder' => 'Enter description here',
         'data_count' => 'IMUT Data Count',
         'short_name' => 'Short Name',
         'scope' => 'Scope',
         'scope_internal' => 'Internal',
         'scope_national' => 'National',
-        'scope_unit' => 'Unit Level',
+        'scope_unit' => 'Unit',
         'scope_global' => 'Global',
-        'scope_helper_text' => 'Define the applicable scope for this category.',
+        'scope_helper_text' => 'Specify the applicable scope for this category.',
+
+        'is_standardized_category' => 'Standardized Category',
+        'is_standardized_category_helper' => 'Check if this category is part of the IMUT standard.',
+        'is_benchmark_category' => 'Benchmark Category',
+        'is_benchmark_category_helper' => 'Check if this category is used as an IMUT benchmarking reference.',
     ],
+
 
     'form' => [
         'title' => 'Category Information',

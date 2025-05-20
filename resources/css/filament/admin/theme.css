@@ -7,8 +7,8 @@
 @config 'tailwind.config.js';
 
 
-@layer utilities {
+/* @layer utilities {
     .bg-gray-50 {
         @apply bg-gray-100;
     }
-}
+} */

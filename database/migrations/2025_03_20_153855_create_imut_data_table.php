@@ -15,9 +15,12 @@ return new class extends Migration {
             $table->string('category_name', 100)->unique();
             $table->string('short_name', 20)->nullable();
             $table->enum('scope', ['global', 'internal', 'unit'])->default('internal');
-            $table->string('description', 255);
+            $table->string('description', 255)->nullable();
+            $table->boolean('is_standardized_category')->default(false);
+            $table->boolean('is_benchmark_category')->default(false);
             $table->timestamps();
         });
+
 
         Schema::create('imut_data', function (Blueprint $table) {
             $table->id();
@@ -68,5 +71,4 @@ return new class extends Migration {
         Schema::dropIfExists('imut_data');
         Schema::dropIfExists('imut_kategori');
     }
-
 };

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use Filament\Pages;
 use Filament\Panel;
 use App\Models\User;
@@ -18,7 +19,7 @@ use Asmit\ResizedColumn\ResizedColumnPlugin;
 use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use DutchCodingCompany\FilamentSocialite\Provider;
+use DutchCodingCompany\FilamentSocialite\Provider;  
 use Juniyasyos\DashStackTheme\DashStackThemePlugin;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -65,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

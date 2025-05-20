@@ -37,8 +37,8 @@ class ImutProfileForm
                     Tab::make('Informasi Dasar')->schema(self::basicInformationSchema()),
                     Tab::make('Perhitungan')->schema(self::operationalDefinitionSchema()),
                     Tab::make('Data & Analisis')->schema(self::dataAndAnalysisSchema()),
-                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null),
-                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->short_name === 'INM'))
+                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null && $record->imutData->categories->is_standardized_category === true),
+                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === true))
                 ])
                 ->columnSpan(['lg' => 2])
         ];
@@ -352,42 +352,42 @@ class ImutProfileForm
                                     ->columnSpan('full'),
                             ]);
                     })->push(
-                            Tab::make('➕ Tambah Region Type')->schema([
-                                Actions::make([
-                                    Action::make('create_region_type')
-                                        ->icon('heroicon-m-plus')
-                                        ->tooltip('Tambah Region Type baru')
-                                        ->modalHeading('Tambah Region Type')
-                                        ->form([
-                                            TextInput::make('type')
-                                                ->required()
-                                                ->label('Nama Region Type')
-                                                ->placeholder('Contoh: provinsi, rumah sakit, nasional'),
-                                        ])
-                                        ->action(function (array $data) {
-                                            RegionType::create([
-                                                'type' => $data['type'],
-                                            ]);
+                        Tab::make('➕ Tambah Region Type')->schema([
+                            Actions::make([
+                                Action::make('create_region_type')
+                                    ->icon('heroicon-m-plus')
+                                    ->tooltip('Tambah Region Type baru')
+                                    ->modalHeading('Tambah Region Type')
+                                    ->form([
+                                        TextInput::make('type')
+                                            ->required()
+                                            ->label('Nama Region Type')
+                                            ->placeholder('Contoh: provinsi, rumah sakit, nasional'),
+                                    ])
+                                    ->action(function (array $data) {
+                                        RegionType::create([
+                                            'type' => $data['type'],
+                                        ]);
 
-                                            Notification::make()
-                                                ->title('Berhasil')
-                                                ->body('Region Type berhasil ditambahkan.')
-                                                ->success()
-                                                ->send();
+                                        Notification::make()
+                                            ->title('Berhasil')
+                                            ->body('Region Type berhasil ditambahkan.')
+                                            ->success()
+                                            ->send();
 
-                                            redirect(request()->header('Referer'));
-                                        }),
+                                        redirect(request()->header('Referer'));
+                                    }),
 
-                                    Action::make('goto_region_type_list')
-                                        ->icon('heroicon-m-list-bullet')
-                                        ->tooltip('Lihat daftar semua Region Type')
-                                        ->url(fn() => ImutDataResource::getUrl('bencmarking'))
-                                        ->openUrlInNewTab(),
-                                ])
-                                    ->label('Aksi')
+                                Action::make('goto_region_type_list')
+                                    ->icon('heroicon-m-list-bullet')
+                                    ->tooltip('Lihat daftar semua Region Type')
+                                    ->url(fn() => ImutDataResource::getUrl('bencmarking'))
+                                    ->openUrlInNewTab(),
                             ])
+                                ->label('Aksi')
+                        ])
 
-                        )
+                    )
                         ->toArray()
                 )
         ];

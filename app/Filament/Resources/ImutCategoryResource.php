@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Actions\{
     EditAction,
     ViewAction,
@@ -124,6 +125,26 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ])
                         ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
 
+                    Toggle::make('is_standardized_category')
+                        ->label(__('filament-forms::imut-category.fields.is_standardized_category'))
+                        ->helperText(__('filament-forms::imut-category.form.main.is_standardized_category_helper'))
+                        ->inline(true)
+                        ->columnSpan(2)
+                        ->onColor('success')
+                        ->required()
+                        ->default(true)
+                        ->columnSpan(1),
+                        
+                    Toggle::make('is_benchmark_category')
+                        ->label(__('filament-forms::imut-category.fields.is_benchmark_category'))
+                        ->helperText(__('filament-forms::imut-category.form.main.is_benchmark_category_helper'))
+                        ->inline(true)
+                        ->columnSpan(2)
+                        ->onColor('success')
+                        ->required()
+                        ->default(true)
+                        ->columnSpan(1),
+
                     Textarea::make('description')
                         ->label(__('filament-forms::imut-category.fields.description'))
                         ->placeholder(__('filament-forms::imut-category.fields.description_placeholder'))
@@ -159,8 +180,7 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->sortable(),
             ])
-            ->filters([
-            ])
+            ->filters([])
             ->actions([
                 EditAction::make(),
                 DeleteAction::make(),
