@@ -133,20 +133,31 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                         ->unique('laporan_imuts', 'name', ignoreRecord: true)
                         ->columnSpanFull()
                         ->default(function () {
-                            $LaporanCount = LaporanImut::count();
-                            return 'Laporan IMUT Periode' . ($LaporanCount + 1);
+                            $count = LaporanImut::count();
+                            return 'Laporan IMUT Periode ' . ($count + 1);
                         }),
 
                     DatePicker::make('assessment_period_start')
                         ->label('Dimulainya Periode Asesmen')
                         ->placeholder('YYYY-MM-DD')
                         ->required()
+                        ->reactive()
                         ->default(now()->format('Y-m-d')),
 
                     DatePicker::make('assessment_period_end')
                         ->label('Berakhirnya Periode Asesmen')
                         ->placeholder('YYYY-MM-DD')
-                        ->required(),
+                        ->required()
+                        ->minDate(fn(callable $get) => $get('assessment_period_start')) 
+                        ->rule('after_or_equal:assessment_period_start'), 
+
+
+                    Select::make('created_by')
+                        ->label('Dibuat oleh')
+                        ->options(User::pluck('name', 'id')) 
+                        ->default(fn() => Auth::id())      
+                        ->disabled()
+                        ->columnSpanFull(),
 
                     Section::make('Unit Kerja')
                         ->description('Pilih unit kerja yang akan mengisi indikator mutu.')
@@ -158,12 +169,13 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                                 ->columns(3)
                                 ->required()
                                 ->disabledOn('edit')
-                                ->default(UnitKerja::pluck('id')->toArray())
-                        ])
+                                ->default(UnitKerja::pluck('id')->toArray()),
+                        ]),
                 ])
                 ->columns(2),
         ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -171,6 +183,12 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Laporan')
+                    ->sortable()
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('createdBy.name')
+                    ->label('Pembuat Laporan')
+                    ->alignCenter()
                     ->sortable()
                     ->searchable(),
 

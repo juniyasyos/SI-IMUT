@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\LaporanImutResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class CreateLaporanImut extends CreateRecord
 {
@@ -21,11 +22,10 @@ class CreateLaporanImut extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function beforeCreate(): void
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $this->form->fill([
-            'created_by' => \Illuminate\Support\Facades\Auth::id(),
-        ]);
+        $data['created_by'] = Auth::id();
+        return $data;
     }
 
 
@@ -37,7 +37,6 @@ class CreateLaporanImut extends CreateRecord
             ->status('info')
             ->send();
 
-        // Dispatch job
         dispatch(new \App\Jobs\ProsesPenilaianImut($this->record));
     }
 
