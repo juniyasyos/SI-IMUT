@@ -25,10 +25,8 @@ return [
         'scope_global' => 'Global',
         'scope_helper_text' => 'Specify the applicable scope for this category.',
 
-        'is_standardized_category' => 'Standardized Category',
-        'is_standardized_category_helper' => 'Check if this category is part of the IMUT standard.',
-        'is_benchmark_category' => 'Benchmark Category',
-        'is_benchmark_category_helper' => 'Check if this category is used as an IMUT benchmarking reference.',
+        'is_standardized_category' => 'Imut Standard',
+        'is_benchmark_category' => 'Imut Benchmarking',
     ],
 
 
@@ -40,6 +38,12 @@ return [
         'short_name' => 'Short Name',
         'short_placeholder' => 'Example: IMP-RS',
         'short_helper_text' => 'The short name must be unique and no longer than 50 characters.',
+
+
+        'is_standardized_category' => 'Standardized Category',
+        'is_standardized_category_helper' => 'Check if this category is part of the IMUT standard.',
+        'is_benchmark_category' => 'Benchmark Category',
+        'is_benchmark_category_helper' => 'Check if this category is used as an IMUT benchmarking reference.',
     ],
 
     'buttons' => [

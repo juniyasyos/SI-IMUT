@@ -6,6 +6,7 @@ use Filament\Actions;
 use App\Models\ImutData;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanUnitKerja;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\LaporanImutResource;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,45 +21,25 @@ class CreateLaporanImut extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function afterCreate(): void
+    protected function beforeCreate(): void
     {
-        $record = $this->record;
-        $unitKerjaIds = $record->unitKerjas()->pluck('unit_kerja_id')->toArray();
-
-        $imutDataWithLatestProfile = ImutData::whereHas('categories', function (Builder $query) {
-            $query->where('scope', 'global');
-        })->with([
-                    'latestProfile' => fn($query) => $query->latest('created_at')->limit(1),
-                ])->get();
-
-        foreach ($unitKerjaIds as $unitKerjaId) {
-            $laporanUnitKerja = LaporanUnitKerja::firstOrCreate([
-                'laporan_imut_id' => $record->id,
-                'unit_kerja_id' => $unitKerjaId,
-            ]);
-
-            foreach ($imutDataWithLatestProfile as $imutData) {
-                $latestProfile = $imutData->latestProfile;
-
-                if (!$latestProfile) {
-                    continue;
-                }
-
-                $imutStandard = $latestProfile->imutStandards()->latest('created_at')->first();
-
-                if (!$imutStandard) {
-                    continue;
-                }
-
-                ImutPenilaian::firstOrCreate([
-                    'imut_profil_id' => $latestProfile->id,
-                    'laporan_unit_kerja_id' => $laporanUnitKerja->id,
-                    'imut_standar_id' => $imutStandard->id,
-                ]);
-            }
-        }
+        $this->form->fill([
+            'created_by' => \Illuminate\Support\Facades\Auth::id(),
+        ]);
     }
 
+
+    protected function afterCreate(): void
+    {
+        Notification::make()
+            ->title('Proses Penilaian Dimulai')
+            ->body('Data sedang diproses di latar belakang...')
+            ->status('info')
+            ->send();
+
+        // Dispatch job
+        dispatch(new \App\Jobs\ProsesPenilaianImut($this->record));
+    }
 
     public function getBreadcrumbs(): array
     {

@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->enum('status', ['process', 'complete', 'canceled'])->default('process');
             $table->date('assessment_period_start');
             $table->date('assessment_period_end');
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

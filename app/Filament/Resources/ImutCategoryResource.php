@@ -126,8 +126,8 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
 
                     Toggle::make('is_standardized_category')
-                        ->label(__('filament-forms::imut-category.fields.is_standardized_category'))
-                        ->helperText(__('filament-forms::imut-category.fields.is_standardized_category_helper'))
+                        ->label(__('filament-forms::imut-category.form.is_standardized_category'))
+                        ->helperText(__('filament-forms::imut-category.form.is_standardized_category_helper'))
                         ->inline(true)
                         ->columnSpan(2)
                         ->onColor('success')
@@ -136,8 +136,8 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ->columnSpan(1),
 
                     Toggle::make('is_benchmark_category')
-                        ->label(__('filament-forms::imut-category.fields.is_benchmark_category'))
-                        ->helperText(__('filament-forms::imut-category.fields.is_benchmark_category_helper'))
+                        ->label(__('filament-forms::imut-category.form.is_benchmark_category'))
+                        ->helperText(__('filament-forms::imut-category.form.is_benchmark_category_helper'))
                         ->inline(true)
                         ->columnSpan(2)
                         ->onColor('success')
@@ -181,8 +181,8 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->sortable(),
 
 
-                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('status')
-                    ->label(__('filament-forms::imut-data.fields.status'))
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_standardized_category')
+                    ->label(__('filament-forms::imut-category.fields.is_standardized_category'))
                     ->translateLabel()
                     ->alignCenter()
                     ->size('xl')
@@ -194,7 +194,7 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
 
 
                 \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_benchmark_category')
-                    ->label(__('filament-forms::imut-data.fields.status'))
+                    ->label(__('filament-forms::imut-category.fields.is_benchmark_category'))
                     ->translateLabel()
                     ->alignCenter()
                     ->size('xl')

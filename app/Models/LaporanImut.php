@@ -24,6 +24,7 @@ class LaporanImut extends Model
         'status',
         'assessment_period_start',
         'assessment_period_end',
+        'created_by'
     ];
 
     protected $guarded = ['id'];
@@ -70,5 +71,10 @@ class LaporanImut extends Model
             'id',
             'id'
         );
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

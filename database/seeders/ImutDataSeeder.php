@@ -65,6 +65,7 @@ class ImutDataSeeder extends Seeder
                     'assessment_period_start' => $assessmentStart,
                     'assessment_period_end' => $end,
                     'status' => LaporanImut::STATUS_COMPLETE,
+                    'created_by' => User::where('name', 'admin')->first()
                 ]);
 
                 foreach ($unitKerjaIds as $unitKerjaId) {

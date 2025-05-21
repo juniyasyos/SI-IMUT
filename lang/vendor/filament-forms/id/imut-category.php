@@ -25,10 +25,8 @@ return [
         'scope_global' => 'Global',
         'scope_helper_text' => 'Tentukan lingkup yang berlaku untuk kategori ini.',
 
-        'is_standardized_category' => 'Kategori Standar',
-        'is_standardized_category_helper' => 'Tandai jika kategori ini merupakan bagian dari standar IMUT.',
-        'is_benchmark_category' => 'Kategori Benchmarking',
-        'is_benchmark_category_helper' => 'Tandai jika kategori ini digunakan sebagai acuan benchmarking IMUT.',
+        'is_standardized_category' => 'Imut Standard',
+        'is_benchmark_category' => 'Imut Benchmarking',
     ],
 
     'form' => [
@@ -39,6 +37,11 @@ return [
         'short_name' => 'Nama Singkat',
         'short_placeholder' => 'Contoh: IMP-RS',
         'short_helper_text' => 'Nama singkat harus unik dan tidak lebih dari 50 karakter.',
+
+        'is_standardized_category' => 'Kategori Standar',
+        'is_benchmark_category' => 'Kategori Benchmarking',
+        'is_standardized_category_helper' => 'Tandai jika kategori ini memiliki standar IMUT.',
+        'is_benchmark_category_helper' => 'Tandai jika kategori ini memiliki benchmarking IMUT.',
     ],
 
     'buttons' => [
