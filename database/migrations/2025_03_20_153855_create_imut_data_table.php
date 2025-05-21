@@ -15,8 +15,8 @@ return new class extends Migration {
             $table->string('category_name', 100)->unique();
             $table->string('short_name', 20)->nullable();
             $table->enum('scope', ['global', 'internal', 'unit'])->default('internal');
-            $table->string('description', 255)->nullable();
-            $table->boolean('is_standardized_category')->default(false);
+            $table->string('description', length: 255)->nullable();
+            // $table->boolean('is_standardized_category')->default(false);
             $table->boolean('is_benchmark_category')->default(false);
             $table->timestamps();
         });
@@ -50,6 +50,7 @@ return new class extends Migration {
             $table->string('data_source', 255)->nullable();
             $table->string('data_collection_frequency', 255)->nullable();
             $table->text('analysis_plan')->nullable();
+            $table->enum('target_operator', ['=', '>=', '<=', '<', '>'])->default('>=');
             $table->bigInteger('target_value')->nullable();
             $table->string('analysis_period_type', 255)->nullable();
             $table->bigInteger('analysis_period_value')->nullable();

@@ -29,6 +29,7 @@ class ImutProfileFactory extends Factory
             'data_source' => $this->faker->company(),
             'data_collection_frequency' => $this->faker->randomElement(['Bulanan', 'Triwulan', 'Tahunan']),
             'analysis_plan' => $this->faker->paragraph(),
+            'target_operator' => '=>',
             'target_value' => $this->faker->numberBetween(70, 100),
             'analysis_period_type' => $this->faker->word(),
             'analysis_period_value' => $this->faker->numberBetween(1, 12),

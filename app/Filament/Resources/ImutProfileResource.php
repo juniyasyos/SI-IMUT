@@ -77,6 +77,14 @@ class ImutProfileResource extends Resource implements HasShieldPermissions
                         default => 'gray',
                     }),
 
+                TextColumn::make('target')
+                    ->label('Target')
+                    ->formatStateUsing(fn($state, $record) =>
+                    trim(($record->target_operator ?? '') . ' ' . ($record->target_value !== null ? "{$record->target_value}%" : '')
+                    ))
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('responsible_person')
                     ->label('Penanggung Jawab')
                     ->searchable()

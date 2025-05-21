@@ -146,6 +146,7 @@ class ImutDataSeeder extends Seeder
             'indicator_type' => $indicatorType,
             'numerator_formula' => $profile['numerator_formula'],
             'denominator_formula' => $profile['denominator_formula'],
+            'target_operator' => $profile['target_operator'] ?? '>=',
             'target_value' => $profile['target_value'],
             'inclusion_criteria' => $profile['inclusion_criteria'],
             'exclusion_criteria' => $profile['exclusion_criteria'],
@@ -170,19 +171,21 @@ class ImutDataSeeder extends Seeder
             ]);
         }
 
-        // Standar dan benchmarking hanya untuk kategori yang mengaktifkan benchmarking
-        if ($category->is_benchmark_category) {
-            $this->createStandardsAndBenchmarking($imutProfile);
-        }
+        // Hanya buat laporan jika kategori adalah INM
+        if ($category->short_name === 'INM') {
+            $this->createStandard($imutProfile);
 
-        $this->createPenilaian($imutProfile);
+            if ($category->is_benchmark_category) {
+                $this->createBenchmarking($imutProfile);
+            }
+
+            $this->createPenilaian($imutProfile);
+        }
     }
 
 
-    private function createStandardsAndBenchmarking(ImutProfile $imutProfile): void
+    private function createStandard(ImutProfile $imutProfile): void
     {
-        $regionTypes = RegionType::all();
-
         for ($i = 0; $i < 3; $i++) {
             $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
             $end = $start->copy()->endOfMonth();
@@ -195,6 +198,18 @@ class ImutDataSeeder extends Seeder
                 'start_period' => $start,
                 'end_period' => $end,
             ]);
+        }
+    }
+
+    private function createBenchmarking(ImutProfile $imutProfile): void
+    {
+        $regionTypes = RegionType::all();
+
+        for ($i = 0; $i < 3; $i++) {
+            $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
+            $end = $start->copy()->endOfMonth();
+            $month = $start->month;
+            $year = $start->year;
 
             foreach ($regionTypes as $type) {
                 $regionName = match ($type->type) {

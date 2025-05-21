@@ -125,15 +125,15 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ])
                         ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
 
-                    Toggle::make('is_standardized_category')
-                        ->label(__('filament-forms::imut-category.form.is_standardized_category'))
-                        ->helperText(__('filament-forms::imut-category.form.is_standardized_category_helper'))
-                        ->inline(true)
-                        ->columnSpan(2)
-                        ->onColor('success')
-                        ->required()
-                        ->default(true)
-                        ->columnSpan(1),
+                    // Toggle::make('is_standardized_category')
+                    //     ->label(__('filament-forms::imut-category.form.is_standardized_category'))
+                    //     ->helperText(__('filament-forms::imut-category.form.is_standardized_category_helper'))
+                    //     ->inline(true)
+                    //     ->columnSpan(2)
+                    //     ->onColor('success')
+                    //     ->required()
+                    //     ->default(true)
+                    //     ->columnSpan(1),
 
                     Toggle::make('is_benchmark_category')
                         ->label(__('filament-forms::imut-category.form.is_benchmark_category'))

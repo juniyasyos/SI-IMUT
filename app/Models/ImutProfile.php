@@ -44,6 +44,7 @@ class ImutProfile extends Model
         'data_source',
         'data_collection_frequency',
         'analysis_plan',
+        'target_operator',
         'target_value',
         'analysis_period_type',
         'analysis_period_value',

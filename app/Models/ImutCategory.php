@@ -27,7 +27,6 @@ class ImutCategory extends Model
         'scope',
         'short_name',
         'description',
-        'is_standardized_category',
         'is_imut_bencmarking',
     ];
 

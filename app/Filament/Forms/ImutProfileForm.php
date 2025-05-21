@@ -37,7 +37,8 @@ class ImutProfileForm
                     Tab::make('Informasi Dasar')->schema(self::basicInformationSchema()),
                     Tab::make('Perhitungan')->schema(self::operationalDefinitionSchema()),
                     Tab::make('Data & Analisis')->schema(self::dataAndAnalysisSchema()),
-                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null && $record->imutData->categories->is_standardized_category === 1),
+                    // Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null && $record->imutData->categories->is_standardized_category === 1),
+                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null),
                     Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
                 ])
                 ->columnSpan(['lg' => 2])
@@ -205,6 +206,16 @@ class ImutProfileForm
                                 ->helperText('Angka yang menunjukkan rentang waktu (dalam bulan/minggu).')
                                 ->prefixIcon('heroicon-o-adjustments-horizontal'),
 
+                            Select::make('target_operator')
+                                ->label('Operator Target')
+                                ->options([
+                                    '>=' => 'Lebih besar atau sama dengan (≥)',
+                                    '<=' => 'Kurang atau sama dengan (≤)',
+                                    '='  => 'Sama dengan (=)',
+                                ])
+                                ->default('>=') 
+                                ->helperText('Pilih operator pembanding untuk nilai target.'),
+
                             TextInput::make('target_value')
                                 ->label('🎯 Nilai Target')
                                 ->numeric()
@@ -212,6 +223,7 @@ class ImutProfileForm
                                 ->helperText('Target pencapaian kinerja indikator.')
                                 ->prefixIcon('heroicon-o-arrow-trending-up'),
                         ]),
+
 
                     // === Alat & Rencana Analisis ===
                     Fieldset::make('🛠️ Alat & Strategi Analisis')
