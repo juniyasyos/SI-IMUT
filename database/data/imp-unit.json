@@ -299,7 +299,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 3,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Dilakukan sesuai dengan referensi statistik yang ditetapkan oleh rumah sakit (Total Sampling)",
+            "sampling_method": "Dilakukan sesuai dengan referensi statistik yang ditetapkan oleh rumah sakit (Total Sampling)",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Formulir Monitoring",
             "responsible_person": "Kepala Instalasi Farmasi"
@@ -325,7 +325,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 3,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Formulir Monitoring",
             "responsible_person": "Kepala Instalasi Farmasi"
@@ -352,7 +352,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 3,
             "data_collection_method": "Data dikumpulkan secara concuren",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Formulir Monitoring",
             "responsible_person": "Kepala Instalasi Gizi"
@@ -378,7 +378,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 3,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Formulir Monitoring",
             "responsible_person": "Kepala Unit Rekam Medis"
@@ -404,7 +404,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 3,
             "data_collection_method": "Penghitungan karyawan yang diajukan menjadi karyawan tetap melalui Form Penilaian Karyawan",
-            "sampling": "Seluruh karyawan yang diajukan menjadi karyawan tetap dalam periode waktu 1 (satu) bulan",
+            "sampling_method": "Seluruh karyawan yang diajukan menjadi karyawan tetap dalam periode waktu 1 (satu) bulan",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Form Penilaian Karyawan dan Pengajuan Karyawan Tetap",
             "responsible_person": "Kepala Unit Kepegawaian & Diklat"
@@ -430,7 +430,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 1,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Pengamatan menggunakan formulir pengumpulan data",
             "responsible_person": "Kepala Unit sarana dan prasarana"
@@ -457,7 +457,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 3,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Pengamatan menggunakan formulir pengumpulan data",
             "responsible_person": "Kepala IPRS"
@@ -483,7 +483,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 1,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Pengamatan menggunakan formulir pengumpulan data",
             "responsible_person": "Kepala Instalasi Laundry"
@@ -509,7 +509,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 1,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Pengamatan menggunakan formulir pengumpulan data",
             "responsible_person": "Kepala Unit Konstruksi dan Renovasi"
@@ -535,7 +535,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 1,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Pengamatan menggunakan formulir pengumpulan data",
             "responsible_person": "Kepala Unit Keamanan dan Transportasi"
@@ -561,7 +561,7 @@
             "analysis_period_type": "bulan",
             "analysis_period_value": 1,
             "data_collection_method": "Data dikumpulkan secara retrospektif",
-            "sampling": "Total Sampling",
+            "sampling_method": "Total Sampling",
             "analysis_plan": "Run Chart",
             "data_collection_tool": "Pengamatan menggunakan formulir pengumpulan data",
             "responsible_person": "Kepala Unit Keamanan dan Transportasi"
