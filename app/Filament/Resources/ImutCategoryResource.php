@@ -116,7 +116,7 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ->default('internal')
                         ->required()
                         ->inline()
-                        ->columnSpan(1)
+                        ->columnSpan(2)
                         ->colors([
                             'internal' => 'success',
                             'national' => 'warning',
@@ -127,17 +127,17 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
 
                     Toggle::make('is_standardized_category')
                         ->label(__('filament-forms::imut-category.fields.is_standardized_category'))
-                        ->helperText(__('filament-forms::imut-category.form.main.is_standardized_category_helper'))
+                        ->helperText(__('filament-forms::imut-category.fields.is_standardized_category_helper'))
                         ->inline(true)
                         ->columnSpan(2)
                         ->onColor('success')
                         ->required()
                         ->default(true)
                         ->columnSpan(1),
-                        
+
                     Toggle::make('is_benchmark_category')
                         ->label(__('filament-forms::imut-category.fields.is_benchmark_category'))
-                        ->helperText(__('filament-forms::imut-category.form.main.is_benchmark_category_helper'))
+                        ->helperText(__('filament-forms::imut-category.fields.is_benchmark_category_helper'))
                         ->inline(true)
                         ->columnSpan(2)
                         ->onColor('success')
@@ -178,6 +178,30 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->counts('imutData')
                     ->badge()
                     ->alignCenter()
+                    ->sortable(),
+
+
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('status')
+                    ->label(__('filament-forms::imut-data.fields.status'))
+                    ->translateLabel()
+                    ->alignCenter()
+                    ->size('xl')
+                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
+                        'update_imut::category',
+                    ]))
+                    ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
+                    ->sortable(),
+
+
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_benchmark_category')
+                    ->label(__('filament-forms::imut-data.fields.status'))
+                    ->translateLabel()
+                    ->alignCenter()
+                    ->size('xl')
+                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
+                        'update_imut::category',
+                    ]))
+                    ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
                     ->sortable(),
             ])
             ->filters([])

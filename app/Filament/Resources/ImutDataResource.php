@@ -194,7 +194,9 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->translateLabel()
                     ->alignCenter()
                     ->size('xl')
-                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::allows('update', User::class))
+                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
+                        'update_imut::data',
+                    ]))
                     ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
                     ->sortable(),
 
@@ -229,16 +231,16 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                         ->visible(
                             fn($record) =>
                             \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
+                                method_exists($record, 'trashed') &&
+                                $record->trashed()
                         ),
 
                     ForceDeleteAction::make()
                         ->visible(
                             fn($record) =>
                             \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
+                                method_exists($record, 'trashed') &&
+                                $record->trashed()
                         ),
                 ])
             ])

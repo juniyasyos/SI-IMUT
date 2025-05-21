@@ -37,14 +37,12 @@ class ImutProfileForm
                     Tab::make('Informasi Dasar')->schema(self::basicInformationSchema()),
                     Tab::make('Perhitungan')->schema(self::operationalDefinitionSchema()),
                     Tab::make('Data & Analisis')->schema(self::dataAndAnalysisSchema()),
-                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null && $record->imutData->categories->is_standardized_category === true),
-                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === true))
+                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null && $record->imutData->categories->is_standardized_category === 1),
+                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
                 ])
                 ->columnSpan(['lg' => 2])
         ];
     }
-
-
     protected static function basicInformationSchema(): array
     {
         return [
