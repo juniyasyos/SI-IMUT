@@ -123,44 +123,80 @@ class ImutDataSeeder extends Seeder
 
     private function processIndicator(array $indicator, ImutCategory $category): void
     {
-        $imutData = ImutData::firstOrCreate([
-            'title' => $indicator['title'],
-            'imut_kategori_id' => $category->id,
-            'description' => $indicator['description'],
-            'status' => true
-        ]);
+        try {
+            $imutData = ImutData::firstOrCreate([
+                'title' => $indicator['title'],
+                'imut_kategori_id' => $category->id,
+                'description' => $indicator['description'],
+                'status' => true
+            ]);
 
-        $profile = $indicator['profile'];
-        $indicatorType = in_array($profile['indicator_type'], ['process', 'outcome', 'output'])
-            ? $profile['indicator_type']
-            : 'process';
+            $profile = $indicator['profile'];
 
-        $imutProfile = ImutProfile::firstOrCreate([
-            'imut_data_id' => $imutData->id,
-            'version' => 'version 1',
-        ], [
-            'rationale' => $profile['rationale'],
-            'quality_dimension' => $profile['quality_dimension'],
-            'objective' => $profile['objective'],
-            'operational_definition' => $profile['operational_definition'],
-            'indicator_type' => $indicatorType,
-            'numerator_formula' => $profile['numerator_formula'],
-            'denominator_formula' => $profile['denominator_formula'],
-            'target_operator' => $profile['target_operator'] ?? '>=',
-            'target_value' => $profile['target_value'],
-            'inclusion_criteria' => $profile['inclusion_criteria'],
-            'exclusion_criteria' => $profile['exclusion_criteria'],
-            'data_source' => $profile['data_source'],
-            'data_collection_frequency' => $profile['data_collection_frequency'],
-            'analysis_plan' => $profile['analysis_plan'],
-            'analysis_period_type' => $profile['analysis_period_type'],
-            'analysis_period_value' => $profile['analysis_period_value'],
-            'data_collection_method' => $profile['data_collection_method'],
-            'sampling_method' => $profile['sampling_method'],
-            'data_collection_tool' => $profile['data_collection_tool'],
-            'responsible_person' => $profile['responsible_person'],
-        ]);
+            // Cek apakah semua key penting ada
+            $requiredKeys = [
+                'rationale',
+                'quality_dimension',
+                'objective',
+                'operational_definition',
+                'indicator_type',
+                'numerator_formula',
+                'denominator_formula',
+                'target_value',
+                'inclusion_criteria',
+                'exclusion_criteria',
+                'data_source',
+                'data_collection_frequency',
+                'analysis_plan',
+                'analysis_period_type',
+                'analysis_period_value',
+                'data_collection_method',
+                'sampling_method',
+                'data_collection_tool',
+                'responsible_person'
+            ];
 
+            foreach ($requiredKeys as $key) {
+                if (!array_key_exists($key, $profile)) {
+                    throw new \Exception("Missing key in profile: '$key'");
+                }
+            }
+
+            $indicatorType = in_array($profile['indicator_type'], ['process', 'outcome', 'output'])
+                ? $profile['indicator_type']
+                : 'process';
+
+            $imutProfile = ImutProfile::firstOrCreate([
+                'imut_data_id' => $imutData->id,
+                'version' => 'version 1',
+            ], [
+                'rationale' => $profile['rationale'],
+                'quality_dimension' => $profile['quality_dimension'],
+                'objective' => $profile['objective'],
+                'operational_definition' => $profile['operational_definition'],
+                'indicator_type' => $indicatorType,
+                'numerator_formula' => $profile['numerator_formula'],
+                'denominator_formula' => $profile['denominator_formula'],
+                'target_operator' => $profile['target_operator'] ?? '>=',
+                'target_value' => $profile['target_value'],
+                'inclusion_criteria' => $profile['inclusion_criteria'],
+                'exclusion_criteria' => $profile['exclusion_criteria'],
+                'data_source' => $profile['data_source'],
+                'data_collection_frequency' => $profile['data_collection_frequency'],
+                'analysis_plan' => $profile['analysis_plan'],
+                'analysis_period_type' => $profile['analysis_period_type'],
+                'analysis_period_value' => $profile['analysis_period_value'],
+                'data_collection_method' => $profile['data_collection_method'],
+                'sampling_method' => $profile['sampling_method'],
+                'data_collection_tool' => $profile['data_collection_tool'],
+                'responsible_person' => $profile['responsible_person'],
+            ]);
+        } catch (\Throwable $e) {
+            dd([
+                'error' => $e->getMessage(),
+                'indicator' => $indicator,
+            ]);
+        }
         // Relasi Unit Kerja
         foreach ($this->unitKerjaIds as $unitId) {
             $imutData->unitKerja()->syncWithoutDetaching([
