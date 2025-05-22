@@ -69,6 +69,8 @@ class ImutDataResource extends Resource implements HasShieldPermissions
         return [
             'view',
             'view_any',
+            'view_all_data',
+            'view_by_unit_kerja',
             'create',
             'update',
             'restore',
@@ -174,6 +176,25 @@ class ImutDataResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->query(function () {
+                $user = \Illuminate\Support\Facades\Auth::user();
+
+                $query = ImutData::query();
+
+                if ($user->can('view_all_data_imut::data')) {
+                    return $query;
+                }
+
+                if ($user->can('view_by_unit_kerja_imut::data')) {
+                    return $query->whereHas(
+                        'unitKerja',
+                        fn($q) =>
+                        $q->where('unit_kerja_id', \Illuminate\Support\Facades\Auth::user()->unit_kerja_id)
+                    );
+                }
+
+                return $query->whereRaw('1 = 0');
+            })
             ->columns([
                 TextColumn::make('title')
                     ->label(__('filament-forms::imut-data.fields.title'))
@@ -262,6 +283,28 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                 ]),
             ]);
     }
+
+    // ✅ Ini cara resmi di Filament v3
+    public static function getTableQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = static::getModel()::query();
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        dd($user); // <-- Ini akan jalan di Filament v3
+
+        if ($user->can('view_all_data_imut::data')) {
+            return $query;
+        }
+
+        if ($user->can('view_by_unit_kerja_imut::data')) {
+            return $query->whereHas('unitKerja', function ($q) use ($user) {
+                $q->where('unit_kerja_id', $user->unit_kerja_id);
+            });
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
 
     public static function getRelations(): array
     {
