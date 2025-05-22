@@ -501,13 +501,14 @@ class PenilaianLaporan extends Page implements HasForms
 
                     FileUpload::make('document_upload')
                         ->label('Unggah Dokumen Pendukung')
+                        ->openable()
+                        ->downloadable()
+                        ->maxSize(20480)
+                        ->columnSpanFull()
+                        ->previewable(true)
                         ->preserveFilenames()
                         ->directory('uploads/imut-documents')
-                        ->downloadable()
-                        ->previewable(true)
-                        ->columnSpanFull()
-                        ->openable()
-                        ->maxSize(20480)
+                        ->readOnly(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
                         ->acceptedFileTypes([
                             'application/pdf',
                             'image/*',

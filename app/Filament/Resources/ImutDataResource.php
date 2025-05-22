@@ -186,7 +186,11 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->label(__('filament-forms::imut-data.fields.imut_kategori_id'))
                     ->badge()
                     ->sortable()
-                    ->color('primary')
+                    ->color(function ($record) {
+                        $colors = ['primary', 'success', 'warning', 'danger', 'info', 'gray'];
+                        $id = $record->categories->id ?? 0;
+                        return $colors[$id % count($colors)];
+                    })
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('status')
@@ -211,6 +215,8 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                 TrashedFilter::make(),
                 SelectFilter::make('imut_kategori_id')
                     ->label('Kategori IMUT')
+                    ->preload()
+                    ->multiple()
                     ->relationship('categories', 'short_name')
                     ->searchable(),
 

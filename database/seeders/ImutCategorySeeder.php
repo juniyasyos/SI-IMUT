@@ -14,7 +14,6 @@ class ImutCategorySeeder extends Seeder
                 'category_name' => 'Indikator Mutu Nasional (INM)',
                 'short_name' => 'INM',
                 'scope' => 'global',
-                // 'is_standardized_category' => true,
                 'is_benchmark_category' => true,
                 'description' => 'Indikator yang ditetapkan secara nasional untuk menilai mutu pelayanan di rumah sakit seluruh Indonesia.',
             ],
@@ -28,6 +27,7 @@ class ImutCategorySeeder extends Seeder
                 'category_name' => 'Indikator Mutu Prioritas Unit (IMP-UNIT)',
                 'short_name' => 'IMP-UNIT',
                 'scope' => 'unit',
+                'is_use_global' => true,
                 'description' => 'Indikator prioritas pada tingkat unit pelayanan untuk meningkatkan mutu spesifik di masing-masing unit.',
             ],
             [

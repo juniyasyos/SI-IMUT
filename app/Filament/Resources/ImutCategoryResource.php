@@ -125,15 +125,15 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ])
                         ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
 
-                    // Toggle::make('is_standardized_category')
-                    //     ->label(__('filament-forms::imut-category.form.is_standardized_category'))
-                    //     ->helperText(__('filament-forms::imut-category.form.is_standardized_category_helper'))
-                    //     ->inline(true)
-                    //     ->columnSpan(2)
-                    //     ->onColor('success')
-                    //     ->required()
-                    //     ->default(true)
-                    //     ->columnSpan(1),
+                    Toggle::make('is_use_global')
+                        ->label(__('filament-forms::imut-category.form.is_use_global'))
+                        ->helperText(__('filament-forms::imut-category.form.is_use_global_helper'))
+                        ->inline(true)
+                        ->columnSpan(2)
+                        ->onColor('success')
+                        ->required()
+                        ->default(true)
+                        ->columnSpan(1),
 
                     Toggle::make('is_benchmark_category')
                         ->label(__('filament-forms::imut-category.form.is_benchmark_category'))
@@ -180,16 +180,15 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->sortable(),
 
-
-                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_standardized_category')
-                    ->label(__('filament-forms::imut-category.fields.is_standardized_category'))
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_use_global')
+                    ->label(__('filament-forms::imut-category.fields.is_use_global'))
                     ->translateLabel()
                     ->alignCenter()
                     ->size('xl')
                     ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
                         'update_imut::category',
                     ]))
-                    ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
+                    ->tooltip(fn(Model $record) => $record->status ? 'Global' : 'Not Global')
                     ->sortable(),
 
 

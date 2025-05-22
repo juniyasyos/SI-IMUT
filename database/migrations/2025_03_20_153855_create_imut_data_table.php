@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('short_name', 20)->nullable();
             $table->enum('scope', ['global', 'internal', 'unit'])->default('internal');
             $table->string('description', length: 255)->nullable();
-            // $table->boolean('is_standardized_category')->default(false);
+            $table->boolean('is_use_global')->default(false);
             $table->boolean('is_benchmark_category')->default(false);
             $table->timestamps();
         });
