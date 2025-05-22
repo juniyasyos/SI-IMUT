@@ -21,9 +21,14 @@ class ImutDataPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, ImutData $imutData): bool
+    public function viewAll(User $user): bool
     {
-        return $user->can('view_imut::data');
+        return $user->can('view_all_data_imut::data');
+    }
+
+    public function viewByUnitKerja(User $user): bool
+    {
+        return $user->can('view_by_unit_kerja_imut::data');
     }
 
     /**
