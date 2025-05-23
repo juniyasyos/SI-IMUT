@@ -146,8 +146,10 @@ class UnitKerjaImutDataReport extends Component implements HasTable, HasForms
                         '?laporan_id=' . $record->laporan_imut_id .
                         '&penilaian_id=' . $record->id)
             ])
-            ->bulkActions([
-            ]);
+            ->recordUrl(fn($record) => url()->route('filament.admin.resources.laporan-imuts.edit-penilaian') .
+                '?laporan_id=' . $record->laporan_imut_id .
+                '&penilaian_id=' . $record->id)
+            ->bulkActions([]);
     }
 
     protected function makeSearchableColumn(string $name, string $label, string $dbColumn): TextColumn

@@ -141,6 +141,9 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                         '?laporan_id=' . $record->laporan_imut_id .
                         '&penilaian_id=' . $record->id)
             ])
+            ->recordUrl(fn($record) => url()->route('filament.admin.resources.laporan-imuts.edit-penilaian') .
+                '?laporan_id=' . $record->laporan_imut_id .
+                '&penilaian_id=' . $record->id)
             ->bulkActions([
                 // Define bulk actions here
             ]);

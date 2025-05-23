@@ -10,7 +10,9 @@ use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutData;
 use App\Models\ImutProfile;
 use App\Models\ImutStandard;
+use App\Models\UnitKerja;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
@@ -25,8 +27,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PenilaianLaporan extends Page implements HasForms
 {
@@ -49,6 +54,7 @@ class PenilaianLaporan extends Page implements HasForms
      */
     public ?LaporanImut $laporan = null;
     public ?ImutProfile $profile = null;
+    public ?UnitKerja $unitKerja = null;
     public ?ImutData $imutData = null;
     public ?ImutStandard $imutStandard = null;
 
@@ -92,10 +98,11 @@ class PenilaianLaporan extends Page implements HasForms
 
         $this->profile = $penilaian->profile;
         $this->imutStandard = $penilaian->standar;
+        $this->unitKerja = $penilaian->laporanUnitKerja->unitKerja;
         $this->imutData = $this->profile->imutData;
 
-
         $this->formData = [
+            'penilaian_id' => $penilaian->id,
             'analysis' => $penilaian->analysis,
             'recommendations' => $penilaian->recommendations,
             'numerator_value' => $penilaian->numerator_value,
@@ -126,6 +133,17 @@ class PenilaianLaporan extends Page implements HasForms
         ];
 
         $this->form->fill($this->formData);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label('Simpan Penilaian')
+                ->action(fn() => $this->simpanPenilaian())
+                ->requiresConfirmation()
+                ->color('success'),
+        ];
     }
 
     /**
@@ -456,6 +474,7 @@ class PenilaianLaporan extends Page implements HasForms
     protected static function penilaianFormSchema(): array
     {
         return [
+            Forms\Components\Hidden::make('penilaian_id'),
             Section::make('Perhitungan')
                 ->schema([
                     TextInput::make('numerator_value')
@@ -508,7 +527,7 @@ class PenilaianLaporan extends Page implements HasForms
                         ->previewable(true)
                         ->preserveFilenames()
                         ->directory('uploads/imut-documents')
-                        ->readOnly(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
+                        ->disabled(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
                         ->acceptedFileTypes([
                             'application/pdf',
                             'image/*',
@@ -593,6 +612,7 @@ class PenilaianLaporan extends Page implements HasForms
     {
         $laporanId = $this->laporan?->id;
         $laporanName = $this->laporan?->name ?? 'Detail Laporan';
+        $unitKerjaName = $this->unitKerja?->unit_name ?? 'Unit Kerja';
         $imutDataTitle = $this->imutData?->title ?? 'Data IMUT';
         $profileVersion = $this->profile?->version ?? 'Versi Profil';
 
@@ -600,7 +620,42 @@ class PenilaianLaporan extends Page implements HasForms
             LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
             LaporanImutResource::getUrl('edit', ['record' => $laporanId]) => $laporanName,
             "Penilaian Laporan",
+            "{$unitKerjaName}",
             "{$imutDataTitle} | {$profileVersion}"
         ];
+    }
+
+    public function simpanPenilaian(): void
+    {
+        // Ambil data form dari state
+        $data = $this->form->getState();
+
+        // Validasi eksplisit
+        $validated = Validator::make($data, [
+            'penilaian_id' => ['required', 'integer', Rule::exists(ImutPenilaian::class, 'id')],
+            'analysis' => ['required', 'string'],
+            'recommendations' => ['required', 'string'],
+            'numerator_value' => ['required', 'numeric'],
+            'denominator_value' => ['required', 'numeric'],
+            'document_upload' => ['nullable', 'array'],
+        ])->validate();
+
+        // Cari record berdasarkan ID
+        $penilaian = ImutPenilaian::findOrFail($validated['penilaian_id']);
+
+        // Update nilai-nilai yang dibutuhkan
+        $penilaian->update([
+            'analysis' => $validated['analysis'],
+            'recommendations' => $validated['recommendations'],
+            'numerator_value' => $validated['numerator_value'],
+            'denominator_value' => $validated['denominator_value'],
+            'document_upload' => $validated['document_upload'] ?? [],
+        ]);
+
+        // Notifikasi sukses
+        Notification::make()
+            ->title('Penilaian berhasil disimpan.')
+            ->success()
+            ->send();
     }
 }
