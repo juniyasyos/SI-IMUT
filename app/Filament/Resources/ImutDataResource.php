@@ -176,11 +176,25 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                 }
 
                 if ($user->can('view_by_unit_kerja_imut::data')) {
+                    $unitKerjaIds = $user->unitKerjas->pluck('id')->toArray();
+                    // dd([
+                    //     $unitKerjaIds,
+                    //     ImutData::query()
+                    //         ->whereHas('unitKerja', function ($query) use ($unitKerjaIds) {
+                    //             $query->whereIn('imut_data_unit_kerja.unit_kerja_id', $unitKerjaIds);
+                    //         })->get()
+                    // ]);
+
+                    $pivotData = \Illuminate\Support\Facades\DB::table('imut_data_unit_kerja')
+                        ->whereIn('unit_kerja_id', $unitKerjaIds)
+                        ->get();
+
+                    dd($pivotData);
+                    
                     return ImutData::query()
-                        ->join('imut_data_unit_kerja', 'imut_data_unit_kerja.imut_data_id', '=', 'imut_data.id')
-                        ->where('imut_data_unit_kerja.unit_kerja_id', $user->unit_kerja_id)
-                        ->select('imut_data.*')
-                        ->distinct();
+                        ->whereHas('unitKerja', function ($query) use ($unitKerjaIds) {
+                            $query->whereIn('unit_kerja.id', 1);
+                        });
                 }
 
                 return ImutData::query()->whereRaw('1 = 0');

@@ -128,7 +128,7 @@ class ImutDataSeeder extends Seeder
                 'title' => $indicator['title'],
                 'imut_kategori_id' => $category->id,
                 'description' => $indicator['description'],
-                'status' => true, 
+                'status' => true,
                 'created_by' => $this->adminUserId
             ]);
 
@@ -198,19 +198,20 @@ class ImutDataSeeder extends Seeder
                 'indicator' => $indicator,
             ]);
         }
-        // Relasi Unit Kerja
-        foreach ($this->unitKerjaIds as $unitId) {
-            $imutData->unitKerja()->syncWithoutDetaching([
-                $unitId => [
-                    'assigned_by' => $this->adminUserId,
-                    'assigned_at' => now(),
-                ]
-            ]);
-        }
 
         // Hanya buat laporan jika kategori adalah INM
         if ($category->short_name === 'INM') {
             $this->createStandard($imutProfile);
+
+            // Relasi Unit Kerja
+            foreach ($this->unitKerjaIds as $unitId) {
+                $imutData->unitKerja()->syncWithoutDetaching([
+                    $unitId => [
+                        'assigned_by' => $this->adminUserId,
+                        'assigned_at' => now(),
+                    ]
+                ]);
+            }
 
             if ($category->is_benchmark_category) {
                 $this->createBenchmarking($imutProfile);
