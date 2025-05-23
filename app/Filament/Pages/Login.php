@@ -57,11 +57,11 @@ class Login extends BaseLogin
 
             // Tampilkan notifikasi sesuai status
             Notification::make()
-                        ->title('Akses Ditolak')
-                        ->body($statusMessage)
+                ->title('Akses Ditolak')
+                ->body($statusMessage)
                 ->$notificationType()
-                    ->persistent()
-                    ->send();
+                ->persistent()
+                ->send();
 
             throw ValidationException::withMessages([
                 'data.nik' => $statusMessage,
@@ -69,6 +69,13 @@ class Login extends BaseLogin
         }
 
         if (!Filament::auth()->attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
+            Notification::make()
+                ->title('Login Gagal')
+                ->body('NIK atau password salah. Silakan coba lagi.')
+                ->danger()
+                ->persistent()
+                ->send();
+
             $this->throwFailureValidationException();
         }
 
