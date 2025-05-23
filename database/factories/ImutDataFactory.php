@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\ImutCategory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,6 +20,7 @@ class ImutDataFactory extends Factory
     {
         return [
             'title' => $this->faker->unique()->sentence(3),
+            'created_by' => User::where('name', 'admin')->value('id')
         ];
     }
 }

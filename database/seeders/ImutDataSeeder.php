@@ -128,7 +128,8 @@ class ImutDataSeeder extends Seeder
                 'title' => $indicator['title'],
                 'imut_kategori_id' => $category->id,
                 'description' => $indicator['description'],
-                'status' => true
+                'status' => true, 
+                'created_by' => $this->adminUserId
             ]);
 
             $profile = $indicator['profile'];

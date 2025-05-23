@@ -29,6 +29,7 @@ return new class extends Migration {
             $table->string('slug', 255)->nullable();
             $table->text('description')->nullable();
             $table->boolean('status')->default(true);
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

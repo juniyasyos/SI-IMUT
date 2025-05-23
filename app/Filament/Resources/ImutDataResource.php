@@ -152,6 +152,13 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                             ->columnSpan(2)
                             ->maxLength(255),
 
+                        Select::make('created_by')
+                            ->label('Dibuat oleh')
+                            ->options(User::pluck('name', 'id'))
+                            ->default(fn() => \Illuminate\Support\Facades\Auth::id())
+                            ->disabled()
+                            ->columnSpanFull(),
+
                     ])
                 ])
                 ->heading(__('filament-forms::imut-data.form.main.title')),
