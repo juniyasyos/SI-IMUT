@@ -21,9 +21,14 @@ class FolderPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user): bool
+    public function viewAll(User $user): bool
     {
-        return $user->can('view_folder');
+        return $user->can('view_all_folder');
+    }
+
+    public function viewByUnitKerja(User $user): bool
+    {
+        return $user->can('view_by_unit_kerja_folder');
     }
 
     /**

@@ -12,8 +12,9 @@ class FolderResource extends BaseFolderResource implements HasShieldPermissions
     public static function getPermissionPrefixes(): array
     {
         return [
-            'view',
             'view_any',
+            'view_all',
+            'view_by_unit_kerja',
             'create',
             'update',
             'delete',

@@ -179,21 +179,19 @@ class ImutDataResource extends Resource implements HasShieldPermissions
             ->query(function () {
                 $user = \Illuminate\Support\Facades\Auth::user();
 
-                $query = ImutData::query();
-
                 if ($user->can('view_all_data_imut::data')) {
-                    return $query;
+                    return ImutData::query();
                 }
 
                 if ($user->can('view_by_unit_kerja_imut::data')) {
-                    return $query->whereHas(
-                        'unitKerja',
-                        fn($q) =>
-                        $q->where('unit_kerja_id', \Illuminate\Support\Facades\Auth::user()->unit_kerja_id)
-                    );
+                    return ImutData::query()
+                        ->join('imut_data_unit_kerja', 'imut_data_unit_kerja.imut_data_id', '=', 'imut_data.id')
+                        ->where('imut_data_unit_kerja.unit_kerja_id', $user->unit_kerja_id)
+                        ->select('imut_data.*')
+                        ->distinct();
                 }
 
-                return $query->whereRaw('1 = 0');
+                return ImutData::query()->whereRaw('1 = 0');
             })
             ->columns([
                 TextColumn::make('title')

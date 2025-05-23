@@ -13,7 +13,8 @@ class MediaResource extends BaseMediaResource implements HasShieldPermissions
     {
         return [
             'view',
-            'view_any',
+            'view_all',
+            'view_by_unit_kerja',
             'create',
             'update',
             'delete',
