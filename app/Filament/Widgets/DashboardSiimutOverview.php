@@ -7,6 +7,12 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class DashboardSiimutOverview extends BaseWidget
 {
+
+    public static function canView(): bool
+    {
+        return \Illuminate\Support\Facades\Auth::user()->can('widget_DashboardSiimutOverview');
+    }
+
     protected function getStats(): array
     {
         // Dummy data
