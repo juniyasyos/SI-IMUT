@@ -124,30 +124,15 @@ class ImutDataResource extends Resource implements HasShieldPermissions
 
                         Select::make('imut_kategori_id')
                             ->label(__('filament-forms::imut-data.fields.imut_kategori_id'))
-                            ->relationship('categories', 'category_name')
+                            ->relationship('categories', 'category_name', function ($query) {
+                                $user = \Illuminate\Support\Facades\Auth::user();
+                                if (!($user->can('create_imut::category') && $user->can('update_imut::category'))) {
+                                    $query->where('is_use_global', true);
+                                }
+                            })
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->createOptionForm([
-                                Section::make()
-                                    ->schema([
-                                        Grid::make(2)->schema([
-                                            TextInput::make('category_name')
-                                                ->label(__('filament-forms::imut-category.fields.category_name'))
-                                                ->placeholder(__('filament-forms::imut-category.form.name_placeholder'))
-                                                ->helperText(__('filament-forms::imut-category.form.helper_text'))
-                                                ->required()
-                                                ->maxLength(100),
-
-                                            Textarea::make('description')
-                                                ->label(__('filament-forms::imut-category.form.description'))
-                                                ->placeholder(__('filament-forms::imut-category.fields.description_placeholder'))
-                                                ->helperText(__('filament-forms::imut-category.fields.description_helpertext'))
-                                                ->columnSpanFull(),
-                                        ])
-                                    ])
-                                    ->heading(__('filament-forms::imut-category.form.title'))
-                            ])
                             ->hint(__('filament-forms::imut-data.form.main.category_hint')),
 
                         Toggle::make('status')
