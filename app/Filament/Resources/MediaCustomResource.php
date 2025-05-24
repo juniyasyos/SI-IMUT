@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom;
 use App\Traits\HasActiveIcon;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Juniyasyos\FilamentMediaManager\Resources\MediaResource as BaseMediaResource;
 
-class MediaResource extends BaseMediaResource implements HasShieldPermissions
+class MediaCustomResource extends BaseMediaResource implements HasShieldPermissions
 {
     use HasActiveIcon;
     public static function getPermissionPrefixes(): array
@@ -19,6 +20,13 @@ class MediaResource extends BaseMediaResource implements HasShieldPermissions
             'update',
             'delete',
             'delete_any',
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListMediaCustom::route('/')
         ];
     }
 }

@@ -19,7 +19,7 @@ use Asmit\ResizedColumn\ResizedColumnPlugin;
 use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use DutchCodingCompany\FilamentSocialite\Provider;  
+use DutchCodingCompany\FilamentSocialite\Provider;
 use Juniyasyos\DashStackTheme\DashStackThemePlugin;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -97,10 +97,6 @@ class AdminPanelProvider extends PanelProvider
             ->plugins(
                 $this->getPlugins()
             )
-            ->resources([
-                \App\Filament\Resources\FolderResource::class,   
-                // \TomatoPHP\FilamentMediaManager\Resources\MediaResource::class,
-            ])
             ->databaseNotifications();
     }
 
@@ -145,25 +141,25 @@ class AdminPanelProvider extends PanelProvider
         if ($this->settings->sso_enabled ?? true) {
             $plugins[] =
                 FilamentSocialitePlugin::make()
-                    ->providers([
-                        Provider::make('google')
-                            ->label('Google')
-                            ->icon('fab-google')
-                            ->color(Color::hex('#2f2a6b'))
-                            ->outlined(true)
-                            ->stateless(false)
-                    ])->registration(true)
-                    ->createUserUsing(function (string $provider, SocialiteUserContract $oauthUser, FilamentSocialitePlugin $plugin) {
-                        $user = User::firstOrNew([
-                            'email' => $oauthUser->getEmail(),
-                        ]);
-                        $user->name = $oauthUser->getName();
-                        $user->email = $oauthUser->getEmail();
-                        $user->email_verified_at = now();
-                        $user->save();
+                ->providers([
+                    Provider::make('google')
+                        ->label('Google')
+                        ->icon('fab-google')
+                        ->color(Color::hex('#2f2a6b'))
+                        ->outlined(true)
+                        ->stateless(false)
+                ])->registration(true)
+                ->createUserUsing(function (string $provider, SocialiteUserContract $oauthUser, FilamentSocialitePlugin $plugin) {
+                    $user = User::firstOrNew([
+                        'email' => $oauthUser->getEmail(),
+                    ]);
+                    $user->name = $oauthUser->getName();
+                    $user->email = $oauthUser->getEmail();
+                    $user->email_verified_at = now();
+                    $user->save();
 
-                        return $user;
-                    });
+                    return $user;
+                });
         }
         return $plugins;
     }

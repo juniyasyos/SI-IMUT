@@ -23,8 +23,8 @@ return [
     "filament" => [
         "active" => true,
         "resources" => [
-            \Juniyasyos\FilamentMediaManager\Resources\FolderResource::class,
-            \Juniyasyos\FilamentMediaManager\Resources\MediaResource::class,
+            App\Filament\Resources\FolderCustomResource::class,
+            App\Filament\Resources\MediaCustomResource::class,
         ]
     ],
 
@@ -33,6 +33,8 @@ return [
     ],
 
     'allow_user_access' => true,
+
+    'slug_folder' => 'folder',
 
     "navigation_sort" => 0,
 ];
