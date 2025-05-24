@@ -32,7 +32,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Laravel\Socialite\Contracts\User as SocialiteUserContract;
-use TomatoPHP\FilamentMediaManager\FilamentMediaManagerPlugin;
+use Juniyasyos\FilamentMediaManager\FilamentMediaManagerPlugin;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use Juniyasyos\FilamentLaravelBackup\FilamentLaravelBackupPlugin;
 

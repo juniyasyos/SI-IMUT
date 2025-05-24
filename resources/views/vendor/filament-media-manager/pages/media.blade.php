@@ -1,8 +1,8 @@
 @php
-    $currentFolder = \TomatoPHP\FilamentMediaManager\Models\Folder::find($this->folder_id);
+    $currentFolder = \Juniyasyos\FilamentMediaManager\Models\Folder::find($this->folder_id);
     if(filament('filament-media-manager')->allowSubFolders){
-        $folders = \TomatoPHP\FilamentMediaManager\Models\Folder::query()
-            ->where('model_type', \TomatoPHP\FilamentMediaManager\Models\Folder::class)
+        $folders = \Juniyasyos\FilamentMediaManager\Models\Folder::query()
+            ->where('model_type', \Juniyasyos\FilamentMediaManager\Models\Folder::class)
             ->where('model_id', $this->folder_id)
             ->get();
     }
@@ -16,7 +16,7 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
     @if(isset($records))
         @foreach($records as $item)
-            @if($item instanceof \TomatoPHP\FilamentMediaManager\Models\Folder)
+            @if($item instanceof \Juniyasyos\FilamentMediaManager\Models\Folder)
                 {{ ($this->folderAction($item))(['record' => $item]) }}
             @else
                 <x-filament::modal  width="3xl" slide-over>
@@ -32,7 +32,7 @@
                             @else
                                 @php
                                     $hasPreview = false;
-                                    $loadTypes = \TomatoPHP\FilamentMediaManager\Facade\FilamentMediaManager::getTypes();
+                                    $loadTypes = \Juniyasyos\FilamentMediaManager\Facade\FilamentMediaManager::getTypes();
                                     $type = null;
                                     foreach ($loadTypes as $getType) {
                                         if(str($item->file_name)->contains($getType->exstantion)){
@@ -66,7 +66,6 @@
                                         </div>
                                     </div>
                                 @endif
-
 
 
                                 <div class="flex justify-start">
@@ -112,7 +111,7 @@
                         @else
                             @php
                                 $hasPreview = false;
-                                $loadTypes = \TomatoPHP\FilamentMediaManager\Facade\FilamentMediaManager::getTypes();
+                                $loadTypes = \Juniyasyos\FilamentMediaManager\Facade\FilamentMediaManager::getTypes();
                                 foreach ($loadTypes as $type) {
                                     if(str($item->file_name)->contains($type->exstantion)){
                                         $hasPreview = $type->preview;

@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Traits\HasActiveIcon;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use TomatoPHP\FilamentMediaManager\Resources\MediaResource as BaseMediaResource;
+use Juniyasyos\FilamentMediaManager\Resources\MediaResource as BaseMediaResource;
 
 class MediaResource extends BaseMediaResource implements HasShieldPermissions
 {

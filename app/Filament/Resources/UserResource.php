@@ -2,54 +2,63 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\User;
+use App\Models\{User, Position};
 use App\Traits\HasActiveIcon;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use App\Models\Position;
-use Filament\Forms\Form;
-use Filament\Tables\Actions\ForceDeleteAction;
-use Filament\Tables\Actions\ForceDeleteBulkAction;
-use Filament\Tables\Actions\RestoreAction;
-use Filament\Tables\Actions\RestoreBulkAction;
-use Filament\Tables\Table;
-use Filament\Infolists\Infolist;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Select;
 use App\Filament\Exports\UserExporter;
-use Filament\Forms\Components\Section;
-use Filament\Support\Enums\FontWeight;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\Group;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Resources\Pages\CreateRecord;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Infolists\Components\ImageEntry;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\UserResource\Pages;
-use Illuminate\Support\Facades\Gate;
-use STS\FilamentImpersonate\Tables\Actions\Impersonate;
-use Filament\Forms\Components\Actions\Action as FieldAction;
-use Filament\Infolists\Components\Section as InfolistSection;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
-use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
+use Filament\Forms\{
+    Components\Actions\Action as FieldAction,
+    Components\DatePicker,
+    Components\Grid,
+    Components\Section,
+    Components\Select,
+    Components\TextInput,
+    Components\Textarea,
+    Components\ToggleButtons,
+    Form,
+    Get,
+    Set
+};
+use Filament\Infolists\{
+    Components\Group,
+    Components\ImageEntry,
+    Components\Section as InfolistSection,
+    Components\TextEntry,
+    Infolist
+};
+use Filament\Resources\{
+    Pages\CreateRecord,
+    Resource
+};
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\{
+    Actions\Action,
+    Actions\ActionGroup,
+    Actions\BulkActionGroup,
+    Actions\DeleteAction,
+    Actions\DeleteBulkAction,
+    Actions\EditAction,
+    Actions\ExportBulkAction,
+    Actions\ForceDeleteAction,
+    Actions\ForceDeleteBulkAction,
+    Actions\RestoreAction,
+    Actions\RestoreBulkAction,
+    Actions\ViewAction,
+    Columns\ImageColumn,
+    Columns\Layout\Split,
+    Columns\Layout\Stack,
+    Columns\TextColumn,
+    Filters\SelectFilter,
+    Table
+};
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
+use Rmsramos\Activitylog\{
+    Actions\ActivityLogTimelineTableAction,
+    RelationManagers\ActivitylogRelationManager
+};
+use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
 class UserResource extends Resource implements HasShieldPermissions
 {
@@ -126,163 +135,10 @@ class UserResource extends Resource implements HasShieldPermissions
         return __('filament-navigation::navigation.group.user_access');
     }
 
-public static function form(Form $form): Form
-{
-    return $form->schema([
-        Section::make(__('filament-forms::users.form.user.title'))
-            ->description(__('filament-forms::users.form.user.description'))
-            ->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('nik')
-                        ->label(__('filament-forms::users.fields.nik'))
-                        ->placeholder(__('filament-forms::users.form.user.nik_placeholder'))
-                        ->required()
-                        ->unique('users', 'nik', ignoreRecord: true)
-                        ->maxLength(20),
-
-                    TextInput::make('name')
-                        ->label(__('filament-forms::users.fields.name'))
-                        ->placeholder(__('filament-forms::users.form.user.name_placeholder'))
-                        ->required(),
-                ]),
-                Grid::make(2)->schema([
-                    TextInput::make('place_of_birth')
-                        ->label(__('filament-forms::users.fields.place_of_birth'))
-                        ->placeholder(__('filament-forms::users.form.personal_info.place_of_birth_placeholder'))
-                        ->nullable(),
-
-                    DatePicker::make('date_of_birth')
-                        ->label(__('filament-forms::users.fields.date_of_birth'))
-                        ->placeholder(__('filament-forms::users.form.personal_info.date_of_birth_placeholder'))
-                        ->nullable(),
-                ]),
-                ToggleButtons::make('gender')
-                    ->label(__('filament-forms::users.fields.gender'))
-                    ->options([
-                        'Laki-laki' => __('filament-forms::users.form.personal_info.gender_male'),
-                        'Perempuan' => __('filament-forms::users.form.personal_info.gender_female'),
-                    ])
-                    ->required()
-                    ->inline()
-                    ->colors([
-                        'Laki-laki' => 'primary',
-                        'Perempuan' => 'success',
-                    ])
-            ]),
-
-        Section::make(__('filament-forms::users.form.contact_info.title'))
-            ->description(__('filament-forms::users.form.contact_info.description'))
-            ->schema([
-                Textarea::make('address_ktp')
-                    ->label(__('filament-forms::users.fields.address_ktp'))
-                    ->placeholder(__('filament-forms::users.form.contact_info.address_placeholder'))
-                    ->required(),
-
-                Grid::make(2)->schema([
-                    TextInput::make('phone_number')
-                        ->label(__('filament-forms::users.fields.phone_number'))
-                        ->placeholder(__('filament-forms::users.form.contact_info.phone_number_placeholder'))
-                        ->tel()
-                        ->nullable(),
-
-                    TextInput::make('email')
-                        ->label(__('filament-forms::users.fields.email'))
-                        ->placeholder(__('filament-forms::users.form.user.email_placeholder'))
-                        ->email()
-                        ->nullable()
-                        ->unique('users', 'email', ignoreRecord: true),
-                ]),
-            ]),
-
-        Section::make(__('filament-forms::users.form.account.title'))
-            ->description(__('filament-forms::users.form.account.description'))
-            ->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('password')
-                        ->label(__('filament-forms::users.fields.password'))
-                        ->placeholder(__('filament-forms::users.form.user.password_placeholder'))
-                        ->password()
-                        ->dehydrateStateUsing(fn($state) => $state ? bcrypt($state) : null)
-                        ->required(fn($livewire) => $livewire instanceof CreateRecord),
-
-                    ToggleButtons::make('status')
-                        ->label(__('filament-forms::users.fields.status'))
-                        ->options([
-                            'active' => __('filament-forms::users.status.active'),
-                            'inactive' => __('filament-forms::users.status.inactive'),
-                            'suspended' => __('filament-forms::users.status.suspended'),
-                        ])
-                        ->required()
-                        ->default('active')
-                        ->inline()
-                        ->colors([
-                            'active' => 'success',
-                            'inactive' => 'warning',
-                            'suspended' => 'danger',
-                        ])
-                ]),
-            ]),
-
-        Section::make(__('filament-forms::users.form.position.title'))
-            ->description(__('filament-forms::users.form.position.description'))
-            ->schema([
-                Select::make('position_id')
-                    ->label(__('filament-forms::users.fields.position'))
-                    ->relationship('position', 'name')
-                    ->preload()
-                    ->searchable()
-                    ->placeholder(__('filament-forms::users.form.position.select_placeholder'))
-                    ->createOptionForm(fn(Form $form) => $form->schema([
-                        TextInput::make('name')
-                            ->required()
-                            ->label(__('filament-forms::users.form.position.create_label')),
-                        TextInput::make('description')
-                            ->label(__('filament-forms::users.form.position.create_description'))
-                            ->nullable(),
-                    ]))
-                    ->suffixActions([
-                        FieldAction::make('editPosition')
-                            ->icon('heroicon-o-pencil-square')
-                            ->visible(fn(Get $get) => filled($get('position_id')))
-                            ->modalHeading(__('filament-forms::users.form.position.edit_modal_title'))
-                            ->mountUsing(function (FieldAction $action, Get $get) {
-                                $position = Position::find($get('position_id'));
-                                if ($position) {
-                                    $action->form([
-                                        TextInput::make('name')
-                                            ->required()
-                                            ->default($position->name),
-                                        TextInput::make('description')
-                                            ->default($position->description),
-                                    ]);
-                                }
-                            })
-                            ->action(function (array $data, Get $get) {
-                                $position = Position::find($get('position_id'));
-                                if ($position) {
-                                    $position->update([
-                                        'name' => $data['name'],
-                                        'description' => $data['description'],
-                                    ]);
-                                }
-                            }),
-
-                        FieldAction::make('deletePosition')
-                            ->icon('heroicon-o-trash')
-                            ->color('danger')
-                            ->requiresConfirmation()
-                            ->visible(fn(Get $get) => filled($get('position_id')))
-                            ->action(function (Get $get, Set $set) {
-                                $position = Position::find($get('position_id'));
-                                if ($position) {
-                                    $position->delete();
-                                    $set('position_id', null);
-                                }
-                            }),
-                    ]),
-            ]),
-    ]);
-}
+    public static function form(Form $form): Form
+    {
+        return $form->schema(self::FormDefaultInformation());
+    }
 
 
     public static function canCreate(): bool
@@ -293,40 +149,7 @@ public static function form(Form $form): Form
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Split::make([
-                    ImageColumn::make('avatar_url')
-                        ->searchable()
-                        ->circular()
-                        ->grow(false)
-                        ->getStateUsing(fn($record) => $record->avatar_url ?: "https://ui-avatars.com/api/?name=" . urlencode($record->name)),
-                    Stack::make([
-                        TextColumn::make('name')
-                            ->label(__('filament-forms::users.fields.name'))
-                            ->searchable()
-                            ->weight(FontWeight::Bold),
-                        TextColumn::make('position.name')
-                            ->label(__('filament-forms::users.fields.position'))
-                            ->searchable()
-                            ->sortable()
-                            ->icon('heroicon-o-briefcase')
-                            ->badge()
-                            ->color(''),
-                    ])->alignStart()->space(1),
-                    Stack::make([
-                        TextColumn::make('roles.name')
-                            ->label(__('filament-forms::users.fields.roles'))
-                            ->searchable()
-                            ->icon('heroicon-o-shield-check')
-                            ->grow(false),
-                        TextColumn::make('nik')
-                            ->label(__('filament-forms::users.fields.email'))
-                            ->icon('heroicon-m-finger-print')
-                            ->searchable()
-                            ->grow(false),
-                    ])->alignStart()->visibleFrom('lg')->space(1)
-                ]),
-            ])
+            ->columns(self::tableColumns())
             ->filters([
                 SelectFilter::make('roles')
                     ->label(__('filament-forms::users.filters.roles'))
@@ -339,49 +162,7 @@ public static function form(Form $form): Form
                     ->multiple()
                     ->preload(),
             ])
-            ->actions([
-                ActivityLogTimelineTableAction::make(__('filament-forms::users.actions.activities'))
-                    ->visible(fn() => Gate::allows('viewActivities', User::class)),
-
-                Action::make(__('filament-forms::users.actions.set_role'))
-                    ->icon('heroicon-m-adjustments-vertical')
-                    ->form([
-                        Select::make('role')
-                            ->label(__('filament-forms::users.fields.roles'))
-                            ->relationship('roles', 'name')
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->optionsLimit(10)
-                            ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
-                    ])
-                    ->visible(fn() => Gate::allows('setRole', User::class)),
-
-                Impersonate::make()
-                    ->label(__('filament-forms::users.actions.impersonate'))
-                    ->visible(fn() => Gate::allows('impersonate', User::class)),
-
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                    RestoreAction::make()
-                        ->visible(
-                            fn($record) =>
-                            Gate::allows('restore', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
-                        ),
-
-                    ForceDeleteAction::make()
-                        ->visible(
-                            fn($record) =>
-                            Gate::allows('forceDelete', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
-                        ),
-                ])->button()->label(__('filament-forms::users.actions.group')),
-            ])
+            ->actions(self::tableActions())
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
@@ -420,7 +201,270 @@ public static function form(Form $form): Form
 
     public static function infolist(Infolist $infolist): Infolist
     {
-        return $infolist->schema([
+        return $infolist->schema(self::InfolistViews());
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('filament-forms::users.model.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament-forms::users.model.plural_label');
+    }
+
+    protected static function formDefaultInformation(): array
+    {
+        return [
+            Section::make(__('filament-forms::users.form.user.title'))
+                ->description(__('filament-forms::users.form.user.description'))
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make('nik')
+                            ->label(__('filament-forms::users.fields.nik'))
+                            ->placeholder(__('filament-forms::users.form.user.nik_placeholder'))
+                            ->required()
+                            ->unique('users', 'nik', ignoreRecord: true)
+                            ->maxLength(20),
+
+                        TextInput::make('name')
+                            ->label(__('filament-forms::users.fields.name'))
+                            ->placeholder(__('filament-forms::users.form.user.name_placeholder'))
+                            ->required(),
+                    ]),
+                    Grid::make(2)->schema([
+                        TextInput::make('place_of_birth')
+                            ->label(__('filament-forms::users.fields.place_of_birth'))
+                            ->placeholder(__('filament-forms::users.form.personal_info.place_of_birth_placeholder'))
+                            ->nullable(),
+
+                        DatePicker::make('date_of_birth')
+                            ->label(__('filament-forms::users.fields.date_of_birth'))
+                            ->placeholder(__('filament-forms::users.form.personal_info.date_of_birth_placeholder'))
+                            ->nullable(),
+                    ]),
+                    ToggleButtons::make('gender')
+                        ->label(__('filament-forms::users.fields.gender'))
+                        ->options([
+                            'Laki-laki' => __('filament-forms::users.form.personal_info.gender_male'),
+                            'Perempuan' => __('filament-forms::users.form.personal_info.gender_female'),
+                        ])
+                        ->required()
+                        ->inline()
+                        ->colors([
+                            'Laki-laki' => 'primary',
+                            'Perempuan' => 'success',
+                        ])
+                ]),
+
+            Section::make(__('filament-forms::users.form.contact_info.title'))
+                ->description(__('filament-forms::users.form.contact_info.description'))
+                ->schema([
+                    Textarea::make('address_ktp')
+                        ->label(__('filament-forms::users.fields.address_ktp'))
+                        ->placeholder(__('filament-forms::users.form.contact_info.address_placeholder'))
+                        ->required(),
+
+                    Grid::make(2)->schema([
+                        TextInput::make('phone_number')
+                            ->label(__('filament-forms::users.fields.phone_number'))
+                            ->placeholder(__('filament-forms::users.form.contact_info.phone_number_placeholder'))
+                            ->tel()
+                            ->nullable(),
+
+                        TextInput::make('email')
+                            ->label(__('filament-forms::users.fields.email'))
+                            ->placeholder(__('filament-forms::users.form.user.email_placeholder'))
+                            ->email()
+                            ->nullable()
+                            ->unique('users', 'email', ignoreRecord: true),
+                    ]),
+                ]),
+
+
+            Section::make(__('filament-forms::users.form.account.title'))
+                ->description(__('filament-forms::users.form.account.description'))
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make('password')
+                            ->label(__('filament-forms::users.fields.password'))
+                            ->placeholder(__('filament-forms::users.form.user.password_placeholder'))
+                            ->password()
+                            ->dehydrateStateUsing(fn($state) => $state ? bcrypt($state) : null)
+                            ->required(fn($livewire) => $livewire instanceof CreateRecord),
+
+                        ToggleButtons::make('status')
+                            ->label(__('filament-forms::users.fields.status'))
+                            ->options([
+                                'active' => __('filament-forms::users.status.active'),
+                                'inactive' => __('filament-forms::users.status.inactive'),
+                                'suspended' => __('filament-forms::users.status.suspended'),
+                            ])
+                            ->required()
+                            ->default('active')
+                            ->inline()
+                            ->colors([
+                                'active' => 'success',
+                                'inactive' => 'warning',
+                                'suspended' => 'danger',
+                            ])
+                    ]),
+                ]),
+
+
+            Section::make(__('filament-forms::users.form.position.title'))
+                ->description(__('filament-forms::users.form.position.description'))
+                ->schema([
+                    Select::make('position_id')
+                        ->label(__('filament-forms::users.fields.position'))
+                        ->relationship('position', 'name')
+                        ->preload()
+                        ->searchable()
+                        ->placeholder(__('filament-forms::users.form.position.select_placeholder'))
+                        ->createOptionForm(fn(Form $form) => $form->schema([
+                            TextInput::make('name')
+                                ->required()
+                                ->label(__('filament-forms::users.form.position.create_label')),
+                            TextInput::make('description')
+                                ->label(__('filament-forms::users.form.position.create_description'))
+                                ->nullable(),
+                        ]))
+                        ->suffixActions([
+                            FieldAction::make('editPosition')
+                                ->icon('heroicon-o-pencil-square')
+                                ->visible(fn(Get $get) => filled($get('position_id')))
+                                ->modalHeading(__('filament-forms::users.form.position.edit_modal_title'))
+                                ->mountUsing(function (FieldAction $action, Get $get) {
+                                    $position = Position::find($get('position_id'));
+                                    if ($position) {
+                                        $action->form([
+                                            TextInput::make('name')
+                                                ->required()
+                                                ->default($position->name),
+                                            TextInput::make('description')
+                                                ->default($position->description),
+                                        ]);
+                                    }
+                                })
+                                ->action(function (array $data, Get $get) {
+                                    $position = Position::find($get('position_id'));
+                                    if ($position) {
+                                        $position->update([
+                                            'name' => $data['name'],
+                                            'description' => $data['description'],
+                                        ]);
+                                    }
+                                }),
+
+                            FieldAction::make('deletePosition')
+                                ->icon('heroicon-o-trash')
+                                ->color('danger')
+                                ->requiresConfirmation()
+                                ->visible(fn(Get $get) => filled($get('position_id')))
+                                ->action(function (Get $get, Set $set) {
+                                    $position = Position::find($get('position_id'));
+                                    if ($position) {
+                                        $position->delete();
+                                        $set('position_id', null);
+                                    }
+                                }),
+                        ]),
+                ])
+        ];
+    }
+
+    protected static function tableColumns(): array
+    {
+        return [
+            Split::make([
+                ImageColumn::make('avatar_url')
+                    ->searchable()
+                    ->circular()
+                    ->grow(false)
+                    ->getStateUsing(fn($record) => $record->avatar_url ?: "https://ui-avatars.com/api/?name=" . urlencode($record->name)),
+                Stack::make([
+                    TextColumn::make('name')
+                        ->label(__('filament-forms::users.fields.name'))
+                        ->searchable()
+                        ->weight(FontWeight::Bold),
+                    TextColumn::make('position.name')
+                        ->label(__('filament-forms::users.fields.position'))
+                        ->searchable()
+                        ->sortable()
+                        ->icon('heroicon-o-briefcase')
+                        ->badge()
+                        ->color(''),
+                ])->alignStart()->space(1),
+                Stack::make([
+                    TextColumn::make('roles.name')
+                        ->label(__('filament-forms::users.fields.roles'))
+                        ->searchable()
+                        ->icon('heroicon-o-shield-check')
+                        ->grow(false),
+                    TextColumn::make('nik')
+                        ->label(__('filament-forms::users.fields.email'))
+                        ->icon('heroicon-m-finger-print')
+                        ->searchable()
+                        ->copyable()
+                        ->copyMessage('NIK berhasil disalin!')
+                        ->copyMessageDuration(1500) 
+                        ->grow(false),
+                ])->alignStart()->visibleFrom('lg')->space(1)
+            ]),
+        ];
+    }
+
+    protected static function tableActions(): array
+    {
+        return [
+            ActivityLogTimelineTableAction::make(__('filament-forms::users.actions.activities'))
+                ->visible(fn() => Gate::allows('viewActivities', User::class)),
+
+            Action::make(__('filament-forms::users.actions.set_role'))
+                ->icon('heroicon-m-adjustments-vertical')
+                ->form([
+                    Select::make('role')
+                        ->label(__('filament-forms::users.fields.roles'))
+                        ->relationship('roles', 'name')
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->optionsLimit(10)
+                        ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
+                ])
+                ->visible(fn() => Gate::allows('setRole', User::class)),
+
+            Impersonate::make()
+                ->label(__('filament-forms::users.actions.impersonate'))
+                ->visible(fn() => Gate::allows('impersonate', User::class)),
+
+            ActionGroup::make([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+                RestoreAction::make()
+                    ->visible(
+                        fn($record) =>
+                        Gate::allows('restore', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                    ),
+
+                ForceDeleteAction::make()
+                    ->visible(
+                        fn($record) =>
+                        Gate::allows('forceDelete', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                    ),
+            ])->button()->label(__('filament-forms::users.actions.group')),
+        ];
+    }
+
+    protected static function InfolistViews(): array
+    {
+        return [
             // Section untuk informasi pribadi pengguna
             InfolistSection::make(__('filament-forms::users.infolist.personal_info_title'))
                 ->columns(3)
@@ -496,18 +540,6 @@ public static function form(Form $form): Form
                         ->dateTime('d M Y')
                         ->icon('heroicon-m-calendar'),
                 ]),
-        ]);
+        ];
     }
-
-
-    public static function getModelLabel(): string
-    {
-        return __('filament-forms::users.model.label');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('filament-forms::users.model.plural_label');
-    }
-
 }

@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Traits\HasActiveIcon;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use TomatoPHP\FilamentMediaManager\Resources\FolderResource as BaseFolderResource;
+use Juniyasyos\FilamentMediaManager\Resources\FolderResource as BaseFolderResource;
 
 class FolderResource extends BaseFolderResource implements HasShieldPermissions
 {

@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
-use TomatoPHP\FilamentMediaManager\Models\Folder;
+use Juniyasyos\FilamentMediaManager\Models\Folder;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FolderPolicy

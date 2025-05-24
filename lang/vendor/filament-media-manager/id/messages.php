@@ -2,7 +2,7 @@
 
 return [
     'empty' => [
-        'title' => "Tidak Ada Media atau Folder yang Ditemukan",
+        'title' => "Tidak ada Media atau Folder ditemukan",
     ],
     'folders' => [
         'title' => 'Manajer Media',
@@ -20,21 +20,26 @@ return [
             'password' => 'Kata Sandi',
             'password_confirmation' => 'Konfirmasi Kata Sandi',
         ],
-        'group' => '',
+        'group' => 'Konten',
     ],
     'media' => [
         'title' => 'Media',
         'single' => 'Media',
         'columns' => [
-            'image' => 'Gambar',
-            'model' => 'Model',
+            'name' => 'Nama',
+            'file_name' => 'Nama Berkas',
+            'mime_type' => 'Tipe MIME',
+            'disk' => 'Disk',
+            'conversions_disk' => 'Disk Konversi',
             'collection_name' => 'Nama Koleksi',
             'size' => 'Ukuran',
-            'order_column' => 'Kolom Urutan',
+            'order_column' => 'Urutan',
+            'image' => 'Gambar',
+            'model' => 'Model',
         ],
         'actions' => [
             'sub_folder' => [
-                'label' => "Buat Subfolder"
+                'label' => "Buat Sub Folder"
             ],
             'create' => [
                 'label' => 'Tambah Media',
@@ -48,13 +53,13 @@ return [
                 'label' => 'Hapus Folder',
             ],
             'edit' => [
-                'label' => 'Edit Folder',
+                'label' => 'Ubah Folder',
             ],
         ],
         'notifications' => [
             'create-media' => 'Media berhasil dibuat',
             'delete-folder' => 'Folder berhasil dihapus',
-            'edit-folder' => 'Folder berhasil diedit',
+            'edit-folder' => 'Folder berhasil diubah',
         ],
         'meta' => [
             'model' => 'Model',

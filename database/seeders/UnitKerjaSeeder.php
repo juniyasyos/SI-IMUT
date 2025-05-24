@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\UnitKerja;
-use TomatoPHP\FilamentMediaManager\Models\Folder; // Pastikan import model Folder
+use Juniyasyos\FilamentMediaManager\Models\Folder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
