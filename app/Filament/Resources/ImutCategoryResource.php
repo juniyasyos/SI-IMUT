@@ -185,21 +185,17 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->translateLabel()
                     ->alignCenter()
                     ->size('xl')
-                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
-                        'update_imut::category',
-                    ]))
+                    ->disabled()
                     ->tooltip(fn(Model $record) => $record->status ? 'Global' : 'Not Global')
                     ->sortable(),
-
-
-                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_benchmark_category')
+                    
+                    
+                    \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_benchmark_category')
                     ->label(__('filament-forms::imut-category.fields.is_benchmark_category'))
                     ->translateLabel()
+                    ->disabled()
                     ->alignCenter()
                     ->size('xl')
-                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
-                        'update_imut::category',
-                    ]))
                     ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
                     ->sortable(),
             ])
