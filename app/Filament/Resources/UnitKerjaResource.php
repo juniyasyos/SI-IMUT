@@ -145,14 +145,26 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                     ->label('User Attach')
                     ->icon('heroicon-o-user')
                     ->relationManager(UsersRelationManager::make())
-                    ->visible(fn() => Gate::any(['attach_user_to_unit_kerja_unit::kerja'])),
+                    ->visible(
+                        fn($record) =>
+                        Gate::any(['attach_user_to_unit_kerja_unit::kerja'], $record)
+                            && method_exists($record, 'trashed') === false
+                            ? true
+                            : ! $record->trashed()
+                    ),
 
                 RelationManagerAction::make('imutData-relation-manager')
                     ->slideOver()
                     ->label('Imut Data Attach')
                     ->icon('heroicon-o-chart-bar')
                     ->relationManager(ImutDataRelationManager::make())
-                    ->visible(fn() => Gate::any(['attach_imut_data_to_unit_kerja_unit::kerja'])),
+                    ->visible(
+                        fn($record) =>
+                        Gate::any(['attach_imut_data_to_unit_kerja_unit::kerja'], $record)
+                            && method_exists($record, 'trashed') === false
+                            ? true
+                            : ! $record->trashed()
+                    ),
 
                 ActionGroup::make([
                     ViewAction::make(),
@@ -162,16 +174,16 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                         ->visible(
                             fn($record) =>
                             Gate::allows('restore', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
+                                method_exists($record, 'trashed') &&
+                                $record->trashed()
                         ),
 
                     ForceDeleteAction::make()
                         ->visible(
                             fn($record) =>
                             Gate::allows('forceDelete', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
+                                method_exists($record, 'trashed') &&
+                                $record->trashed()
                         ),
                 ])->button()->label(__('filament-forms::users.actions.group')),
             ])
@@ -180,14 +192,14 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ForceDeleteBulkAction::make(),
-                ]),
+                ])->visible(fn() => Gate::any(['update_imut::category', 'create_imut::category'])),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-                // UsersRelationManager::class,
+            // UsersRelationManager::class,
             ImutDataRelationManager::class,
         ];
     }
