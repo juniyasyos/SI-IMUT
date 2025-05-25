@@ -51,7 +51,7 @@ return new class extends Migration {
             $table->string('data_source', 255)->nullable();
             $table->string('data_collection_frequency', 255)->nullable();
             $table->text('analysis_plan')->nullable();
-            $table->enum('target_operator', ['=', '>=', '<=', '<', '>'])->default('>=');
+            $table->enum('target_operator', ['=', '>=', '<=', '<', '>'])->default('>=')->nullable();
             $table->bigInteger('target_value')->nullable();
             $table->string('analysis_period_type', 255)->nullable();
             $table->bigInteger('analysis_period_value')->nullable();

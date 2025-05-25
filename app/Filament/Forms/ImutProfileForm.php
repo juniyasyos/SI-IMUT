@@ -206,14 +206,15 @@ class ImutProfileForm
                                 ->helperText('Angka yang menunjukkan rentang waktu (dalam bulan/minggu).')
                                 ->prefixIcon('heroicon-o-adjustments-horizontal'),
 
-                            Select::make('target_operator')
+                            ToggleButtons::make('target_operator')
                                 ->label('Operator Target')
                                 ->options([
-                                    '>=' => 'Lebih besar atau sama dengan (≥)',
-                                    '<=' => 'Kurang atau sama dengan (≤)',
-                                    '='  => 'Sama dengan (=)',
+                                    '>=' => '≥',
+                                    '<=' => '≤',
+                                    '='  => '=',
                                 ])
-                                ->default('>=') 
+                                ->default('=')
+                                ->inline()
                                 ->helperText('Pilih operator pembanding untuk nilai target.'),
 
                             TextInput::make('target_value')
