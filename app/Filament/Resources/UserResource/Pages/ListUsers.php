@@ -28,7 +28,7 @@ class ListUsers extends ListRecords
                         ->withFilename(fn($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
                         ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
                         ->withColumns([
-                            // Column::make('updated_at'),
+                            Column::make('updated_at'),
                         ])
                 ])
                 ->visible(fn() => Gate::allows('export', User::class)),

@@ -52,6 +52,7 @@ use Filament\Tables\{
     Filters\SelectFilter,
     Table
 };
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Rmsramos\Activitylog\{
@@ -151,6 +152,7 @@ class UserResource extends Resource implements HasShieldPermissions
         return $table
             ->columns(self::tableColumns())
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('roles')
                     ->label(__('filament-forms::users.filters.roles'))
                     ->relationship('roles', 'name')
@@ -408,7 +410,7 @@ class UserResource extends Resource implements HasShieldPermissions
                         ->searchable()
                         ->copyable()
                         ->copyMessage('NIK berhasil disalin!')
-                        ->copyMessageDuration(1500) 
+                        ->copyMessageDuration(1500)
                         ->grow(false),
                 ])->alignStart()->visibleFrom('lg')->space(1)
             ]),

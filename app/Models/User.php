@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Filament\Panel;
 use App\Models\UnitKerja;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
@@ -66,7 +67,7 @@ use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, TwoFactorAuthenticatable, LogsActivity;
+    use HasFactory, Notifiable, HasRoles, TwoFactorAuthenticatable, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
