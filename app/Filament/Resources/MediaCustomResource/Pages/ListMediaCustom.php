@@ -51,4 +51,13 @@ class ListMediaCustom extends ListMedia
         $this->folder_id = request()->get('folder_id');
         session()->put('folder_id', $this->folder_id);
     }
+    public function getBreadcrumbs(): array
+    {
+        return [
+            'Dashboard',
+            'Folders',
+            $this->folder?->name ?? 'Unknown Folder',
+            'Media',
+        ];
+    }
 }

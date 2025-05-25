@@ -34,7 +34,9 @@ return [
 
     'allow_user_access' => true,
 
-    'slug_folder' => 'folder',
+    'slug_folder' => 'folders',
+
+    'slug_media' => 'media',
 
     "navigation_sort" => 0,
 ];

@@ -23,10 +23,18 @@ class MediaCustomResource extends BaseMediaResource implements HasShieldPermissi
         ];
     }
 
-    public static function getPages(): array
+public static function getPages(): array
+{
+    return [
+        'index' => \App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom::route('/folders'),
+    ];
+}
+
+    /**
+     * Override slug resource secara statik.
+     */
+    public static function getSlug(): string
     {
-        return [
-            'index' => ListMediaCustom::route('/')
-        ];
+        return config('filament-media-manager.slug_media', 'media-custom');
     }
 }
