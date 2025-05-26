@@ -9,12 +9,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Filters\TrashedFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Tables\Actions\{EditAction, ViewAction, DeleteAction, RestoreAction, ForceDeleteAction};
 use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkAction, ForceDeleteBulkAction};
 
-class RegionTypeBencmarkingResource extends Resource
+class RegionTypeBencmarkingResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = RegionType::class;
 
@@ -46,6 +47,23 @@ class RegionTypeBencmarkingResource extends Resource
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         return static::getUrl(name: 'edit', parameters: ['record' => $record]);
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'restore',
+            'restore_any',
+            'replicate',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+        ];
     }
 
     public static function getLabel(): ?string
