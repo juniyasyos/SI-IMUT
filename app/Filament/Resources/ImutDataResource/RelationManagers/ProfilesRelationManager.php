@@ -65,7 +65,6 @@ class ProfilesRelationManager extends RelationManager
                         TextInput::make('version')->disabled(),
                         TextInput::make('indicator_type')->disabled(),
                         TextInput::make('responsible_person')->disabled(),
-                        // tambah field lain yang mau ditampilkan, disabled supaya cuma info
                     ]),
                 EditAction::make()
                     ->url(fn($record, $livewire) => ImutDataResource::getUrl('edit-profile', [

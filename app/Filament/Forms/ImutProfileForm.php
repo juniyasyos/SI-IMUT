@@ -35,11 +35,23 @@ class ImutProfileForm
             \Filament\Forms\Components\Hidden::make('imut_data_id'),
             Tabs::make('Form Profil Indikator')
                 ->tabs([
-                    Tab::make('Informasi Dasar')->schema(self::basicInformationSchema()),
-                    Tab::make('Perhitungan')->schema(self::operationalDefinitionSchema()),
-                    Tab::make('Data & Analisis')->schema(self::dataAndAnalysisSchema()),
-                    Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null),
-                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
+                    Tab::make('Informasi Dasar')
+                        ->schema(self::basicInformationSchema()),
+
+                    Tab::make('Perhitungan')
+                        ->schema(self::operationalDefinitionSchema()),
+
+                    Tab::make('Data & Analisis')
+                        ->schema(self::dataAndAnalysisSchema()),
+
+                    Tab::make('🎯 Standar Indikator')
+                        ->schema(self::standardIndicatorSchema())
+                        ->visible(fn(?Model $record) => $record !== null)
+                        ->visibleOn('edit'),
+
+                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())
+                        ->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
+                        ->visibleOn('edit'),
                 ])
                 ->columnSpan(['lg' => 2])
         ];

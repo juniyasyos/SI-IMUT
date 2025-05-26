@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\ImutProfileResource\Pages;
 
+use App\Filament\Resources\ImutDataResource;
 use Filament\Actions;
 use App\Models\ImutData;
 use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\ImutProfileResource;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action as NotificationAction;
+
 
 class CreateImutProfile extends CreateRecord
 {
@@ -76,6 +80,29 @@ class CreateImutProfile extends CreateRecord
         ]);
     }
 
+    protected function handleRecordCreation(array $data): \App\Models\ImutProfile
+    {
+        $record = parent::handleRecordCreation($data);
+
+        // Ambil ulang ImutData berdasarkan id dari form (pasti ada)
+        $imutData = ImutData::find($data['imut_data_id']);
+
+        Notification::make()
+            ->title('Profil berhasil dibuat')
+            ->body("Profil IMUT '{$record->version}' berhasil ditambahkan.")
+            ->success()
+            // ->actions([
+            //     NotificationAction::make('Lihat Profil')
+            //         ->url(route('filament.admin.resources.imut-datas.edit-profile', [
+            //             'imutDataSlug' => $imutData->slug,
+            //             'record' => $record->id,
+            //         ]))
+            //         ->button(),
+            // ])
+            ->send();
+
+        return $record;
+    }
 
     public function getBreadcrumbs(): array
     {
@@ -90,9 +117,12 @@ class CreateImutProfile extends CreateRecord
 
     public function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('edit-profile', [
-            'imutDataSlug' => $this->imutData->slug,
-            'record' => $this->imutData->slug,
+        $record = $this->record; // sudah tersedia di CreateRecord
+        $imutData = ImutData::find($record->imut_data_id);
+
+        return route('filament.admin.resources.imut-datas.edit-profile', [
+            'imutDataSlug' => $imutData->slug,
+            'record' => $record->slug,
         ]);
     }
 }

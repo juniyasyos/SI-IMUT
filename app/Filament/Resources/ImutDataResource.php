@@ -280,7 +280,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
         $query = static::getModel()::query();
         $user = \Illuminate\Support\Facades\Auth::user();
 
-        dd($user); // <-- Ini akan jalan di Filament v3
+        // dd($user); // <-- Ini akan jalan di Filament v3
 
         if ($user->can('view_all_data_imut::data')) {
             return $query;
