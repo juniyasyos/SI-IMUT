@@ -32,12 +32,12 @@ class ImutProfileForm
     public static function make(): array
     {
         return [
+            \Filament\Forms\Components\Hidden::make('imut_data_id'),
             Tabs::make('Form Profil Indikator')
                 ->tabs([
                     Tab::make('Informasi Dasar')->schema(self::basicInformationSchema()),
                     Tab::make('Perhitungan')->schema(self::operationalDefinitionSchema()),
                     Tab::make('Data & Analisis')->schema(self::dataAndAnalysisSchema()),
-                    // Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null && $record->imutData->categories->is_standardized_category === 1),
                     Tab::make('🎯 Standar Indikator')->schema(self::standardIndicatorSchema())->visible(fn(?Model $record) => $record !== null),
                     Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
                 ])
@@ -55,11 +55,11 @@ class ImutProfileForm
                             ->label('Versi')
                             ->helperText('Contoh: v1, v2.1')
                             ->required()
-                            ->maxLength(10),
+                            ->maxLength(50),
 
                         TextInput::make('responsible_person')
                             ->label('Penanggung Jawab')
-                            ->placeholder('Nama lengkap penanggung jawab')
+                            ->placeholder('Peran yang benanggung jawab')
                             ->required()
                             ->maxLength(255),
 
@@ -70,6 +70,7 @@ class ImutProfileForm
                                 'output' => 'Output',
                                 'outcome' => 'Outcome',
                             ])
+                            ->default('process')
                             ->icons([
                                 'process' => 'heroicon-o-cog',
                                 'output' => 'heroicon-o-chart-bar',

@@ -38,11 +38,11 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('imut_data_id')->constrained('imut_data')->cascadeOnDelete()->nullable();
             $table->string('slug', 255)->nullable();
-            $table->string('version', 10)->default('version 1');
+            $table->string('version', 50)->default('version 1');
             $table->text('rationale')->nullable();
             $table->text('quality_dimension')->nullable();
             $table->text('objective')->nullable();
-            $table->text('operational_definition')->nullable();
+            $table->text('operational_definition')->nullable(); 
             $table->enum('indicator_type', ['process', 'output', 'outcome'])->nullable();
             $table->text('numerator_formula')->nullable();
             $table->text('denominator_formula')->nullable();
