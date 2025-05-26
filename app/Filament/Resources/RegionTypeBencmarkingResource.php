@@ -48,24 +48,6 @@ class RegionTypeBencmarkingResource extends Resource
         return static::getUrl(name: 'edit', parameters: ['record' => $record]);
     }
 
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view',
-            'view_any',
-            'create',
-            'update',
-            'restore',
-            'restore_any',
-            'replicate',
-            'reorder',
-            'delete',
-            'delete_any',
-            'force_delete',
-            'force_delete_any',
-        ];
-    }
-
     public static function getLabel(): ?string
     {
         return __('Region Type');

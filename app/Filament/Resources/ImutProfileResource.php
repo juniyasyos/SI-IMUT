@@ -97,7 +97,6 @@ class ImutProfileResource extends Resource implements HasShieldPermissions
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
-                \Filament\Tables\Actions\ReplicateAction::make()->successNotificationTitle('Imut Profile Successed replicated'),
                 RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
             ])

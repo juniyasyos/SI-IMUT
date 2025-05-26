@@ -71,6 +71,8 @@ class ProfilesRelationManager extends RelationManager
                         'imutDataSlug' => $livewire->ownerRecord->slug,
                         'record' => $record->slug,
                     ])),
+                \Filament\Tables\Actions\ReplicateAction::make()
+                    ->successNotificationTitle('Imut Profile Successed replicated'),
                 DeleteAction::make(),
                 RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
