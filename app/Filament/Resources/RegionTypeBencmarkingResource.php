@@ -58,7 +58,6 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
             'update',
             'restore',
             'restore_any',
-            'replicate',
             'delete',
             'delete_any',
             'force_delete',
