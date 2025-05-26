@@ -32,7 +32,7 @@
         "jeffgreco13/filament-breezy": "^2.4",
         "juniyasyos/dash-stack-theme-juniyasyos": "^1.3",
         "juniyasyos/filament-backup": "^1.2",
-        "juniyasyos/filament-media-manager": "*",
+        "juniyasyos/filament-media-manager": "1.3.2",
         "juniyasyos/filament-pwa-kaido": "^2.1",
         "juniyasyos/filament-settings-hub-kaido": "^4.0",
         "laravel/framework": "^12.0",
@@ -124,15 +124,6 @@
             "wikimedia/composer-merge-plugin": true
         }
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "packages/juniyasyos/filament-media-manager",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
