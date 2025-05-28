@@ -23,12 +23,12 @@ class FolderCustomResource extends BaseFolderResource implements HasShieldPermis
         ];
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => \App\Filament\Resources\FolderCustomResource\Pages\ListFoldersCustom::route('/'),
-        ];
-    }
+    // public static function getPages(): array
+    // {
+    //     return [
+    //         'index' => \App\Filament\Resources\FolderCustomResource\Pages\ListFoldersCustom::route('/'),
+    //     ];
+    // }
 
     /**
      * Override slug resource secara statik.

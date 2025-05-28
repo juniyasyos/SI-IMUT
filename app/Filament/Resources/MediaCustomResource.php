@@ -23,12 +23,12 @@ class MediaCustomResource extends BaseMediaResource implements HasShieldPermissi
         ];
     }
 
-public static function getPages(): array
-{
-    return [
-        'index' => \App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom::route('/folders'),
-    ];
-}
+    // public static function getPages(): array
+    // {
+    //     return [
+    //         'index' => \App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom::route('/folders'),
+    //     ];
+    // }
 
     /**
      * Override slug resource secara statik.
