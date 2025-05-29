@@ -16,4 +16,5 @@ class ListLaporanImuts extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
 }

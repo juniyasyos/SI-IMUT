@@ -148,14 +148,14 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                         ->label('Berakhirnya Periode Asesmen')
                         ->placeholder('YYYY-MM-DD')
                         ->required()
-                        ->minDate(fn(callable $get) => $get('assessment_period_start')) 
-                        ->rule('after_or_equal:assessment_period_start'), 
+                        ->minDate(fn(callable $get) => $get('assessment_period_start'))
+                        ->rule('after_or_equal:assessment_period_start'),
 
 
                     Select::make('created_by')
                         ->label('Dibuat oleh')
-                        ->options(User::pluck('name', 'id')) 
-                        ->default(fn() => Auth::id())      
+                        ->options(User::pluck('name', 'id'))
+                        ->default(fn() => Auth::id())
                         ->disabled()
                         ->columnSpanFull(),
 
@@ -268,7 +268,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
 
                 ProgressColumn::make('unit_kerja_terisi')
                     ->label('Unit Kerja Terisi')
-                    ->visible(fn() => !Gate::any([
+                    ->visible(fn() => Gate::any([
                         'view_unit_kerja_report_laporan::imut',
                         'view_imut_data_report_laporan::imut',
                     ]))
@@ -322,23 +322,37 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                // Aksi hanya jika record TIDAK dalam trash
                 Action::make('isi_penilaian')
                     ->label('Isi Penilaian')
                     ->icon('heroicon-s-clipboard-document-list')
                     ->color('warning')
-                    ->visible(fn($record) => self::userHasAccessToLaporan($record))
+                    ->visible(
+                        fn($record) =>
+                        method_exists($record, 'trashed') &&
+                            !$record->trashed() &&
+                            self::userHasAccessToLaporan($record)
+                    )
                     ->url(fn($record) => self::getIsiPenilaianUrl($record)),
+
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\EditAction::make()
+                        ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+                    Tables\Actions\DeleteAction::make()
+                        ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
                     Action::make('summary')
                         ->label('Summary')
                         ->icon('heroicon-o-clipboard-document-list')
                         ->color('success')
-                        ->visible(fn() => Gate::any([
-                            'view_unit_kerja_report_laporan::imut',
-                            'view_imut_data_report_laporan::imut',
-                        ]))
+                        ->visible(
+                            fn($record) =>
+                            method_exists($record, 'trashed') &&
+                                !$record->trashed() &&
+                                Gate::any([
+                                    'view_unit_kerja_report_laporan::imut',
+                                    'view_imut_data_report_laporan::imut',
+                                ])
+                        )
                         ->form([
                             Select::make('summary_type')
                                 ->label('Pilih Tipe Summary')
@@ -373,11 +387,31 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                             return redirect()->to($map[$type]['redirect']);
                         })
                 ]),
+
+                // Aksi hanya jika record dalam trash
+                RestoreAction::make()
+                    ->visible(
+                        fn($record) =>
+                        Gate::allows('restore', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                    ),
+
+                ForceDeleteAction::make()
+                    ->visible(
+                        fn($record) =>
+                        Gate::allows('forceDelete', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                    ),
             ])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\RestoreBulkAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
-                    Tables\Actions\ForceDeleteBulkAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    Tables\Actions\ForceDeleteBulkAction::make()
+                        ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ]),
                 Tables\Actions\DeleteBulkAction::make(),
             ]);

@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ImutCategory extends Model
 {
-    use HasFactory;
+    use SoftDeletes, LogsActivity, HasFactory;
 
     /**
      * Table terkait dengan model ini.
@@ -32,11 +35,23 @@ class ImutCategory extends Model
     ];
 
     /**
-     * Atribut yang disembunyikan saat serialisasi.
+     * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'deleted_at' => 'datetime',
+        ];
+    }
 
     /**
      * Relasi ke model ImutData.
@@ -46,5 +61,15 @@ class ImutCategory extends Model
     public function imutData(): HasMany
     {
         return $this->hasMany(ImutData::class, 'imut_kategori_id');
+    }
+
+    /**
+     * Mendapatkan pengaturan log aktivitas untuk model ini.
+     *
+     * @return LogOptions
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logOnlyDirty();
     }
 }

@@ -188,9 +188,9 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->disabled()
                     ->tooltip(fn(Model $record) => $record->status ? 'Global' : 'Not Global')
                     ->sortable(),
-                    
-                    
-                    \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_benchmark_category')
+
+
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('is_benchmark_category')
                     ->label(__('filament-forms::imut-category.fields.is_benchmark_category'))
                     ->translateLabel()
                     ->disabled()
@@ -201,13 +201,38 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
             ])
             ->filters([])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+
+                DeleteAction::make()
+                    ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+
+                \Filament\Tables\Actions\ActionGroup::make([
+                    RestoreAction::make()
+                        ->visible(
+                            fn($record) =>
+                            \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
+                                method_exists($record, 'trashed') &&
+                                $record->trashed()
+                        ),
+
+                    ForceDeleteAction::make()
+                        ->visible(
+                            fn($record) =>
+                            \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
+                                method_exists($record, 'trashed') &&
+                                $record->trashed()
+                        ),
+                ])
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make()
+                        ->visible(fn(ImutCategory $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ForceDeleteBulkAction::make()
+                        ->visible(fn(ImutCategory $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ]),
+                DeleteBulkAction::make(),
             ]);
     }
 

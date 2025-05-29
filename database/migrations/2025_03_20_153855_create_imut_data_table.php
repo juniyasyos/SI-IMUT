@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('description', length: 255)->nullable();
             $table->boolean('is_use_global')->default(false);
             $table->boolean('is_benchmark_category')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
 
