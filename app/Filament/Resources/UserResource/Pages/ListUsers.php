@@ -18,7 +18,7 @@ class ListUsers extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label('filament-forms::users.buttons.add_user')
+                ->label(__('filament-forms::users.buttons.add_user'))
                 ->visible(fn() => Gate::allows('create', User::class))
                 ->icon('heroicon-m-user-plus'),
             ExportAction::make()

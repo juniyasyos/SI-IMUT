@@ -32,6 +32,7 @@ use Filament\Resources\{
     Resource
 };
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables\{
     Actions\Action,
     Actions\ActionGroup,
@@ -508,6 +509,10 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->icon('heroicon-o-check-circle')
                             ->badge()
                             ->color(fn($state) => $state === 'active' ? 'success' : ($state === 'inactive' ? 'danger' : 'gray')),
+                        TextEntry::make('roles.name')
+                            ->label(__('filament-forms::users.fields.roles'))
+                            ->icon('heroicon-o-shield-check')
+                            ->badge(),
                         TextEntry::make('position.name')
                             ->label(__('filament-forms::users.fields.position'))
                             ->icon('heroicon-o-briefcase')
