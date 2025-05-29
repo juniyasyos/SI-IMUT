@@ -84,17 +84,6 @@ class ImutDataReport extends Component implements HasTable, HasForms
                             })
                             ->suffix('%')
                     ),
-
-                TextColumn::make('avg_standard')
-                    ->label('S')
-                    ->suffix('%')
-                    ->color('info')
-                    ->badge()
-                    ->alignCenter()
-                // ->summarize(Summarizer::make()
-                //     ->label('Standar Maks')
-                //     ->suffix('%')
-                //     ->using(fn(Builder $query) => $query->max('avg_standard'))),
             ])
 
             ->filters([

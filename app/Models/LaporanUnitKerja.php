@@ -67,6 +67,7 @@ class LaporanUnitKerja extends Model
         return self::query()
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
+            ->leftJoin('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id') // <-- Tambahkan ini
             ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->select(
                 'imut_data.id as id',
@@ -89,6 +90,7 @@ class LaporanUnitKerja extends Model
                 'laporan_unit_kerjas.id'
             );
     }
+
 
 
     public static function getReportByUnitKerjaDetails(int $laporanId, int $unitKerjaId)
@@ -157,7 +159,7 @@ class LaporanUnitKerja extends Model
                 'imut_kategori.id as imut_kategori_id',
                 'imut_profil.version as imut_profil',
                 'imut_profil.target_value as imut_standard',
-                'imut_profil.target_operator as imut_standard_type',
+                'imut_profil.target_operator as imut_standard_type_operator',
                 'imut_profil.start_period',
                 'imut_profil.end_period',
                 'imut_penilaians.numerator_value',

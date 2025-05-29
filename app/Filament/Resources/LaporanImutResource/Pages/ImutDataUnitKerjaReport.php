@@ -85,6 +85,8 @@ class ImutDataUnitKerjaReport extends Page
         $laporanId = $this->data['laporanId'] ?? null;
         $imutDataId = $this->data['imut_data_id'] ?? null;
 
+        $laporan = LaporanImut::select('name')->find($laporanId);
+
         $breadcrumbs = [
             LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
         ];
@@ -92,7 +94,7 @@ class ImutDataUnitKerjaReport extends Page
 
         if ($laporanId ?? null) {
             $laporan = LaporanImut::select('name')->find($laporanId);
-            $breadcrumbs[LaporanImutResource::getUrl('edit', ['record' => $laporan->slug])] = $laporan->name;
+            $breadcrumbs[LaporanImutResource::getUrl('edit', ['record' => $laporanId])] = $laporan->name ?? 'Detail Laporan';
             $breadcrumbs[ImutDataReport::getUrl(['laporan_id' => $laporanId])] = 'Summary IMUT Data';
         }
 
