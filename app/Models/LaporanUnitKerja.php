@@ -67,7 +67,6 @@ class LaporanUnitKerja extends Model
         return self::query()
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-            ->leftJoin('imut_profil', 'imut_standar.imut_profile_id', '=', 'imut_profil.id')
             ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->select(
                 'imut_data.id as id',
@@ -75,7 +74,6 @@ class LaporanUnitKerja extends Model
                 'laporan_unit_kerjas.laporan_imut_id',
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
-                DB::raw('ROUND(AVG(CAST(imut_standar.value AS FLOAT)), 2) as avg_standard'),
                 DB::raw("ROUND(
                 CASE
                     WHEN SUM(imut_penilaians.denominator_value) > 0
@@ -95,13 +93,12 @@ class LaporanUnitKerja extends Model
 
     public static function getReportByUnitKerjaDetails(int $laporanId, int $unitKerjaId)
     {
-        return self::query()
+        $query = self::query()
             ->join('unit_kerja', 'laporan_unit_kerjas.unit_kerja_id', '=', 'unit_kerja.id')
             ->join('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->join('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
             ->join('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->join('imut_kategori', 'imut_data.imut_kategori_id', '=', 'imut_kategori.id')
-            ->leftJoin('imut_standar', 'imut_penilaians.imut_standar_id', '=', 'imut_standar.id')
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->where('laporan_unit_kerjas.unit_kerja_id', $unitKerjaId)
             ->select(
@@ -113,6 +110,10 @@ class LaporanUnitKerja extends Model
                 'imut_data.title as imut_data',
                 'imut_kategori.short_name as imut_kategori',
                 'imut_profil.version as imut_profil',
+                'imut_profil.target_value as imut_standard',
+                'imut_profil.target_operator as imut_standard_type_operator',
+                'imut_profil.start_period',
+                'imut_profil.end_period',
                 'imut_penilaians.numerator_value',
                 'imut_penilaians.denominator_value',
                 'imut_penilaians.document_upload',
@@ -127,9 +128,12 @@ class LaporanUnitKerja extends Model
                             ELSE 0
                         END, 2
                     ) as percentage
-                "),
-                DB::raw('ROUND(CAST(imut_standar.value AS FLOAT), 2) as standard')
+                ")
             );
+
+        // dd($query->get());
+
+        return $query;
     }
 
     public static function getReportByImutDataDetails(int $laporanId = 1, int $imutDataId = 1)
@@ -140,7 +144,6 @@ class LaporanUnitKerja extends Model
             ->join('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
             ->join('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->join('imut_kategori', 'imut_data.imut_kategori_id', '=', 'imut_kategori.id')
-            ->leftJoin('imut_standar', 'imut_penilaians.imut_standar_id', '=', 'imut_standar.id')
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->where('imut_profil.imut_data_id', $imutDataId)
             ->select(
@@ -153,6 +156,10 @@ class LaporanUnitKerja extends Model
                 'imut_kategori.short_name as imut_kategori',
                 'imut_kategori.id as imut_kategori_id',
                 'imut_profil.version as imut_profil',
+                'imut_profil.target_value as imut_standard',
+                'imut_profil.target_operator as imut_standard_type',
+                'imut_profil.start_period',
+                'imut_profil.end_period',
                 'imut_penilaians.numerator_value',
                 'imut_penilaians.denominator_value',
                 'imut_penilaians.document_upload',
@@ -166,13 +173,10 @@ class LaporanUnitKerja extends Model
                         ELSE 0
                     END, 2
                 ) as percentage
-            "),
-                DB::raw('ROUND(CAST(imut_standar.value AS FLOAT), 2) as standard')
+            ")
             );
 
         // dd($query->get());
         return $query;
     }
-
 }
-

@@ -17,6 +17,7 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
@@ -126,7 +127,10 @@ class PenilaianLaporan extends Page implements HasForms
             'sampling_method' => $this->profile->sampling_method,
             'analysis_period_type' => $this->profile->analysis_period_type,
             'analysis_period_value' => $this->profile->analysis_period_value,
+            'target_operator' => $this->profile->target_operator,
             'target_value' => $this->profile->target_value,
+            'start_periode' => $this->profile->start_periode,
+            'end_periode' => $this->profile->end_periode,
             'data_collection_tool' => $this->profile->data_collection_tool,
             'analysis_plan' => $this->profile->analysis_plan,
         ];
@@ -228,7 +232,10 @@ class PenilaianLaporan extends Page implements HasForms
                                 $set('sampling_method', $profile->sampling_method);
                                 $set('analysis_period_type', $profile->analysis_period_type);
                                 $set('analysis_period_value', $profile->analysis_period_value);
+                                $set('target_operator', $profile->target_operator);
                                 $set('target_value', $profile->target_value);
+                                $set('start_periode', $profile->start_periode);
+                                $set('end_periode', $profile->end_periode);
                                 $set('data_collection_tool', $profile->data_collection_tool);
                                 $set('analysis_plan', $profile->analysis_plan);
                             } else {
@@ -238,29 +245,21 @@ class PenilaianLaporan extends Page implements HasForms
                             }
                         }),
 
-                    // Select: Standar IMUT
-                    // Select::make('imut_standar_id')
-                    //     ->label('Standar IMUT')
-                    //     ->options(function ($get) {
-                    //         $profileId = $get('imut_profile_id');
+                    Select::make('target_operator')
+                        ->label('🎯 Target Nilai')
+                        ->options(function ($get) {
+                            $value = $get('target_value') ?? '-';
 
-                    //         if ($profileId) {
-                    //             return ImutStandard::where('imut_profile_id', $profileId)
-                    //                 ->get()
-                    //                 ->mapWithKeys(fn($standard) => [
-                    //                     $standard->id => "{$standard->value} - {$standard->description}"
-                    //                 ])
-                    //                 ->toArray();
-                    //         }
-
-                    //         return [];
-                    //     })
-                    //     ->searchable()
-                    //     ->preload()
-                    //     ->reactive()
-                    //     ->required()
-                    //     ->placeholder('Pilih standar nilai'),
-
+                            return [
+                                '>=' => "≥ $value",
+                                '<=' => "≤ $value",
+                                '>'  => "> $value",
+                                '<'  => "< $value",
+                                '='  => "= $value",
+                            ];
+                        })
+                        ->disabled()
+                        ->dehydrated(false)
                 ])
                 ->columns(2),
         ];
@@ -599,7 +598,7 @@ class PenilaianLaporan extends Page implements HasForms
      */
     public function getTitle(): string
     {
-        return 'Penilaian IMUT : ' . ($this->imutData->title ?? 'Unknown');
+        return 'Penilaian IMUT';
     }
 
     /**
@@ -612,15 +611,15 @@ class PenilaianLaporan extends Page implements HasForms
         // dd($this->laporan);
         $laporanName = $this->laporan?->name ?? 'Detail Laporan';
         $unitKerjaName = $this->unitKerja?->unit_name ?? 'Unit Kerja';
-        $imutDataTitle = $this->imutData?->title ?? 'Data IMUT';
-        $profileVersion = $this->profile?->version ?? 'Versi Profil';
+        $imutDataTitleShort = \Illuminate\Support\Str::limit($this->imutData?->title ?? 'Data IMUT', 35);
+        $profileVersion = \Illuminate\Support\Str::limit($this->profile?->version ?? 'Versi Profil', 15);
 
         return [
             LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
             LaporanImutResource::getUrl('edit', ['record' => $this->laporan->slug]) => $laporanName,
             "Penilaian Laporan",
-            "{$unitKerjaName}",
-            "{$imutDataTitle} | {$profileVersion}"
+            UnitKerjaImutDataReport::getUrl(['laporan_id' => $this->laporan->id, 'unit_kerja_id' => $this->unitKerja->id]) => "{$unitKerjaName}",
+            "{$imutDataTitleShort} | {$profileVersion}",
         ];
     }
 

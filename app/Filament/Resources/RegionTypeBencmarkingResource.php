@@ -105,8 +105,10 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
                 TrashedFilter::make(),
             ])
             ->actions([
-                ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->modalHeading('Edit Data') 
+                    ->modalWidth('xl') 
+                    ->modal(),
                 DeleteAction::make(),
                 RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
@@ -129,8 +131,6 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
     {
         return [
             'index' => Pages\ListRegionTypeBencmarkings::route('/bencmarkings'),
-            'create' => Pages\CreateRegionTypeBencmarking::route('/create'),
-            'edit' => Pages\EditRegionTypeBencmarking::route('/{record}/edit'),
         ];
     }
 }

@@ -55,6 +55,7 @@ class ImutProfileForm
                 ->columnSpan(['lg' => 2])
         ];
     }
+    
     protected static function basicInformationSchema(): array
     {
         return [
@@ -243,7 +244,7 @@ class ImutProfileForm
 
 
                     // === Periode Analisis ===
-                    Fieldset::make('📈 Periode Analisis')
+                    Fieldset::make('🗓️ Periode Analisis')
                         ->columns(2)
                         ->schema([
 

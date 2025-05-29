@@ -92,9 +92,26 @@ class UnitKerjaImutDataReport extends Component implements HasTable, HasForms
                     ->suffix('%')
                     ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->color(fn($record) => match (true) {
-                        !is_numeric($record->percentage) || !is_numeric($record->standard) => null,
-                        $record->percentage >= $record->standard => 'success',
-                        $record->percentage >= $record->standard * 0.8 => 'warning',
+                        !is_numeric($record->percentage) || !is_numeric($record->imut_standard) => null,
+
+                        match ($record->imut_standard_type_operator) {
+                            '='  => $record->percentage == $record->imut_standard,
+                            '>=' => $record->percentage >= $record->imut_standard,
+                            '<=' => $record->percentage <= $record->imut_standard,
+                            '<'  => $record->percentage < $record->imut_standard,
+                            '>'  => $record->percentage > $record->imut_standard,
+                            default => false,
+                        } => 'success',
+
+                        match ($record->imut_standard_type_operator) {
+                            '='  => $record->percentage == ($record->imut_standard * 0.8),
+                            '>=' => $record->percentage >= ($record->imut_standard * 0.8),
+                            '<=' => $record->percentage <= ($record->imut_standard * 1.2),
+                            '<'  => $record->percentage <  ($record->imut_standard * 1.2),
+                            '>'  => $record->percentage >  ($record->imut_standard * 0.8),
+                            default => false,
+                        } => 'warning',
+
                         default => 'danger',
                     })
                     ->summarize(
@@ -108,7 +125,7 @@ class UnitKerjaImutDataReport extends Component implements HasTable, HasForms
                             ->suffix('%')
                     ),
 
-                TextColumn::make('standard')
+                TextColumn::make('imut_standard')
                     ->label('S (Imut Standar)')
                     ->suffix('%')
                     ->toggleable()
