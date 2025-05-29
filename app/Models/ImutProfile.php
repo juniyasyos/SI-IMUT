@@ -59,9 +59,28 @@ class ImutProfile extends Model
         parent::boot();
 
         static::saving(function ($model) {
-            $model->slug = Str::slug($model->version);
+            if (empty($model->slug)) {
+                $model->slug = $model->generateSlug($model->version);
+            }
         });
     }
+
+    /**
+     * Generate a unique slug based on the given string.
+     * 
+     * @param string $source
+     * @return string
+     */
+    public function generateSlug(string $source): string
+    {
+        $slugBase = Str::slug($source);
+        $uuid = Str::uuid()->toString(); 
+
+        $slug = "{$slugBase}-{$uuid}";
+
+        return $slug;
+    }
+
 
     public function getRouteKeyName()
     {
@@ -155,5 +174,4 @@ class ImutProfile extends Model
     {
         return $this->imutStandards()->avg('value');
     }
-
 }

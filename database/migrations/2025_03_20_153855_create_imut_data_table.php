@@ -31,18 +31,18 @@ return new class extends Migration {
             $table->boolean('status')->default(true);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
-            $table->softDeletes();
+            $table->softDeletes();  
         });
 
         Schema::create('imut_profil', function (Blueprint $table) {
             $table->id();
             $table->foreignId('imut_data_id')->constrained('imut_data')->cascadeOnDelete()->nullable();
-            $table->string('slug', 255)->nullable();
+            $table->string('slug', 255)->nullable()->unique();
             $table->string('version', 50)->default('version 1');
             $table->text('rationale')->nullable();
             $table->text('quality_dimension')->nullable();
             $table->text('objective')->nullable();
-            $table->text('operational_definition')->nullable(); 
+            $table->text('operational_definition')->nullable();
             $table->enum('indicator_type', ['process', 'output', 'outcome'])->nullable();
             $table->text('numerator_formula')->nullable();
             $table->text('denominator_formula')->nullable();

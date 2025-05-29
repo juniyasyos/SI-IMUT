@@ -63,11 +63,26 @@ class ImutProfileForm
                 ->description('Isi data umum indikator mutu profil.')
                 ->schema([
                     Grid::make(2)->schema([
+
                         TextInput::make('version')
                             ->label('Versi')
                             ->helperText('Contoh: v1, v2.1')
                             ->required()
-                            ->maxLength(50),
+                            ->maxLength(50)
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $slug = \Illuminate\Support\Str::slug($state) . '-' . \Illuminate\Support\Str::uuid()->toString();
+                                $set('slug', $slug);
+                            }),
+
+                        TextInput::make('slug')
+                            ->label(__('filament-forms::imut-data.fields.slug'))
+                            ->readOnly()
+                            ->disabled()
+                            ->unique('imut_data', 'slug', ignoreRecord: true)
+                            ->extraAttributes(['class' => 'bg-gray-100 text-gray-500'])
+                            ->columnSpan(1)
+                            ->dehydrated(),
 
                         TextInput::make('responsible_person')
                             ->label('Penanggung Jawab')
