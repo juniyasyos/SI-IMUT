@@ -199,7 +199,9 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
                     ->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                TrashedFilter::make(),
+            ])
             ->actions([
                 EditAction::make()
                     ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),

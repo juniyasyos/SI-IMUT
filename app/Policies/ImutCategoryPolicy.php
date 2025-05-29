@@ -57,4 +57,36 @@ class ImutCategoryPolicy
     {
         return $user->can('delete_any_imut::category');
     }
+
+    /**
+     * Determine whether the user can permanently delete.
+     */
+    public function forceDelete(User $user, ImutCategory $imutCategory): bool
+    {
+        return $user->can('force_delete_imut::category');
+    }
+
+    /**
+     * Determine whether the user can permanently bulk delete.
+     */
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('force_delete_any_imut::category');
+    }
+
+    /**
+     * Determine whether the user can restore.
+     */
+    public function restore(User $user, ImutCategory $imutCategory): bool
+    {
+        return $user->can('restore_imut::category');
+    }
+
+    /**
+     * Determine whether the user can bulk restore.
+     */
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('restore_any_imut::category');
+    }
 }
