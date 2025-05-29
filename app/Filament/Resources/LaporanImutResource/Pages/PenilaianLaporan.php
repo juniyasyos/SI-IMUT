@@ -11,9 +11,9 @@ use App\Models\ImutData;
 use App\Models\ImutProfile;
 use App\Models\ImutStandard;
 use App\Models\UnitKerja;
+use Filament\Forms;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -82,9 +82,12 @@ class PenilaianLaporan extends Page implements HasForms
         // }
 
         // Verify laporan has the penilaian with the given ID
-        $this->laporan = LaporanImut::select(['id', 'name'])
+        $this->laporan = LaporanImut::
             // ->whereHas('imutPenilaians', fn($query) => $query->where('imut_penilaians.id', $penilaianId))
-            ->findOrFail($laporanId);
+            findOrFail($laporanId);
+        // $this->laporan = LaporanImut::select(['id', 'name'])
+        //     // ->whereHas('imutPenilaians', fn($query) => $query->where('imut_penilaians.id', $penilaianId))
+        //     ->findOrFail($laporanId);
 
         // dd($this->laporan);
 
@@ -610,7 +613,7 @@ class PenilaianLaporan extends Page implements HasForms
      */
     public function getBreadcrumbs(): array
     {
-        $laporanId = $this->laporan?->id;
+        // dd($this->laporan);
         $laporanName = $this->laporan?->name ?? 'Detail Laporan';
         $unitKerjaName = $this->unitKerja?->unit_name ?? 'Unit Kerja';
         $imutDataTitle = $this->imutData?->title ?? 'Data IMUT';
@@ -618,7 +621,7 @@ class PenilaianLaporan extends Page implements HasForms
 
         return [
             LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
-            LaporanImutResource::getUrl('edit', ['record' => $laporanId]) => $laporanName,
+            LaporanImutResource::getUrl('edit', ['record' => $this->laporan->slug]) => $laporanName,
             "Penilaian Laporan",
             "{$unitKerjaName}",
             "{$imutDataTitle} | {$profileVersion}"

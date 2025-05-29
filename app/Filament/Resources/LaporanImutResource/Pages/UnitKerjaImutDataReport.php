@@ -46,6 +46,7 @@ class UnitKerjaImutDataReport extends Page
             ->with(['unitKerjas:id'])
             ->where('id', $laporanId)
             ->first();
+
         $this->unitKerja = UnitKerja::select('id', 'unit_name')->where('id', $unitKerjaId)->first();
 
         if (
@@ -70,44 +71,10 @@ class UnitKerjaImutDataReport extends Page
         $this->form->fill($this->data);
     }
 
-    protected function getFormSchema(): array
+
+    public function getTitle(): string
     {
-        return [
-            Section::make('Informasi Laporan')
-                ->collapsible()
-                ->columns(3)
-                ->schema([
-                    Select::make('unit_kerja_id')
-                        ->label('Unit Kerja')
-                        ->options(fn() => UnitKerja::pluck('unit_name', 'id')->toArray())
-                        ->disabled()
-                        ->required()
-                        ->columnSpan(2),
-
-                    Select::make('laporanId')
-                        ->label('Nama Laporan')
-                        ->options(fn($get) => $this->getLaporanOptions($get('unit_kerja_id')))
-                        ->disabled()
-                        ->required(),
-
-                    Select::make('status')
-                        ->label('Status')
-                        ->options([
-                            'process' => 'Proses',
-                            'complete' => 'Selesai',
-                            'canceled' => 'Dibatalkan',
-                        ])
-                        ->disabled(),
-
-                    DatePicker::make('start_date')
-                        ->label('Tanggal Mulai')
-                        ->disabled(),
-
-                    DatePicker::make('end_date')
-                        ->label('Tanggal Akhir')
-                        ->disabled(),
-                ]),
-        ];
+        return 'Summary Laporan Unit Kerja : ' . $this->unitKerja->unit_name;
     }
 
     protected function getFormStatePath(): string
@@ -137,21 +104,25 @@ class UnitKerjaImutDataReport extends Page
         $unitKerjaId = $this->data['unit_kerja_id'] ?? null;
 
         if ($laporanId) {
-            $laporan = LaporanImut::select('name')->find($laporanId);
+            $laporan = LaporanImut::select('name', 'slug')->find($laporanId);
 
-            $breadcrumbs[] = "Summary Unit Kerja";
+            if ($laporan) {
+                // Link ke halaman edit berdasarkan slug
+                $breadcrumbs[LaporanImutResource::getUrl('edit', ['record' => $laporan->slug])] = $laporan->name;
+            } else {
+                $breadcrumbs[] = 'Detail Laporan';
+            }
 
             $breadcrumbs[UnitKerjaReport::getUrl([
                 'laporan_id' => $laporanId,
-            ])] = "{$laporan?->name}" ?? 'Detail Laporan';
+            ])] = "Summary Unit Kerja";
         }
 
         if ($unitKerjaId) {
             $unitKerja = UnitKerja::select('unit_name')->find($unitKerjaId);
-            $breadcrumbs[] = "{$unitKerja?->unit_name}" ?? 'Detail Unit Kerja';
+            $breadcrumbs[] = $unitKerja?->unit_name ?? 'Detail Unit Kerja';
         }
 
         return $breadcrumbs;
     }
-
 }

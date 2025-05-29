@@ -69,39 +69,9 @@ class ImutDataUnitKerjaReport extends Page
         $this->form->fill($this->data);
     }
 
-    protected function getFormSchema(): array
+    public function getTitle(): string
     {
-        return [
-            Section::make('Informasi Laporan')
-                ->collapsible()
-                ->columns(3)
-                ->schema([
-                    Select::make('imut_data_id')
-                        ->label('IMUT Data')
-                        ->options(fn() => ImutData::pluck('title', 'id')->toArray())
-                        ->disabled()
-                        ->required()
-                        ->columnSpan(2),
-
-                    Select::make('laporanId')
-                        ->label('Nama Laporan')
-                        ->options(fn() => LaporanImut::pluck('name', 'id')->toArray())
-                        ->disabled()
-                        ->required(),
-
-                    Select::make('status')
-                        ->label('Status')
-                        ->options([
-                            'process' => 'Proses',
-                            'complete' => 'Selesai',
-                            'canceled' => 'Dibatalkan',
-                        ])
-                        ->disabled(),
-
-                    DatePicker::make('start_date')->label('Tanggal Mulai')->disabled(),
-                    DatePicker::make('end_date')->label('Tanggal Akhir')->disabled(),
-                ]),
-        ];
+        return 'Summary Laporan IMUT Data : ' . $this->imutData->title;
     }
 
     protected function getFormStatePath(): string
@@ -115,17 +85,15 @@ class ImutDataUnitKerjaReport extends Page
         $laporanId = $this->data['laporanId'] ?? null;
         $imutDataId = $this->data['imut_data_id'] ?? null;
 
-        // dd($laporanId, $imutDataId);
-
         $breadcrumbs = [
             LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
         ];
 
-        $breadcrumbs[] = "Summary IMUT Data";
 
         if ($laporanId ?? null) {
             $laporan = LaporanImut::select('name')->find($laporanId);
-            $breadcrumbs[ImutDataReport::getUrl(['laporan_id' => $laporanId])] = $laporan?->name ?? 'Detail Laporan';
+            $breadcrumbs[LaporanImutResource::getUrl('edit', ['record' => $laporan->slug])] = $laporan->name;
+            $breadcrumbs[ImutDataReport::getUrl(['laporan_id' => $laporanId])] = 'Summary IMUT Data';
         }
 
         if ($imutDataId ?? null) {
