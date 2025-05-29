@@ -3,10 +3,8 @@
 namespace App\Models;
 
 use App\Models\ImutProfile;
-use App\Models\ImutStandard;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -29,7 +27,6 @@ class ImutPenilaian extends Model
     protected $fillable = [
         'imut_profil_id',
         'laporan_unit_kerja_id',
-        'imut_standar_id',
         'analysis',
         'recommendations',
         'document_upload',
@@ -103,12 +100,6 @@ class ImutPenilaian extends Model
     {
         return $this->belongsTo(UnitKerja::class, 'unit_kerja_id');
     }
-
-    public function standar(): BelongsTo
-    {
-        return $this->belongsTo(ImutStandard::class, 'imut_standar_id');
-    }
-
 
     public function profileById($profileId): HasOne
     {

@@ -35,21 +35,20 @@ class ImutProfileForm
             \Filament\Forms\Components\Hidden::make('imut_data_id'),
             Tabs::make('Form Profil Indikator')
                 ->tabs([
-                    Tab::make('Informasi Dasar')
+                    Tab::make('ℹ️ Informasi Dasar')
                         ->schema(self::basicInformationSchema()),
 
-                    Tab::make('Perhitungan')
+                    Tab::make('🧮 Perhitungan')
                         ->schema(self::operationalDefinitionSchema()),
 
-                    Tab::make('Data & Analisis')
-                        ->schema(self::dataAndAnalysisSchema()),
+                    Tab::make('📋 Data Resource')
+                        ->schema(self::dataResourceSchema()),
 
-                    Tab::make('🎯 Standar Indikator')
-                        ->schema(self::standardIndicatorSchema())
-                        ->visible(fn(?Model $record) => $record !== null)
-                        ->visibleOn('edit'),
+                    Tab::make('🎯 Analisis')
+                        ->schema(self::AnalysisSchema()),
 
-                    Tab::make('📍 Benchmarking')->schema(self::benchmarkingSchema())
+                    Tab::make('📍 Benchmarking')
+                        ->schema(self::benchmarkingSchema())
                         ->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
                         ->visibleOn('edit'),
                 ])
@@ -68,21 +67,14 @@ class ImutProfileForm
                             ->label('Versi')
                             ->helperText('Contoh: v1, v2.1')
                             ->required()
-                            ->maxLength(50)
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                $slug = \Illuminate\Support\Str::slug($state) . '-' . \Illuminate\Support\Str::uuid()->toString();
-                                $set('slug', $slug);
-                            }),
+                            ->maxLength(50),
 
                         TextInput::make('slug')
                             ->label(__('filament-forms::imut-data.fields.slug'))
                             ->readOnly()
-                            ->disabled()
-                            ->unique('imut_data', 'slug', ignoreRecord: true)
                             ->extraAttributes(['class' => 'bg-gray-100 text-gray-500'])
-                            ->columnSpan(1)
-                            ->dehydrated(),
+                            ->columnSpan(1),
 
                         TextInput::make('responsible_person')
                             ->label('Penanggung Jawab')
@@ -181,11 +173,11 @@ class ImutProfileForm
         ];
     }
 
-    protected static function dataAndAnalysisSchema(): array
+    protected static function dataResourceSchema(): array
     {
         return [
-            Section::make('📥 Pengumpulan & 🔍 Analisis Data')
-                ->description('Detail proses pengumpulan data, metode, dan perencanaan analisis indikator mutu.')
+            Section::make('📥 Pengumpulan')
+                ->description('Detail proses pengumpulan data, dan metode')
                 ->schema([
 
                     // === Fieldset: Pengumpulan Data ===
@@ -216,24 +208,20 @@ class ImutProfileForm
                                 ->helperText('Metode pemilihan sampel data untuk dianalisis.')
                                 ->prefixIcon('heroicon-o-beaker'),
                         ]),
+                ]),
+        ];
+    }
 
+    protected static function AnalysisSchema(): array
+    {
+        return [
+            Section::make('🔍 Analisis Data')
+                ->description('Detail perencanaan analisis indikator mutu.')
+                ->schema([
                     // === Fieldset: Detail Analisis ===
                     Fieldset::make('📈 Detail Analisis')
                         ->columns(2)
                         ->schema([
-                            TextInput::make('analysis_period_type')
-                                ->label('Tipe Periode Analisis')
-                                ->placeholder('Contoh: Bulanan, Semester')
-                                ->helperText('Jenis periode yang digunakan dalam analisis.')
-                                ->prefixIcon('heroicon-o-clock'),
-
-                            TextInput::make('analysis_period_value')
-                                ->label('Nilai Periode')
-                                ->numeric()
-                                ->placeholder('Contoh: 1, 3, 6')
-                                ->helperText('Angka yang menunjukkan rentang waktu (dalam bulan/minggu).')
-                                ->prefixIcon('heroicon-o-adjustments-horizontal'),
-
                             ToggleButtons::make('target_operator')
                                 ->label('Operator Target')
                                 ->options([
@@ -254,6 +242,52 @@ class ImutProfileForm
                         ]),
 
 
+                    // === Periode Analisis ===
+                    Fieldset::make('📈 Periode Analisis')
+                        ->columns(2)
+                        ->schema([
+
+                            Select::make('analysis_period_type')
+                                ->label('Tipe Periode Analisis')
+                                ->options([
+                                    'mingguan' => 'Mingguan',
+                                    'bulanan' => 'Bulanan',
+                                ])
+                                ->required()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set, \Filament\Forms\Get $get) {
+                                    self::calculateEndPeriod($set, $get);
+                                })
+                                ->helperText('Jenis periode yang digunakan dalam analisis.')
+                                ->prefixIcon('heroicon-o-clock'),
+
+                            TextInput::make('analysis_period_value')
+                                ->label('Nilai Periode')
+                                ->numeric()
+                                ->required()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set, \Filament\Forms\Get $get) {
+                                    self::calculateEndPeriod($set, $get);
+                                })
+                                ->placeholder('Contoh: 1, 3, 6')
+                                ->helperText('Angka yang menunjukkan rentang waktu.')
+                                ->prefixIcon('heroicon-o-adjustments-horizontal'),
+
+                            DatePicker::make('start_period')
+                                ->label('Periode Mulai')
+                                ->required()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set, \Filament\Forms\Get $get) {
+                                    self::calculateEndPeriod($set, $get);
+                                }),
+
+                            DatePicker::make('end_period')
+                                ->label('Periode Selesai')
+                                ->readOnly()
+                                ->required(),
+                        ]),
+
+
                     // === Alat & Rencana Analisis ===
                     Fieldset::make('🛠️ Alat & Strategi Analisis')
                         ->columns(1)
@@ -271,53 +305,6 @@ class ImutProfileForm
                                 ->helperText('Ceritakan secara ringkas bagaimana analisis dilakukan.'),
                         ]),
                 ]),
-        ];
-    }
-
-    protected static function standardIndicatorSchema(): array
-    {
-        return [
-            Section::make('Target Standar Indikator')
-                ->description('Masukkan target minimum dan maksimum indikator untuk periode tertentu.')
-                ->schema([
-                    TableRepeater::make('imut_standar')
-                        ->label('Rentang Target')
-                        ->relationship('imutStandards')
-                        ->headers([
-                            Header::make('start_period')->label('Mulai')->width('60px'),
-                            Header::make('end_period')->label('Selesai')->width('60px'),
-                            Header::make('value')->label('Target (%)')->width('60px'),
-                            Header::make('value')->label('Deskripsi')->width('160px'),
-                        ])
-                        ->schema([
-                            DatePicker::make('start_period')
-                                ->label('Periode Mulai')
-                                ->required()
-                                ->native(false)
-                                ->format('d F Y'),
-
-                            DatePicker::make('end_period')
-                                ->label('Periode Selesai')
-                                ->required()
-                                ->native(false)
-                                ->format('d F Y'),
-
-                            TextInput::make('value')
-                                ->numeric()
-                                ->step(1.0)
-                                ->required()
-                                ->suffix('%'),
-
-                            TextInput::make('description')
-                            // ->placeholder('Contoh: 95'),
-                        ])
-                        ->defaultItems(1)
-                        ->minItems(1)
-                        ->maxItems(10)
-                        ->cloneable()
-                        ->reorderable()
-                        ->columnSpan('full'),
-                ])
         ];
     }
 
@@ -430,5 +417,34 @@ class ImutProfileForm
                         ->toArray()
                 )
         ];
+    }
+
+    protected static function calculateEndPeriod(\Filament\Forms\Set $set, \Filament\Forms\Get $get): void
+    {
+        $start = $get('start_period');
+        $type = $get('analysis_period_type');
+        $value = (int) $get('analysis_period_value');
+
+        if (! $start || ! $type || ! $value) {
+            return;
+        }
+
+        try {
+            $startDate = \Illuminate\Support\Carbon::parse($start);
+            $endDate = match ($type) {
+                'mingguan' => $startDate->copy()->addWeeks($value),
+                'bulanan' => $startDate->copy()->addMonths($value),
+                default => $startDate,
+            };
+
+            $set('end_period', $endDate->format('Y-m-d'));
+        } catch (\Exception $e) {
+            logger()->error('Perhitungan end_period gagal:', [
+                'start' => $start,
+                'type' => $type,
+                'value' => $value,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

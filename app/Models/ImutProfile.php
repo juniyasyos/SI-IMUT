@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Support\Str;
-use App\Models\ImutStandard;
 use App\Models\ImutBenchmarking;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +47,8 @@ class ImutProfile extends Model
         'target_value',
         'analysis_period_type',
         'analysis_period_value',
+        'start_period',
+        'end_period',
         'data_collection_method',
         'sampling_method',
         'data_collection_tool',
@@ -74,7 +75,7 @@ class ImutProfile extends Model
     public function generateSlug(string $source): string
     {
         $slugBase = Str::slug($source);
-        $uuid = Str::uuid()->toString(); 
+        $uuid = Str::uuid()->toString();
 
         $slug = "{$slugBase}-{$uuid}";
 
@@ -158,20 +159,5 @@ class ImutProfile extends Model
     public function benchmarkings(): HasMany
     {
         return $this->hasMany(related: ImutBenchmarking::class);
-    }
-
-    /**
-     * Get the related ImutStandard.
-     *
-     * @return HasMany
-     */
-    public function imutStandards()
-    {
-        return $this->hasMany(ImutStandard::class);
-    }
-
-    public function getAvgStandardValue()
-    {
-        return $this->imutStandards()->avg('value');
     }
 }

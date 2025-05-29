@@ -46,8 +46,7 @@ class ProsesPenilaianImut implements ShouldQueue
 
                     ImutPenilaian::firstOrCreate([
                         'imut_profil_id'        => $latestProfile->id,
-                        'laporan_unit_kerja_id' => $laporanUnitKerja->id,
-                        'imut_standar_id'       => $latestStandard->id,
+                        'laporan_unit_kerja_id' => $laporanUnitKerja->id
                     ]);
                 });
             });

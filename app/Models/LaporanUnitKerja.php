@@ -36,7 +36,6 @@ class LaporanUnitKerja extends Model
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('unit_kerja', 'laporan_unit_kerjas.unit_kerja_id', '=', 'unit_kerja.id')
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-            ->leftJoin('imut_standar', 'imut_penilaians.imut_standar_id', '=', 'imut_standar.id')
             ->select(
                 'laporan_unit_kerjas.id',
                 'laporan_unit_kerjas.unit_kerja_id',
@@ -44,7 +43,6 @@ class LaporanUnitKerja extends Model
                 'laporan_unit_kerjas.laporan_imut_id',
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
-                DB::raw('ROUND(AVG(CAST(imut_standar.value AS FLOAT)), 2) as avg_standard'),
                 DB::raw("
                     ROUND(
                         CASE
@@ -69,7 +67,6 @@ class LaporanUnitKerja extends Model
         return self::query()
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-            ->leftJoin('imut_standar', 'imut_penilaians.imut_standar_id', '=', 'imut_standar.id')
             ->leftJoin('imut_profil', 'imut_standar.imut_profile_id', '=', 'imut_profil.id')
             ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->select(

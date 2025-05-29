@@ -308,9 +308,9 @@ class ImutDataResource extends Resource implements HasShieldPermissions
         return [
             'index' => Pages\ListImutData::route('/'),
             'create' => Pages\CreateImutData::route('/create'),
-            'edit' => Pages\EditImutData::route('/{record:slug}/edit'),
+            'edit' => Pages\EditImutData::route('/edit={record:slug}'),
             'create-profile' => \App\Filament\Resources\ImutProfileResource\Pages\CreateImutProfile::route('/{imutDataSlug}/profile/create'),
-            'edit-profile' => \App\Filament\Resources\ImutProfileResource\Pages\EditImutProfile::route('/{imutDataSlug}/profile/{record}/edit'),
+            'edit-profile' => \App\Filament\Resources\ImutProfileResource\Pages\EditImutProfile::route('/{imutDataSlug}/profile/edit={record}'),
             'bencmarking' => \App\Filament\Resources\RegionTypeBencmarkingResource\Pages\ListRegionTypeBencmarkings::route('/bencmarkings'),
         ];
     }

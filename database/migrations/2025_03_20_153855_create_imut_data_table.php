@@ -31,7 +31,7 @@ return new class extends Migration {
             $table->boolean('status')->default(true);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
-            $table->softDeletes();  
+            $table->softDeletes();
         });
 
         Schema::create('imut_profil', function (Blueprint $table) {
@@ -53,8 +53,10 @@ return new class extends Migration {
             $table->text('analysis_plan')->nullable();
             $table->enum('target_operator', ['=', '>=', '<=', '<', '>'])->default('>=')->nullable();
             $table->bigInteger('target_value')->nullable();
-            $table->string('analysis_period_type', 255)->nullable();
+            $table->enum('analysis_period_type', ['mingguan', 'bulanan']);
             $table->bigInteger('analysis_period_value')->nullable();
+            $table->date('start_period')->nullable();
+            $table->date('end_period')->nullable();
             $table->string('data_collection_method', 255)->nullable();
             $table->string('sampling_method', 255)->nullable();
             $table->text('data_collection_tool')->nullable();

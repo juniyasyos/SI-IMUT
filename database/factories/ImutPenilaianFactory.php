@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\UnitKerja;
 use App\Models\ImutProfile;
-use App\Models\ImutStandard;
 use App\Models\LaporanUnitKerja;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -23,7 +22,6 @@ class ImutPenilaianFactory extends Factory
         return [
             'imut_profil_id' => ImutProfile::random()->id,
             'laporan_unit_kerja_id' => LaporanUnitKerja::random()->id,
-            'imut_standar_id' => ImutStandard::random()->id,
             'analysis' => $this->faker->paragraph,
             'recommendations' => $this->faker->sentence,
             'document_upload' => $this->faker->word . '.pdf',

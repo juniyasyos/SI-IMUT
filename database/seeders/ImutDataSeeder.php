@@ -167,6 +167,18 @@ class ImutDataSeeder extends Seeder
                 ? $profile['indicator_type']
                 : 'process';
 
+            $analysisPeriodType = $profile['analysis_period_type'];
+            $analysisPeriodValue = (int) $profile['analysis_period_value'];
+
+            $start_periode = Carbon::now()->startOfYear();
+
+            $end_periode = match ($analysisPeriodType) {
+                'mingguan' => $start_periode->copy()->addWeeks($analysisPeriodValue),
+                'bulanan' => $start_periode->copy()->addMonths($analysisPeriodValue),
+                'semester' => $start_periode->copy()->addMonths($analysisPeriodValue * 6),
+                default => $start_periode->copy(),
+            };
+
             $imutProfile = ImutProfile::firstOrCreate([
                 'imut_data_id' => $imutData->id,
                 'version' => 'version 1',
@@ -185,13 +197,16 @@ class ImutDataSeeder extends Seeder
                 'data_source' => $profile['data_source'],
                 'data_collection_frequency' => $profile['data_collection_frequency'],
                 'analysis_plan' => $profile['analysis_plan'],
-                'analysis_period_type' => $profile['analysis_period_type'],
-                'analysis_period_value' => $profile['analysis_period_value'],
+                'analysis_period_type' => $analysisPeriodType,
+                'analysis_period_value' => $analysisPeriodValue,
+                'start_period' => $start_periode->format('Y-m-d'),
+                'end_period' => $end_periode->format('Y-m-d'),
                 'data_collection_method' => $profile['data_collection_method'],
                 'sampling_method' => $profile['sampling_method'],
                 'data_collection_tool' => $profile['data_collection_tool'],
                 'responsible_person' => $profile['responsible_person'],
             ]);
+
         } catch (\Throwable $e) {
             dd([
                 'error' => $e->getMessage(),
@@ -201,7 +216,7 @@ class ImutDataSeeder extends Seeder
 
         // Hanya buat laporan jika kategori adalah INM
         if ($category->short_name === 'INM') {
-            $this->createStandard($imutProfile);
+            // $this->createStandard($imutProfile);
 
             // Relasi Unit Kerja
             foreach ($this->unitKerjaIds as $unitId) {
@@ -218,24 +233,6 @@ class ImutDataSeeder extends Seeder
             }
 
             $this->createPenilaian($imutProfile);
-        }
-    }
-
-
-    private function createStandard(ImutProfile $imutProfile): void
-    {
-        for ($i = 0; $i < 3; $i++) {
-            $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
-            $end = $start->copy()->endOfMonth();
-            $month = $start->month;
-            $year = $start->year;
-
-            $standard = ImutStandard::factory()->create([
-                'imut_profile_id' => $imutProfile->id,
-                'value' => $this->faker->randomFloat(2, 80, 100),
-                'start_period' => $start,
-                'end_period' => $end,
-            ]);
         }
     }
 
@@ -288,20 +285,20 @@ class ImutDataSeeder extends Seeder
                     $denominator
                 );
 
-                $imutStandard = ImutStandard::where('imut_profile_id', $imutProfile->id)
-                    ->where('start_period', '<=', $laporan->assessment_period_end)
-                    ->where('end_period', '>=', $laporan->assessment_period_start)
-                    ->first();
+                // $imutStandard = ImutStandard::where('imut_profile_id', $imutProfile->id)
+                //     ->where('start_period', '<=', $laporan->assessment_period_end)
+                //     ->where('end_period', '>=', $laporan->assessment_period_start)
+                //     ->first();
 
-                if (!$imutStandard) {
-                    $this->command->warn("Tidak ada data ImutStandard yang cocok dengan periode laporan.");
-                    continue;
-                }
+                // if (!$imutStandard) {
+                //     $this->command->warn("Tidak ada data ImutStandard yang cocok dengan periode laporan.");
+                //     continue;
+                // }
 
                 ImutPenilaian::create([
                     'imut_profil_id' => $imutProfile->id,
                     'laporan_unit_kerja_id' => $pivotId,
-                    'imut_standar_id' => $imutStandard->id,
+                    // 'imut_standar_id' => $imutStandard->id,
                     'analysis' => $this->faker->sentence(2),
                     'recommendations' => $this->faker->sentence(15),
                     'document_upload' => "{$this->faker->word}.pdf",

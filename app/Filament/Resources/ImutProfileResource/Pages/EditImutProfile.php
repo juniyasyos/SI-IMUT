@@ -25,8 +25,9 @@ class EditImutProfile extends EditRecord
 
     public function getRedirectUrl(): string
     {
+
         return \App\Filament\Resources\ImutDataResource::getUrl('edit', [
-            'record' => $this->record->imut_data_id,
+            'record' => ImutData::where('id', $this->record->imut_data_id)->firstOrFail()->slug,
         ]);
     }
 
@@ -34,11 +35,11 @@ class EditImutProfile extends EditRecord
     {
         $imutDataSlug = request()->route('imutDataSlug');
         $imutData = ImutData::where('slug', $imutDataSlug)->first();
-    
+
         $label = $imutData
             ? "{$imutData->title}"
             : 'Data Tidak Ditemukan';
-    
+
         return [
             route('filament.admin.resources.imut-datas.index') => 'Imut Datas',
             $imutData
@@ -46,7 +47,7 @@ class EditImutProfile extends EditRecord
                 : '#' => $label,
             null => 'Edit Profile | ' . $this->record->version,
         ];
-    }    
+    }
 
     protected function getHeaderActions(): array
     {

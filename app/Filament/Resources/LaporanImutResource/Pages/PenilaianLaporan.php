@@ -9,7 +9,6 @@ use App\Models\LaporanImut;
 use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutData;
 use App\Models\ImutProfile;
-use App\Models\ImutStandard;
 use App\Models\UnitKerja;
 use Filament\Forms;
 use App\Models\User;
@@ -56,7 +55,6 @@ class PenilaianLaporan extends Page implements HasForms
     public ?ImutProfile $profile = null;
     public ?UnitKerja $unitKerja = null;
     public ?ImutData $imutData = null;
-    public ?ImutStandard $imutStandard = null;
 
     /**
      * Form data keyed by ImutPenilaian ID.
@@ -100,7 +98,6 @@ class PenilaianLaporan extends Page implements HasForms
         // dd($this->laporan, $penilaian);
 
         $this->profile = $penilaian->profile;
-        $this->imutStandard = $penilaian->standar;
         $this->unitKerja = $penilaian->laporanUnitKerja->unitKerja;
         $this->imutData = $this->profile->imutData;
 
@@ -112,7 +109,6 @@ class PenilaianLaporan extends Page implements HasForms
             'denominator_value' => $penilaian->denominator_value,
             'imut_profile_id' => $this->profile->id,
             'imut_data_id' => $this->imutData->id,
-            'imut_standar_id' => $this->imutStandard->id,
 
             'responsible_person' => $this->profile->responsible_person,
             'indicator_type' => $this->profile->indicator_type,
@@ -243,27 +239,27 @@ class PenilaianLaporan extends Page implements HasForms
                         }),
 
                     // Select: Standar IMUT
-                    Select::make('imut_standar_id')
-                        ->label('Standar IMUT')
-                        ->options(function ($get) {
-                            $profileId = $get('imut_profile_id');
+                    // Select::make('imut_standar_id')
+                    //     ->label('Standar IMUT')
+                    //     ->options(function ($get) {
+                    //         $profileId = $get('imut_profile_id');
 
-                            if ($profileId) {
-                                return ImutStandard::where('imut_profile_id', $profileId)
-                                    ->get()
-                                    ->mapWithKeys(fn($standard) => [
-                                        $standard->id => "{$standard->value} - {$standard->description}"
-                                    ])
-                                    ->toArray();
-                            }
+                    //         if ($profileId) {
+                    //             return ImutStandard::where('imut_profile_id', $profileId)
+                    //                 ->get()
+                    //                 ->mapWithKeys(fn($standard) => [
+                    //                     $standard->id => "{$standard->value} - {$standard->description}"
+                    //                 ])
+                    //                 ->toArray();
+                    //         }
 
-                            return [];
-                        })
-                        ->searchable()
-                        ->preload()
-                        ->reactive()
-                        ->required()
-                        ->placeholder('Pilih standar nilai'),
+                    //         return [];
+                    //     })
+                    //     ->searchable()
+                    //     ->preload()
+                    //     ->reactive()
+                    //     ->required()
+                    //     ->placeholder('Pilih standar nilai'),
 
                 ])
                 ->columns(2),
