@@ -42,8 +42,12 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
             'view_any',
             'create',
             'update',
+            'restore',
+            'restore_any',
             'delete',
             'delete_any',
+            'force_delete',
+            'force_delete_any',
         ];
     }
 
