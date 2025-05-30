@@ -20,43 +20,34 @@
         'availableHeight' => $availableHeight,
         'availableWidth' => $availableWidth,
         'padding' => $sizePadding,
-    ])->filter()->toJson();
+    ])
+        ->filter()
+        ->toJson();
 @endphp
 
-<div
-    x-data="{
-        toggle: function (event) {
-            $refs.panel.toggle(event)
-        },
+<div x-data="{
+    toggle: function(event) {
+        $refs.panel.toggle(event)
+    },
 
-        open: function (event) {
-            $refs.panel.open(event)
-        },
+    open: function(event) {
+        $refs.panel.open(event)
+    },
 
-        close: function (event) {
-            $refs.panel.close(event)
-        },
-    }"
-    {{ $attributes->class(['fi-dropdown']) }}
->
-    <div
-        x-on:click="toggle"
-        {{ $trigger->attributes->class(['fi-dropdown-trigger flex cursor-pointer']) }}
-    >
+    close: function(event) {
+        $refs.panel.close(event)
+    },
+}" {{ $attributes->class(['fi-dropdown']) }}>
+    <div x-on:click="toggle" {{ $trigger->attributes->class(['fi-dropdown-trigger flex cursor-pointer']) }}>
         {{ $trigger }}
     </div>
 
-    @if (! \Filament\Support\is_slot_empty($slot))
-        <div
-            x-cloak
-            x-float{{ $placement ? ".placement.{$placement}" : '' }}{{ $size ? '.size' : '' }}{{ $flip ? '.flip' : '' }}{{ $shift ? '.shift' : '' }}{{ $teleport ? '.teleport' : '' }}{{ $offset ? '.offset' : '' }}="{ offset: {{ $offset }}, {{ $size ? ('size: ' . $sizeConfig) : '' }} }"
-            x-ref="panel"
-            x-transition:enter-start="opacity-0"
-            x-transition:leave-end="opacity-0"
-            @if ($attributes->has('wire:key'))
-                wire:ignore.self
-                wire:key="{{ $attributes->get('wire:key') }}.panel"
-            @endif
+    @if (!\Filament\Support\is_slot_empty($slot))
+        <div x-cloak
+            x-float{{ $placement ? ".placement.{$placement}" : '' }}{{ $size ? '.size' : '' }}{{ $flip ? '.flip' : '' }}{{ $shift ? '.shift' : '' }}{{ $teleport ? '.teleport' : '' }}{{ $offset ? '.offset' : '' }}="{ offset: {{ $offset }}, {{ $size ? 'size: ' . $sizeConfig : '' }} }"
+            x-ref="panel" x-transition:enter-start="opacity-0" x-transition:leave-end="opacity-0"
+            @if ($attributes->has('wire:key')) wire:ignore.self
+                wire:key="{{ $attributes->get('wire:key') }}.panel" @endif
             @class([
                 'fi-dropdown-panel absolute z-10 w-screen divide-y divide-gray-100 rounded-lg bg-white shadow-lg ring-1 ring-gray-950/5 transition dark:divide-white/5 dark:bg-gray-900 dark:ring-white/10',
                 match ($width) {
@@ -76,11 +67,9 @@
                     default => $width,
                 },
                 'overflow-y-auto' => $maxHeight || $size,
-            ])
-            @style([
+            ]) @style([
                 "max-height: {$maxHeight}" => $maxHeight,
-            ])
-        >
+            ])>
             {{ $slot }}
         </div>
     @endif

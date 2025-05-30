@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c821fca7ee2e07926d471005997d14a",
+    "content-hash": "52eb812cb1fdc5d8760730101e444089",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3686,17 +3686,11 @@
         },
         {
             "name": "juniyasyos/filament-media-manager",
-            "version": "v1.3.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/juniyasyos/filament-media-manager.git",
-                "reference": "40f749ea7a5d88e9227f2f47dbf18c5d2d133334"
-            },
+            "version": "dev-main",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/filament-media-manager/zipball/40f749ea7a5d88e9227f2f47dbf18c5d2d133334",
-                "reference": "40f749ea7a5d88e9227f2f47dbf18c5d2d133334",
-                "shasum": ""
+                "type": "path",
+                "url": "packages/juniyasyos/filament-media-manager",
+                "reference": "40f749ea7a5d88e9227f2f47dbf18c5d2d133334"
             },
             "require": {
                 "bezhansalleh/filament-shield": "^3.3",
@@ -3721,7 +3715,11 @@
                     "Juniyasyos\\FilamentMediaManager\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -3745,11 +3743,10 @@
                 "php",
                 "spatie"
             ],
-            "support": {
-                "issues": "https://github.com/juniyasyos/filament-media-manager/issues",
-                "source": "https://github.com/juniyasyos/filament-media-manager/tree/v1.3.3"
-            },
-            "time": "2025-05-28T15:26:09+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "juniyasyos/filament-pwa-kaido",
@@ -16278,7 +16275,7 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
