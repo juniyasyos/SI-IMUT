@@ -5,7 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\ImutData;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
-use App\Services\DashboardSiimutService;
+use App\Services\DashboardImutService;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Collection;
@@ -15,9 +15,9 @@ class ImutTercapai extends BaseWidget
     protected static ?int $sort = 6;
     protected int|string|array $columnSpan = 'full';
 
-    protected function getDashboardService(): DashboardSiimutService
+    protected function getDashboardService(): DashboardImutService
     {
-        return app(DashboardSiimutService::class);
+        return app(DashboardImutService::class);
     }
 
     public function table(Tables\Table $table): Tables\Table

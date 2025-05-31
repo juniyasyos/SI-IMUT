@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Services\DashboardSiimutService;
+use App\Services\DashboardImutService;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
@@ -13,9 +13,9 @@ class DashboardSiimutOverview extends BaseWidget
 
     // Hapus constructor
 
-    protected function getDashboardService(): DashboardSiimutService
+    protected function getDashboardService(): DashboardImutService
     {
-        return app(DashboardSiimutService::class);
+        return app(DashboardImutService::class);
     }
 
     public static function canView(): bool
