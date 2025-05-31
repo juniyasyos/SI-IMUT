@@ -67,30 +67,19 @@ class DashboardSiimutService
     }
 
 
-    /**
-     * Mengambil data metrik berdasarkan objek LaporanImut tertentu.
-     * Menggunakan eager loading dan pemrosesan koleksi untuk mengurangi query.
-     */
     protected function fetchDataByLaporan(LaporanImut $laporan): array
     {
-        // 1. Eager load semua ImutPenilaian terkait dengan laporan ini,
-        //    beserta relasi 'profile' dan 'laporanUnitKerja.unitKerja'
-        //    (Diasumsikan LaporanUnitKerja punya relasi ke UnitKerja)
         $imutPenilaians = ImutPenilaian::whereHas('laporanUnitKerja', function ($q) use ($laporan) {
             $q->where('laporan_imut_id', $laporan->id);
         })
             ->with(['profile', 'laporanUnitKerja.unitKerja']) // Eager load profile dan unit kerja
             ->get();
 
-        // 2. Ambil semua ImutData aktif yang terkait dengan laporan ini.
-        //    Eager load profiles dan penilaian.
-        //    Kunci 'profiles' dan 'penilaian' diperlukan untuk filter selanjutnya.
         $indikatorAktif = ImutData::where('status', true)
             ->whereHas('profiles.penilaian.laporanUnitKerja', function ($q) use ($laporan) {
                 $q->where('laporan_imut_id', $laporan->id);
             })
             ->with(['profiles' => function ($query) {
-                // Eager load penilaian hanya untuk profil terbaru
                 $query->latest('version')->take(1);
             }, 'profiles.penilaian' => function ($query) use ($laporan) {
                 $query->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporan->id));
@@ -98,15 +87,11 @@ class DashboardSiimutService
             ->get();
 
 
-        // 3. Kumpulkan semua imut_profil_id yang relevan dari indikator aktif
         $relevantProfileIds = $indikatorAktif->flatMap(function ($indikator) {
-            // Pastikan kita hanya mengambil ID dari profil versi terbaru
             $profile = $indikator->profiles->sortByDesc('version')->first();
             return $profile ? [$profile->id] : [];
         })->unique();
 
-        // 4. Ambil semua penilaian yang relevan dalam satu query besar
-        //    dengan eager loading profile-nya
         $allRelevantPenilaians = ImutPenilaian::whereIn('imut_profil_id', $relevantProfileIds)
             ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporan->id))
             ->with('profile') // Pastikan profile di-eager load untuk perbandingan target
@@ -114,7 +99,6 @@ class DashboardSiimutService
             ->groupBy('imut_profil_id'); // Kelompokkan berdasarkan imut_profil_id untuk akses mudah
 
 
-        // Menghitung Indikator Tercapai
         $indikatorTercapaiCount = 0;
         foreach ($indikatorAktif as $indikator) {
             $profile = $indikator->profiles->sortByDesc('version')->first();
@@ -123,7 +107,6 @@ class DashboardSiimutService
                 continue;
             }
 
-            // Ambil penilaian untuk profil ini dari koleksi yang sudah di-load
             $penilaiansForProfile = $allRelevantPenilaians->get($profile->id, collect());
 
             if ($penilaiansForProfile->isEmpty()) {
@@ -157,8 +140,6 @@ class DashboardSiimutService
         // Hitung unit melapor dari imutPenilaians yang sudah di-load
         $unitMelapor = $imutPenilaians->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count();
 
-        // totalUnit - pastikan relasi 'unitKerjas' di LaporanImut sudah di-load
-        // atau gunakan count() pada builder jika belum di-load dan Anda hanya butuh count
         $totalUnit = $laporan->unitKerjas()->count(); // Jika ini memicu query N+1, pertimbangkan untuk eager load laporan->unitKerjas() di level atas
 
         $belumDinilai = $imutPenilaians->filter(
@@ -173,22 +154,13 @@ class DashboardSiimutService
             'belumDinilai'   => $belumDinilai,
         ];
     }
-
-    /**
-     * Menghasilkan data chart berdasarkan 6 laporan terakhir.
-     * Menggunakan caching dan eager loading yang dioptimalkan.
-     */
     protected function generateAllChartData(): array
     {
-        // Kunci cache tidak perlu bergantung pada latestLaporanId di sini
-        // karena kita mengambil 6 laporan terakhir, yang mungkin berbeda
-        // dari "latest PROCESS" laporan.
         $cacheKey = "dashboard_siimut_all_chart_data";
 
         return Cache::remember($cacheKey, now()->addDays(7), function () {
             $laporanList = LaporanImut::orderBy('assessment_period_start', 'desc')
                 ->limit(6)
-                // Eager load unitKerjas untuk totalUnit agar tidak N+1 di loop
                 ->with('unitKerjas')
                 ->get();
 
@@ -249,13 +221,10 @@ class DashboardSiimutService
                 $currentLaporanPenilaians = $allPenilaiansForCharts->get($laporan->id, collect());
 
                 // Filter indikator aktif yang relevan dengan laporan ini
-                $indikatorAktifForLaporan = $allIndikatorAktifForCharts->filter(function ($indikator) use ($laporan) {
-                    return $indikator->profiles->first(function ($profile) use ($laporan) {
-                        return $profile->penilaian->first(function ($penilaian) use ($laporan) {
-                            return $penilaian->laporanUnitKerja->laporan_imut_id === $laporan->id;
-                        });
-                    });
-                });
+                $indikatorAktifForLaporan = $allIndikatorAktifForCharts->filter(
+                    fn($indikator) => $indikator->profiles->first(fn($profile)
+                    => $profile->penilaian->first(fn($penilaian) => $penilaian->laporanUnitKerja->laporan_imut_id === $laporan->id))
+                );
 
                 $indikatorTercapaiCount = 0;
                 foreach ($indikatorAktifForLaporan as $indikator) {
@@ -295,9 +264,10 @@ class DashboardSiimutService
 
                 $tercapaiArr[] = $indikatorTercapaiCount;
                 $unitMelaporArr[] = $currentLaporanPenilaians->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count();
-                $belumDinilaiArr[] = $currentLaporanPenilaians->filter(
-                    fn($penilaian) => is_null($penilaian->numerator_value) || is_null($penilaian->denominator_value)
-                )->count();
+                $belumDinilaiArr[] = $currentLaporanPenilaians->filter(fn($penilaian) =>
+                !is_null($penilaian->numerator_value)
+                    && !is_null($penilaian->denominator_value)
+                    && is_null($penilaian->recommendations))->count();
             }
 
             return [
@@ -308,9 +278,6 @@ class DashboardSiimutService
         });
     }
 
-    /**
-     * Mengembalikan konfigurasi statistik untuk widget.
-     */
     public function getStatsConfig(array $data): array
     {
         return [
@@ -346,7 +313,7 @@ class DashboardSiimutService
                 'description' => $this->generateTrendDescription(
                     $data['chart']['belumDinilai'] ?? [],
                     'indikator belum dinilai',
-                    true // invers trend
+                    true
                 ),
                 'descriptionIcon' => 'heroicon-o-pencil-square',
                 'icon' => 'heroicon-o-clock',
@@ -356,51 +323,43 @@ class DashboardSiimutService
         ];
     }
 
-    /**
-     * Menghasilkan deskripsi tren berdasarkan data chart.
-     */
     protected function generateTrendDescription(array $chart, string $unit = '', bool $inverse = false): string
     {
         $count = count($chart);
-        if ($count < 2) {
-            return 'Data historis tidak mencukupi untuk analisis tren.';
-        }
+        if ($count < 2) return 'Data belum cukup untuk analisis.';
 
-        $previous = $chart[$count - 2];
-        $current = $chart[$count - 1];
-        $diff = $current - $previous;
+        $prev = $chart[$count - 2];
+        $curr = $chart[$count - 1];
+        $diff = $curr - $prev;
 
         if ($diff === 0) {
             return match ($unit) {
-                'indikator' => 'Kinerja indikator tetap stabil dibandingkan periode sebelumnya.',
-                'unit' => 'Jumlah unit yang melapor tidak berubah dari minggu lalu.',
-                'indikator belum dinilai' => 'Tidak ada perubahan dalam jumlah indikator yang belum dinilai.',
-                default => ucfirst($unit) . ' stabil dari periode sebelumnya.',
+                'indikator' => 'Capaian indikator stabil.',
+                'unit' => 'Jumlah unit tetap.',
+                'indikator belum dinilai' => 'Belum ada perubahan penilaian.',
+                default => ucfirst($unit) . ' stabil.',
             };
         }
 
-        $absDiff = abs($diff);
+        $abs = abs($diff);
 
         if ($inverse) {
             return $diff > 0
-                ? "Jumlah $unit meningkat sebesar $absDiff — perlu perhatian karena ini menunjukkan penurunan kualitas."
-                : "Jumlah $unit berhasil ditekan sebanyak $absDiff — tren positif yang menggembirakan.";
+                ? "$unit naik $abs — tren negatif."
+                : "$unit turun $abs — tren positif.";
         }
 
         return match ($unit) {
             'indikator' => $diff > 0
-                ? "Jumlah indikator tercapai meningkat sebanyak $absDiff — menunjukkan perbaikan kinerja."
-                : "Penurunan $absDiff indikator tercapai — evaluasi perlu dilakukan.",
+                ? "Indikator tercapai naik $abs."
+                : "Indikator tercapai turun $abs.",
             'unit' => $diff > 0
-                ? "$absDiff unit tambahan aktif melaporkan data — partisipasi meningkat."
-                : "$absDiff unit tidak lagi melaporkan — monitoring dan pembinaan diperlukan.",
-            default => ucfirst($unit) . ' ' . ($diff > 0 ? 'naik' : 'turun') . " sebesar $absDiff dari periode sebelumnya.",
+                ? "$abs unit mulai melapor."
+                : "$abs unit berhenti melapor.",
+            default => ucfirst($unit) . ($diff > 0 ? " naik $abs." : " turun $abs."),
         };
     }
 
-    /**
-     * Menentukan ikon berdasarkan persentase capaian.
-     */
     protected function resolveIcon(int $value, int $total): string
     {
         $percentage = $total ? round($value / $total * 100) : 0;

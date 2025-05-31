@@ -25,7 +25,6 @@ return new class extends Migration {
             $table->decimal('denominator_value', 10, 2)->nullable();
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class ImutPenilaian extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity;
 
     /** @use HasFactory<\Database\Factories\ImutPenilaianFactory> */
     use HasFactory;

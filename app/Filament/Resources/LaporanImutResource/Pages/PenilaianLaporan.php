@@ -544,7 +544,6 @@ class PenilaianLaporan extends Page implements HasForms
                         ->label('Analisis')
                         ->rows(4)
                         ->placeholder('Tuliskan hasil analisis...')
-                        ->required()
                         ->columnSpanFull(),
 
                     Textarea::make('recommendations')
@@ -552,7 +551,6 @@ class PenilaianLaporan extends Page implements HasForms
                         ->disabled(fn() => !Auth::user()?->can('create_recommendation_penilaian_laporan::imut'))
                         ->rows(4)
                         ->placeholder('Berikan saran atau rekomendasi...')
-                        ->required()
                         ->columnSpanFull(),
                 ]),
         ];
