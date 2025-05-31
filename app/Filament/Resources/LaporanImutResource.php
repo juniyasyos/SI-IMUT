@@ -268,10 +268,11 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
 
                 ProgressColumn::make('unit_kerja_terisi')
                     ->label('Unit Kerja Terisi')
-                    ->visible(fn() => Gate::any([
-                        'view_unit_kerja_report_laporan::imut',
-                        'view_imut_data_report_laporan::imut',
-                    ]))
+                    ->visible(
+                        fn() =>
+                        Gate::check('view_unit_kerja_report_laporan::imut') &&
+                            Gate::check('view_imut_data_report_laporan::imut')
+                    )
                     ->getStateUsing(function ($record) {
                         $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
                             ->where('laporan_imut_id', $record->id)
