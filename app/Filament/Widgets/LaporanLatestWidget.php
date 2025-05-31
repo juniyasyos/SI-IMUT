@@ -4,14 +4,20 @@ namespace App\Filament\Widgets;
 
 use App\Models\LaporanImut;
 use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanLatestWidget extends Widget
 {
     protected static string $view = 'filament.widgets.laporan-latest-widget';
 
-     protected static ?int $sort = 3; 
+    public static function canView(): bool
+    {
+        return Auth::user()?->can('widget_LaporanLatestWidget');
+    }
 
-    protected int | string | array $columnSpan = 'full'; 
+    protected static ?int $sort = 3;
+
+    protected int | string | array $columnSpan = 'full';
 
     public function getLaporan(): ?LaporanImut
     {
