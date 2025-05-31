@@ -27,7 +27,7 @@ class ProsesPenilaianImut implements ShouldQueue
         DB::transaction(function () {
             $laporan = $this->laporan;
 
-            $unitKerjas = $laporan->unitKerjas()->with('imutData.latestProfile.imutStandards')->get();
+            $unitKerjas = $laporan->unitKerjas()->with('imutData.latestProfile')->get();
 
             $unitKerjas->each(function ($unitKerja) use ($laporan) {
                 $laporanUnitKerja = LaporanUnitKerja::firstOrCreate([
@@ -39,10 +39,6 @@ class ProsesPenilaianImut implements ShouldQueue
                     $latestProfile = $imutData->latestProfile;
 
                     if (!$latestProfile) return;
-
-                    $latestStandard = $latestProfile->imutStandards->sortByDesc('created_at')->first();
-
-                    if (!$latestStandard) return;
 
                     ImutPenilaian::firstOrCreate([
                         'imut_profil_id'        => $latestProfile->id,

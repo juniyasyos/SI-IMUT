@@ -18,7 +18,7 @@
         @else
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold">{{ $laporan->name }}</h2>
+                    <h2 class="text-lg font-bold">{{ $laporan->name }}</h2>
                     <p class="text-sm text-gray-500">
                         Periode: {{ $laporan->assessment_period_start->format('M Y') }} -
                         {{ $laporan->assessment_period_end->format('M Y') }}

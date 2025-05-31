@@ -9,7 +9,7 @@ class LaporanLatestWidget extends Widget
 {
     protected static string $view = 'filament.widgets.laporan-latest-widget';
 
-     protected static ?int $sort = 1; 
+     protected static ?int $sort = 3; 
 
     protected int | string | array $columnSpan = 'full'; 
 
