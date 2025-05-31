@@ -16,13 +16,11 @@ class DashboardSiimutService
      */
     public function getLatestLaporanId(): int
     {
-        // Gunakan cache untuk hasil ini juga, karena sering dipanggil
         return Cache::remember('latest_laporan_id', now()->addMinutes(30), function () {
             $latestLaporan = LaporanImut::where('status', LaporanImut::STATUS_PROCESS)
                 ->latest('assessment_period_start')
                 ->first();
 
-            // Jika tidak ada laporan dengan status PROCESS, ambil yang terbaru secara umum
             if (!$latestLaporan) {
                 $latestLaporan = LaporanImut::latest('assessment_period_start')->first();
             }
@@ -43,7 +41,7 @@ class DashboardSiimutService
 
         return Cache::remember($cacheKey, now()->addDays(7), function () use ($latestLaporanId) {
             // Ambil laporan terbaru secara langsung sebagai objek model
-            $latestLaporan = LaporanImut::find($latestLaporanId);
+            $latestLaporan = LaporanImut::find($latestLaporanId)->first();
 
             if (!$latestLaporan) {
                 return [
@@ -66,26 +64,6 @@ class DashboardSiimutService
 
             return array_merge($currentPeriodData, ['chart' => $chartData]);
         });
-    }
-
-
-    /**
-     * Mengambil data metrik untuk laporan periode saat ini.
-     * Diubah menjadi private karena dipanggil dari getAllDashboardData()
-     * dan menerima objek $laporan secara langsung.
-     */
-    private function fetchCurrentPeriodData(): array
-    {
-        // Logika ini sudah digabungkan ke getAllDashboardData() dan fetchDataByLaporan()
-        // Jadi metode ini tidak lagi diperlukan secara langsung.
-        // Atau, jika Anda ingin mempertahankan struktur, pastikan $latestLaporan
-        // di-load dengan eager loading yang tepat di sini.
-        // Untuk optimasi, kita akan memanggil fetchDataByLaporan langsung dari getAllDashboardData
-        // setelah mendapatkan $latestLaporan berdasarkan $latestLaporanId.
-        // Jadi, metode ini bisa dihapus atau diubah menjadi:
-        // return $this->fetchDataByLaporan(LaporanImut::find($this->getLatestLaporanId()));
-        // Tapi lebih baik langsung di getAllDashboardData
-        return []; // Akan dihapus setelah refactor
     }
 
 
