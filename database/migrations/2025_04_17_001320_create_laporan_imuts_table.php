@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->date('assessment_period_start');
             $table->date('assessment_period_end');
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->index('status');
+            $table->index('assessment_period_start');
             $table->softDeletes();
             $table->timestamps();
         });

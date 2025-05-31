@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('laporan_imut_id')->constrained('laporan_imuts')->onDelete('cascade');
             $table->foreignId('unit_kerja_id')->constrained('unit_kerja')->onDelete('cascade');
+            $table->index('laporan_imut_id');
             $table->timestamps();
         });
     }

@@ -160,4 +160,9 @@ class ImutProfile extends Model
     {
         return $this->hasMany(related: ImutBenchmarking::class);
     }
+
+    public function penilaian()
+    {
+        return $this->hasMany(ImutPenilaian::class, 'imut_profil_id');
+    }
 }

@@ -30,6 +30,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -641,6 +642,9 @@ class PenilaianLaporan extends Page implements HasForms
         // Cari record berdasarkan ID
         $penilaian = ImutPenilaian::findOrFail($validated['penilaian_id']);
 
+        // Simpan ID laporan sebelum update
+        $laporanId = optional($penilaian->laporanUnitKerja)->laporan_imut_id;
+
         // Update nilai-nilai yang dibutuhkan
         $penilaian->update([
             'analysis' => $validated['analysis'],
@@ -649,6 +653,12 @@ class PenilaianLaporan extends Page implements HasForms
             'denominator_value' => $validated['denominator_value'],
             'document_upload' => $validated['document_upload'] ?? [],
         ]);
+
+        // Hapus cache terkait dashboard
+        if ($laporanId) {
+            Cache::forget("dashboard_siimut_chart_data_{$laporanId}");
+            Cache::forget("dashboard_siimut_laporan_data_{$laporanId}");
+        }
 
         // Notifikasi sukses
         Notification::make()
