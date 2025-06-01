@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\ImutProfile;
+use App\Support\CacheKey;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -60,6 +62,32 @@ class ImutPenilaian extends Model
         ];
     }
 
+    public function clearCache()
+    {
+        $laporanUnitKerja = $this->laporanUnitKerja;
+
+        if ($laporanUnitKerja) {
+            $laporanId = $laporanUnitKerja->laporan_imut_id;
+            $unitKerjaId = $laporanUnitKerja->unit_kerja_id;
+
+            Cache::forget(CacheKey::laporanUnitDetail($laporanId, $unitKerjaId));
+
+            Cache::forget(CacheKey::dashboardSiimutAllData($laporanId));
+            Cache::forget(CacheKey::dashboardSiimutAllChartData());
+        }
+
+        Cache::forget(CacheKey::imutLaporans());
+        Cache::forget(CacheKey::latestLaporan());
+    }
+
+    protected static function booted()
+    {
+        static::saved(fn($penilaian) => $penilaian->clearCache());
+        static::deleted(fn($penilaian) => $penilaian->clearCache());
+    }
+
+
+
     /**
      * Get the options for logging activity.
      *
@@ -110,5 +138,4 @@ class ImutPenilaian extends Model
     {
         return $this->hasOne(ImutProfile::class)->latestOfMany();
     }
-
 }

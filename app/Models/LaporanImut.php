@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\CacheKey;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanUnitKerja;
@@ -48,6 +50,17 @@ class LaporanImut extends Model
                 $laporan->slug = Str::slug($laporan->name ?? $laporan->id . '-' . now()->timestamp);
             }
         });
+
+        static::saved(fn($laporan) => $laporan->clearCache());
+        static::deleted(fn($laporan) => $laporan->clearCache());
+    }
+
+    public function clearCache()
+    {
+        Cache::forget(CacheKey::imutLaporans());
+        Cache::forget(CacheKey::latestLaporan());
+        Cache::forget(CacheKey::dashboardSiimutAllChartData());
+        Cache::forget(CacheKey::dashboardSiimutAllData($this->id));
     }
 
     public function getActivitylogOptions(): LogOptions

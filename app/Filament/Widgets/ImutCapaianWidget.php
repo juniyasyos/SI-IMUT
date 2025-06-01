@@ -24,12 +24,14 @@ class ImutCapaianWidget extends ApexChartWidget
     protected function getOptions(): array
     {
         // Ambil data laporan dengan cache
-        $laporans = Cache::remember('imut_laporans', now()->addMinutes(5), function () {
-            return LaporanImut::with([
-                'laporanUnitKerjas.imutPenilaians.profile.imutData.categories'
-            ])->orderBy('assessment_period_start')->get();
-        });
 
+        $laporans = Cache::remember(
+            \App\Support\CacheKey::imutLaporans(),
+            now()->addMinutes(5),
+            fn() => LaporanImut::with([
+                'laporanUnitKerjas.imutPenilaians.profile.imutData.categories'
+            ])->orderBy('assessment_period_start')->get()
+        );
         // Buat label sumbu X berdasarkan periode assessment
         $xLabels = $laporans->map(function ($laporan) {
             $start = $laporan->assessment_period_start ? Carbon::parse($laporan->assessment_period_start) : null;

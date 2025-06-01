@@ -56,9 +56,9 @@ class ImutDataUnitKerjaReport extends Page
             return;
         }
 
-        $cacheKey = "laporan_imut_detail_{$laporanId}_imut_data_{$imutDataId}";
+        $cacheKey = \App\Support\CacheKey::laporanImutDetail($laporanId, $imutDataId);
 
-        $this->data = Cache::remember($cacheKey, now()->addMinutes(10), fn() => [
+        $this->data = Cache::remember($cacheKey, now()->addMinutes(30), fn() => [
             'laporanId' => $this->laporan->id,
             'status' => $this->laporan->status,
             'start_date' => $this->laporan->assessment_period_start,

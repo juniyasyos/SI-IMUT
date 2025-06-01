@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ImutData;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
+use App\Support\CacheKey;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 
@@ -12,7 +13,7 @@ class LaporanImutService
 {
     public function getLatestLaporan(): ?LaporanImut
     {
-        return Cache::remember('latest_laporan', now()->addMinutes(30), function () {
+        return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
             return LaporanImut::where('status', LaporanImut::STATUS_PROCESS)
                 ->latest('assessment_period_start')
                 ->first()
@@ -32,7 +33,7 @@ class LaporanImutService
      */
     public function getChartDataForLastLaporan(int $limit = 6): array
     {
-        return Cache::remember('dashboard_siimut_all_chart_data', now()->addDays(7), function () use ($limit) {
+        return Cache::remember(CacheKey::dashboardSiimutAllChartData(), now()->addDays(7), function () use ($limit) {
             $laporanList = $this->getRecentLaporanList($limit);
 
             $laporanIds = $laporanList->pluck('id');

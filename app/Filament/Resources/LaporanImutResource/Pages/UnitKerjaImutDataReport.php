@@ -57,16 +57,15 @@ class UnitKerjaImutDataReport extends Page
             return;
         }
 
-        $cacheKey = "laporan_imut_detail_{$laporanId}_unit_{$unitKerjaId}";
-        $this->data = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($laporanId, $unitKerjaId) {
-            return [
-                'laporanId' => $this->laporan->id,
-                'status' => $this->laporan->status,
-                'start_date' => $this->laporan->assessment_period_start,
-                'end_date' => $this->laporan->assessment_period_end,
-                'unit_kerja_id' => $unitKerjaId,
-            ];
-        });
+        $cacheKey = \App\Support\CacheKey::laporanUnitDetail($laporanId, $unitKerjaId);
+
+        $this->data = Cache::remember($cacheKey, now()->addMinutes(30), fn() => [
+            'laporanId' => $this->laporan->id,
+            'status' => $this->laporan->status,
+            'start_date' => $this->laporan->assessment_period_start,
+            'end_date' => $this->laporan->assessment_period_end,
+            'unit_kerja_id' => $unitKerjaId,
+        ]);
 
         $this->form->fill($this->data);
     }

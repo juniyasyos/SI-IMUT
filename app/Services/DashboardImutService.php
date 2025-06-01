@@ -29,13 +29,12 @@ class DashboardImutService
     public function getAllDashboardData(): array
     {
         $latestLaporanId = $this->getLatestLaporanId();
-        $cacheKey = "dashboard_siimut_all_data_{$latestLaporanId}";
+        $cacheKey = \App\Support\CacheKey::dashboardSiimutAllData($latestLaporanId);
 
         return Cache::remember($cacheKey, now()->addDays(7), function () use ($latestLaporanId) {
-            $laporan = LaporanImut::find($latestLaporanId);
+            $laporan = LaporanImut::find($latestLaporanId)->first();
 
             if (!$laporan) {
-                // fallback data kosong
                 return [
                     'totalIndikator' => 0,
                     'tercapai' => 0,

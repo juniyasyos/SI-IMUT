@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Models\UnitKerja;
 use App\Models\LaporanImut;
+use App\Support\CacheKey;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -30,6 +32,23 @@ class LaporanUnitKerja extends Model
     {
         return $this->hasMany(ImutPenilaian::class, 'laporan_unit_kerja_id');
     }
+
+    protected static function booted()
+    {
+        static::saved(fn($laporan) => $laporan->clearCache());
+        static::deleted(fn($laporan) => $laporan->clearCache());
+    }
+
+    public function clearCache()
+    {
+        $laporanId = $this->laporan_imut_id;
+        $unitKerjaId = $this->unit_kerja_id;
+
+        Cache::forget(CacheKey::laporanUnitDetail($laporanId, $unitKerjaId));
+        Cache::forget(CacheKey::dashboardSiimutAllData($laporanId));
+    }
+
+
     public static function getReportByUnitKerja(int $laporanId)
     {
         return self::query()

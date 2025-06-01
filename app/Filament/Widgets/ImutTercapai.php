@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 class ImutTercapai extends BaseWidget
 {
     protected static ?int $sort = 6;
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = '2';
 
     protected function getLaporanService(): LaporanImutService
     {
