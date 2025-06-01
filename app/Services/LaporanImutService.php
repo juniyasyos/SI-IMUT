@@ -6,6 +6,7 @@ use App\Models\ImutData;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Collection;
 
 class LaporanImutService
 {
@@ -25,61 +26,19 @@ class LaporanImutService
     }
 
     /**
-     * Menghasilkan data chart untuk beberapa laporan terakhir.
-     *
-     * @param int $limit jumlah laporan yang ingin diambil
-     * @return array data chart yang terdiri dari tercapai, unit melapor, dan belum dinilai
+     * Ambil data chart indikator tercapai, unit melapor, dan belum dinilai
+     * @param int $limit
+     * @return array
      */
     public function getChartDataForLastLaporan(int $limit = 6): array
     {
-        $cacheKey = "dashboard_siimut_all_chart_data";
+        return Cache::remember('dashboard_siimut_all_chart_data', now()->addDays(7), function () use ($limit) {
+            $laporanList = $this->getRecentLaporanList($limit);
 
-        return Cache::remember($cacheKey, now()->addDays(7), function () use ($limit) {
-            $laporanList = LaporanImut::orderBy('assessment_period_start', 'desc')
-                ->limit($limit)
-                ->with('unitKerjas')
-                ->get();
-
-            // Jika jumlah laporan kurang dari limit, ambil tambahan laporan dengan status bukan proses
-            if ($laporanList->count() < $limit) {
-                $additional = LaporanImut::where('status', '!=', LaporanImut::STATUS_PROCESS)
-                    ->orderBy('assessment_period_start', 'desc')
-                    ->limit($limit - $laporanList->count())
-                    ->with('unitKerjas')
-                    ->get();
-                $laporanList = $laporanList->concat($additional);
-            }
-
-            $laporanList = $laporanList->sortBy('assessment_period_start');
-            $laporanIds = $laporanList->pluck('id')->toArray();
-
-            // Ambil semua penilaian terkait laporan
-            $allPenilaians = ImutPenilaian::whereHas('laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
-                ->with(['profile', 'laporanUnitKerja'])
-                ->get()
-                ->groupBy('laporanUnitKerja.laporan_imut_id');
-
-            // Ambil indikator aktif (status true) yang terkait laporan
-            $indikatorAktif = ImutData::where('status', true)
-                ->whereHas('profiles.penilaian.laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
-                ->with([
-                    'profiles' => fn($q) => $q->latest('version')->take(1),
-                    'profiles.penilaian' => fn($q) => $q->whereHas('laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds)),
-                ])
-                ->get();
-
-            // Ambil ID profil indikator terbaru
-            $profileIds = $indikatorAktif->flatMap(function ($indikator) {
-                $profile = $indikator->profiles->sortByDesc('version')->first();
-                return $profile ? [$profile->id] : [];
-            })->unique();
-
-            // Ambil penilaian berdasarkan profil indikator terbaru
-            $penilaiansByProfile = ImutPenilaian::whereIn('imut_profil_id', $profileIds)
-                ->whereHas('laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
-                ->with('profile')
-                ->get()
-                ->groupBy('imut_profil_id');
+            $laporanIds = $laporanList->pluck('id');
+            $indikatorAktif = $this->getAktifIndikatorWithProfiles($laporanIds);
+            $penilaianAll = $this->getGroupedPenilaianByLaporan($laporanIds);
+            $penilaianByProfile = $this->getGroupedPenilaianByProfile($laporanIds, $indikatorAktif);
 
             $result = [
                 'tercapai' => [],
@@ -87,48 +46,20 @@ class LaporanImutService
                 'belumDinilai' => [],
             ];
 
-            // Loop tiap laporan untuk hitung data chart
             foreach ($laporanList as $laporan) {
-                $currentPenilaians = $allPenilaians->get($laporan->id, collect());
+                $result['tercapai'][] = $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporan->id);
+                $result['unitMelapor'][] = $penilaianAll->get($laporan->id, collect())
+                    ->pluck('laporanUnitKerja.unit_kerja_id')
+                    ->unique()
+                    ->count();
 
-                $indikatorTercapai = 0;
-
-                foreach ($indikatorAktif as $indikator) {
-                    $profile = $indikator->profiles->sortByDesc('version')->first();
-                    if (!$profile) continue;
-
-                    // Filter penilaian berdasarkan laporan saat ini
-                    $penilaians = $penilaiansByProfile->get($profile->id, collect())
-                        ->filter(fn($p) => $p->laporanUnitKerja->laporan_imut_id === $laporan->id);
-
-                    if ($penilaians->isEmpty()) continue;
-
-                    // Hitung jumlah indikator tercapai berdasarkan kriteria target operator dan nilai
-                    $tercapai = $penilaians->filter(function ($p) use ($profile) {
-                        if ($p->denominator_value == 0) return false;
-                        $result = round(($p->numerator_value / $p->denominator_value) * 100, 2);
-
-                        return match ($profile->target_operator) {
-                            '='  => $result == $profile->target_value,
-                            '>=' => $result >= $profile->target_value,
-                            '<=' => $result <= $profile->target_value,
-                            '>'  => $result > $profile->target_value,
-                            '<'  => $result < $profile->target_value,
-                            default => false,
-                        };
-                    })->count();
-
-                    // Jika minimal 80% indikator tercapai, hitung sebagai indikator tercapai
-                    if ($tercapai / $penilaians->count() >= 0.8) {
-                        $indikatorTercapai++;
-                    }
-                }
-
-                $result['tercapai'][] = $indikatorTercapai;
-                $result['unitMelapor'][] = $currentPenilaians->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count();
-                $result['belumDinilai'][] = $currentPenilaians->filter(
-                    fn($p) => !is_null($p->numerator_value) && !is_null($p->denominator_value) && is_null($p->recommendations)
-                )->count();
+                $result['belumDinilai'][] = $penilaianAll->get($laporan->id, collect())
+                    ->filter(
+                        fn($p) =>
+                        !is_null($p->numerator_value) &&
+                            !is_null($p->denominator_value) &&
+                            is_null($p->recommendations)
+                    )->count();
             }
 
             return $result;
@@ -136,32 +67,139 @@ class LaporanImutService
     }
 
     /**
-     * Ambil data ringkas untuk laporan terbaru (periode terbaru).
-     *
+     * Ambil ringkasan laporan saat ini.
+     * @param LaporanImut $laporan
      * @return array|null
      */
-    public function getCurrentLaporanData(): ?array
+    public function getCurrentLaporanData(LaporanImut $laporan): ?array
     {
-        $laporanTerbaru = LaporanImut::latest('periode')->first();
+        $laporanId = $laporan->id;
+        $imutPenilaians = ImutPenilaian::with(['profile', 'laporanUnitKerja.unitKerja'])
+            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+            ->get();
 
-        if (!$laporanTerbaru) {
-            return null;
-        }
+        $indikatorAktif = $this->getAktifIndikatorWithProfiles(collect([$laporanId]));
+        $profileIds = $this->getLatestProfileIds($indikatorAktif);
 
-        $indikator = $laporanTerbaru->indikator;
-        $totalIndikator = $indikator->count();
-        $tercapai = $indikator->where('status', 'tercapai')->count();
-        $belumDinilai = $indikator->whereNull('status')->count();
-
-        $unitMelapor = $laporanTerbaru->unit()->whereHas('laporan')->count();
-        $totalUnit = \App\Models\UnitKerja::count();
+        $penilaianByProfile = ImutPenilaian::with('profile', 'laporanUnitKerja')
+            ->whereIn('imut_profil_id', $profileIds)
+            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+            ->get()
+            ->groupBy('imut_profil_id');
 
         return [
-            'totalIndikator' => $totalIndikator,
-            'tercapai' => $tercapai,
-            'belumDinilai' => $belumDinilai,
-            'unitMelapor' => $unitMelapor,
-            'totalUnit' => $totalUnit,
+            'totalIndikator' => $indikatorAktif->count(),
+            'tercapai'       => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporanId),
+            'unitMelapor'    => $imutPenilaians->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
+            'totalUnit'      => $laporan->unitKerjas()->count(),
+            'belumDinilai'   => $imutPenilaians->filter(
+                fn($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
+            )->count(),
         ];
+    }
+
+    public function getPenilaianGroupedByProfile(int $laporanId): Collection
+    {
+        return ImutPenilaian::query()
+            ->select(['id', 'imut_profil_id', 'laporan_unit_kerja_id', 'numerator_value', 'denominator_value'])
+            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+            ->whereNotNull('numerator_value')
+            ->whereNotNull('denominator_value')
+            ->get()
+            ->groupBy('imut_profil_id');
+    }
+
+    /** ========================== PRIVATE HELPERS ========================== */
+
+    private function isTercapai(ImutPenilaian $p, $profile): bool
+    {
+        if ($p->denominator_value == 0) return false;
+
+        $result = round(($p->numerator_value / $p->denominator_value) * 100, 2);
+
+        return match ($profile->target_operator) {
+            '='  => $result == $profile->target_value,
+            '>=' => $result >= $profile->target_value,
+            '<=' => $result <= $profile->target_value,
+            '>'  => $result > $profile->target_value,
+            '<'  => $result < $profile->target_value,
+            default => false,
+        };
+    }
+
+    private function getRecentLaporanList(int $limit): Collection
+    {
+        $laporan = LaporanImut::with('unitKerjas')
+            ->orderByDesc('assessment_period_start')
+            ->limit($limit)
+            ->get();
+
+        if ($laporan->count() < $limit) {
+            $additional = LaporanImut::where('status', '!=', LaporanImut::STATUS_PROCESS)
+                ->orderByDesc('assessment_period_start')
+                ->limit($limit - $laporan->count())
+                ->with('unitKerjas')
+                ->get();
+
+            $laporan = $laporan->concat($additional);
+        }
+
+        return $laporan->sortBy('assessment_period_start')->values();
+    }
+
+    private function getAktifIndikatorWithProfiles(Collection $laporanIds): Collection
+    {
+        return ImutData::with([
+            'profiles' => fn($q) => $q->latest('version')->take(1),
+            'profiles.penilaian' => fn($q) => $q->whereHas('laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds)),
+        ])
+            ->where('status', true)
+            ->whereHas('profiles.penilaian.laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
+            ->get();
+    }
+
+    private function getGroupedPenilaianByLaporan(Collection $laporanIds): Collection
+    {
+        return ImutPenilaian::with(['profile', 'laporanUnitKerja'])
+            ->whereHas('laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
+            ->get()
+            ->groupBy('laporanUnitKerja.laporan_imut_id');
+    }
+
+    private function getGroupedPenilaianByProfile(Collection $laporanIds, Collection $indikatorAktif): Collection
+    {
+        $profileIds = $this->getLatestProfileIds($indikatorAktif);
+
+        return ImutPenilaian::with('profile', 'laporanUnitKerja')
+            ->whereIn('imut_profil_id', $profileIds)
+            ->whereHas('laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
+            ->get()
+            ->groupBy('imut_profil_id');
+    }
+
+    private function getLatestProfileIds(Collection $indikatorAktif): Collection
+    {
+        return $indikatorAktif
+            ->map(fn($indikator) => $indikator->profiles->sortByDesc('version')->first()?->id)
+            ->filter()
+            ->unique()
+            ->values();
+    }
+
+    private function countTercapai(Collection $indikatorAktif, Collection $penilaianByProfile, int $laporanId): int
+    {
+        return $indikatorAktif->reduce(function (int $carry, $indikator) use ($penilaianByProfile, $laporanId) {
+            $profile = $indikator->profiles->sortByDesc('version')->first();
+            if (!$profile) return $carry;
+
+            $penilaians = $penilaianByProfile->get($profile->id, collect())
+                ->filter(fn($p) => $p->laporanUnitKerja->laporan_imut_id === $laporanId);
+
+            if ($penilaians->isEmpty()) return $carry;
+
+            $tercapai = $penilaians->filter(fn($p) => $this->isTercapai($p, $profile))->count();
+
+            return $tercapai / $penilaians->count() >= 1 ? $carry + 1 : $carry;
+        }, 0);
     }
 }

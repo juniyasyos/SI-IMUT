@@ -115,10 +115,12 @@ class ImutData extends Model
             ->withTimestamps();
     }
 
-    public function latestProfile(): HasOne
+    // Di model ImutData
+    public function latestProfile()
     {
-        return $this->hasOne(ImutProfile::class)->latestOfMany();
+        return $this->hasOne(ImutProfile::class)->latestOfMany('version');
     }
+
 
     public function profileById($profileId): HasOne
     {

@@ -3,9 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\ImutData;
-use App\Models\ImutPenilaian;
-use App\Models\LaporanImut;
-use App\Services\DashboardImutService;
+use App\Services\LaporanImutService;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Collection;
@@ -15,117 +13,116 @@ class ImutTercapai extends BaseWidget
     protected static ?int $sort = 6;
     protected int|string|array $columnSpan = 'full';
 
-    protected function getDashboardService(): DashboardImutService
+    protected function getLaporanService(): LaporanImutService
     {
-        return app(DashboardImutService::class);
+        return app(LaporanImutService::class);
     }
 
     public function table(Tables\Table $table): Tables\Table
     {
-        $laporanId = $this->getDashboardService()->getLatestLaporanId();
+        $laporan = $this->getLaporanService()->getLatestLaporan();
+        if (!$laporan) return $table->columns([]);
+
+        $laporanId = $laporan->id;
+        $totalUnit = $laporan->unitKerjas->count();
 
         $query = ImutData::query()
             ->where('status', true)
             ->whereHas(
-                'profiles.penilaian.laporanUnitKerja',
+                'latestProfile.penilaian',
                 fn($q) =>
-                $q->where('laporan_imut_id', $laporanId)
+                $q->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+                    ->whereNotNull('numerator_value')
+                    ->whereNotNull('denominator_value')
             )
-            ->with('profiles.penilaian.laporanUnitKerja');
+            ->with([
+                'latestProfile' => fn($q) => $q->with([
+                    'penilaian' => fn($q) =>
+                    $q->whereHas(
+                        'laporanUnitKerja',
+                        fn($q) =>
+                        $q->where('laporan_imut_id', $laporanId)
+                    )->whereNotNull('numerator_value')->whereNotNull('denominator_value')
+                ])
+            ]);
 
         return $table
             ->query($query)
             ->paginated([5, 10, 25])
             ->defaultPaginationPageOption(5)
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->label('Indikator')
-                    ->wrap(),
+                Tables\Columns\TextColumn::make('title')->label('Indikator')->wrap(),
 
                 Tables\Columns\TextColumn::make('unit_melapor')
                     ->label('Unit Melapor')
-                    ->getStateUsing(fn($record) => $this->getUnitMelapor($record, $laporanId)),
+                    ->getStateUsing(fn($record) => $this->getUnitMelaporState($record->latestProfile, $totalUnit)),
 
                 Tables\Columns\TextColumn::make('tercapai')
                     ->label('Unit Tercapai')
                     ->tooltip('Jumlah unit kerja yang mencapai target dari yang sudah menilai')
                     ->badge()
-                    ->getStateUsing(fn($record) => $this->getTercapaiText($record, $laporanId))
-                    ->color(fn($record) => $this->getTercapaiColor($record, $laporanId)),
+                    ->getStateUsing(fn($record) => $this->getTercapaiState($record->latestProfile))
+                    ->color(fn($record) => $this->getBadgeColor($record->latestProfile)),
             ]);
     }
 
-    protected function getUnitMelapor($record, $laporanId): string
+
+    protected function getUnitMelaporState($profile, int $totalUnit): string
     {
-        $profile = $record->profiles->sortByDesc('version')->first();
         if (!$profile) return '0/0';
 
-        $total = LaporanImut::find($laporanId)?->unitKerjas()->count() ?? 0;
-
-        $terisi = ImutPenilaian::query()
-            ->where('imut_profil_id', $profile->id)
-            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
-            ->whereNotNull('numerator_value')
-            ->whereNotNull('denominator_value')
-            ->distinct('laporan_unit_kerja_id')
-            ->count('laporan_unit_kerja_id');
-
-        return "$terisi/$total";
+        $filled = $profile->penilaian->pluck('laporan_unit_kerja_id')->unique()->count();
+        return "$filled/$totalUnit";
     }
 
-    protected function getTercapaiText($record, $laporanId): string
+    protected function getTercapaiState($profile): string
     {
-        $profile = $record->profiles->sortByDesc('version')->first();
         if (!$profile) return 'Belum ada data';
 
-        $grouped = $this->getPenilaianByUnit($profile->id, $laporanId);
+        $grouped = $profile->penilaian->groupBy('laporan_unit_kerja_id');
         $total = $grouped->count();
         if ($total === 0) return 'Belum ada data';
 
-        $tercapai = $this->countTercapai($grouped, $profile);
+        $tercapai = $grouped->filter(
+            fn($penilaians) =>
+            $penilaians->contains(
+                fn($p) =>
+                $p->denominator_value != 0 && $this->isTercapai($p, $profile)
+            )
+        )->count();
 
         return "$tercapai dari $total Unit";
     }
 
-    protected function getTercapaiColor($record, $laporanId): string
+    protected function getBadgeColor($profile): string
     {
-        $profile = $record->profiles->sortByDesc('version')->first();
         if (!$profile) return 'gray';
 
-        $grouped = $this->getPenilaianByUnit($profile->id, $laporanId);
+        $grouped = $profile->penilaian
+            ->whereNotNull('numerator_value')
+            ->whereNotNull('denominator_value')
+            ->groupBy('laporan_unit_kerja_id');
+
         $total = $grouped->count();
         if ($total === 0) return 'gray';
 
-        $percent = $this->countTercapai($grouped, $profile) / $total;
+        $tercapai = $grouped->filter(
+            fn($penilaians) =>
+            $penilaians->contains(
+                fn($p) =>
+                $p->denominator_value != 0 && $this->isTercapai($p, $profile)
+            )
+        )->count();
+
+        $percent = $tercapai / $total;
 
         return match (true) {
-            $percent >= 1    => 'success',
-            $percent >= 0.6  => 'warning',
-            default          => 'danger',
+            $percent >= 1     => 'success',
+            $percent >= 0.6   => 'warning',
+            default           => 'danger',
         };
     }
 
-    protected function getPenilaianByUnit(int $profileId, int $laporanId): Collection
-    {
-        return ImutPenilaian::query()
-            ->where('imut_profil_id', $profileId)
-            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
-            ->whereNotNull('numerator_value')
-            ->whereNotNull('denominator_value')
-            ->get()
-            ->groupBy('laporan_unit_kerja_id');
-    }
-
-    protected function countTercapai(Collection $grouped, $profile): int
-    {
-        return $grouped->filter(function ($penilaians) use ($profile) {
-            return $penilaians->contains(
-                fn($p) =>
-                $p->denominator_value != 0 &&
-                    $this->isTercapai($p, $profile)
-            );
-        })->count();
-    }
 
     protected function isTercapai($penilaian, $profile): bool
     {

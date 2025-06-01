@@ -165,4 +165,12 @@ class ImutProfile extends Model
     {
         return $this->hasMany(ImutPenilaian::class, 'imut_profil_id');
     }
+
+    public function penilaianFiltered($laporanId)
+    {
+        return $this->hasMany(ImutPenilaian::class, 'imut_profil_id')
+            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+            ->whereNotNull('numerator_value')
+            ->whereNotNull('denominator_value');
+    }
 }
