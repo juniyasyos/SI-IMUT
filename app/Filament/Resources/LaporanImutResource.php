@@ -176,247 +176,291 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         ]);
     }
 
-
+    // ===================== Table Start Component =======================
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nama Laporan')
-                    ->sortable()
-                    ->searchable(),
+            ->columns(self::getColumns())
+            ->filters(self::getFilters())
+            ->actions(self::getActions())
+            ->bulkActions(
+                [
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\RestoreBulkAction::make()
+                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                        Tables\Actions\ForceDeleteBulkAction::make()
+                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ]),
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]
+            );
+    }
 
-                Tables\Columns\TextColumn::make('createdBy.name')
-                    ->label('Pembuat Laporan')
-                    ->alignCenter()
-                    ->sortable()
-                    ->searchable(),
+    // Columns Logic Start
+    protected static function getColumns(): array
+    {
+        return [
+            Tables\Columns\TextColumn::make('name')
+                ->label('Nama Laporan')
+                ->sortable()
+                ->searchable(),
 
-                Tables\Columns\TextColumn::make('assessment_period')
-                    ->label('Periode Asesmen')
-                    ->alignCenter()
-                    ->getStateUsing(function ($record) {
-                        $start = \Carbon\Carbon::parse($record->assessment_period_start)->translatedFormat('d M');
-                        $end = \Carbon\Carbon::parse($record->assessment_period_end)->translatedFormat('d M Y');
+            Tables\Columns\TextColumn::make('createdBy.name')
+                ->label('Pembuat Laporan')
+                ->alignCenter()
+                ->sortable()
+                ->searchable(),
 
-                        if (\Carbon\Carbon::parse($record->assessment_period_start)->format('m') === \Carbon\Carbon::parse($record->assessment_period_end)->format('m')) {
-                            return "$start - $end";
-                        }
-                        return "$start - $end";
-                    }),
+            Tables\Columns\TextColumn::make('assessment_period')
+                ->label('Periode Asesmen')
+                ->alignCenter()
+                ->getStateUsing(fn($record) => self::formatAssessmentPeriod($record)),
 
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->alignCenter()
-                    ->color(fn(string $state): string => match ($state) {
-                        'canceled' => 'danger',
-                        'process' => 'primary',
-                        'complete' => 'success',
-                    }),
+            Tables\Columns\TextColumn::make('status')
+                ->label('Status')
+                ->badge()
+                ->alignCenter()
+                ->color(fn(string $state): string => match ($state) {
+                    'canceled' => 'danger',
+                    'process' => 'primary',
+                    'complete' => 'success',
+                }),
 
-                ProgressColumn::make('progress')
-                    ->label('Progress')
-                    ->visible(function () {
-                        $user = Auth::user();
-                        return $user && $user->unitKerjas()->exists();
-                    })
-                    ->getStateUsing(function ($record) {
-                        $user = Auth::user();
+            self::getProgressColumn(),
+            self::getUnitKerjaTerisiColumn(),
+        ];
+    }
 
-                        $userUnitIds = $user->unitKerjas?->pluck('id')->toArray() ?? [];
-                        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
-                            ->where('laporan_imut_id', $record->id)
-                            ->whereIn('unit_kerja_id', $userUnitIds)
-                            ->pluck('id')
-                            ->toArray();
+    protected static function formatAssessmentPeriod($record): string
+    {
+        $start = \Carbon\Carbon::parse($record->assessment_period_start)->translatedFormat('d M');
+        $end = \Carbon\Carbon::parse($record->assessment_period_end)->translatedFormat('d M Y');
 
-                        if (empty($laporanUnitKerjaIds) || !self::userHasAccessToLaporan($record)) {
-                            return null;
-                        }
+        return "$start - $end";
+    }
 
-                        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
-                        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
-                            ->whereNotNull('numerator_value')
-                            ->whereNotNull('denominator_value')
-                            ->count();
+    protected static function getProgressColumn(): ProgressColumn
+    {
+        return ProgressColumn::make('progress')
+            ->label('Progress')
+            ->visible(fn() => Auth::user()?->unitKerjas()->exists())
+            ->getStateUsing(fn($record) => self::calculateProgress($record))
+            ->tooltip(fn($record) => self::progressTooltip($record));
+    }
 
-                        return $total > 0 ? round(($filled / $total) * 100, 2) : 0;
-                    })
-                    ->tooltip(function ($record) {
-                        $user = Auth::user();
+    protected static function calculateProgress($record): ?float
+    {
+        $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
 
-                        $userUnitIds = $user->unitKerjas?->pluck('id')->toArray() ?? [];
-                        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
-                            ->where('laporan_imut_id', $record->id)
-                            ->whereIn('unit_kerja_id', $userUnitIds)
-                            ->pluck('id')
-                            ->toArray();
+        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
+            ->where('laporan_imut_id', $record->id)
+            ->whereIn('unit_kerja_id', $userUnitIds)
+            ->pluck('id')
+            ->toArray();
 
-                        if (empty($laporanUnitKerjaIds)) {
-                            return null;
-                        }
+        if (empty($laporanUnitKerjaIds) || !self::userHasAccessToLaporan($record)) {
+            return null;
+        }
 
-                        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
-                        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
-                            ->whereNotNull('numerator_value')
-                            ->whereNotNull('denominator_value')
-                            ->count();
+        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
+        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
+            ->whereNotNull('numerator_value')
+            ->whereNotNull('denominator_value')
+            ->count();
 
-                        return "$filled / $total Penilaian selesai";
-                    }),
+        return $total > 0 ? round(($filled / $total) * 100, 2) : 0;
+    }
 
-                ProgressColumn::make('unit_kerja_terisi')
-                    ->label('Unit Kerja Terisi')
-                    ->visible(
-                        fn() =>
-                        Gate::check('view_unit_kerja_report_laporan::imut') &&
-                            Gate::check('view_imut_data_report_laporan::imut')
-                    )
-                    ->getStateUsing(function ($record) {
-                        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
-                            ->where('laporan_imut_id', $record->id)
-                            ->get(['id']);
+    protected static function progressTooltip($record): ?string
+    {
+        $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
 
-                        $totalUnitKerja = $laporanUnitKerjas->count();
-                        $filledCount = 0;
+        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
+            ->where('laporan_imut_id', $record->id)
+            ->whereIn('unit_kerja_id', $userUnitIds)
+            ->pluck('id')
+            ->toArray();
 
-                        foreach ($laporanUnitKerjas as $unit) {
-                            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
-                            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
-                                ->whereNotNull('numerator_value')
-                                ->whereNotNull('denominator_value')
-                                ->count();
+        if (empty($laporanUnitKerjaIds)) {
+            return null;
+        }
 
-                            if ($total > 0 && $total === $filled) {
-                                $filledCount++;
-                            }
-                        }
+        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
+        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
+            ->whereNotNull('numerator_value')
+            ->whereNotNull('denominator_value')
+            ->count();
 
-                        return $totalUnitKerja > 0 ? round(($filledCount / $totalUnitKerja) * 100, 2) : 0;
-                    })
-                    ->tooltip(function ($record) {
-                        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
-                            ->where('laporan_imut_id', $record->id)
-                            ->get(['id']);
+        return "$filled / $total Penilaian selesai";
+    }
 
-                        $totalUnitKerja = $laporanUnitKerjas->count();
-                        $filledCount = 0;
+    protected static function getUnitKerjaTerisiColumn(): ProgressColumn
+    {
+        return ProgressColumn::make('unit_kerja_terisi')
+            ->label('Unit Kerja Terisi')
+            ->visible(
+                fn() =>
+                Gate::check('view_unit_kerja_report_laporan::imut') &&
+                    Gate::check('view_imut_data_report_laporan::imut') &&
+                    Gate::check('update_profile_penilaian_laporan::imut') &&
+                    Gate::check('create_recommendation_penilaian_laporan::imut')
+            )
+            ->getStateUsing(fn($record) => self::calculateUnitKerjaTerisi($record))
+            ->tooltip(fn($record) => self::tooltipUnitKerjaTerisi($record));
+    }
 
-                        foreach ($laporanUnitKerjas as $unit) {
-                            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
-                            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
-                                ->whereNotNull('numerator_value')
-                                ->whereNotNull('denominator_value')
-                                ->count();
+    protected static function calculateUnitKerjaTerisi($record): float
+    {
+        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
+            ->where('laporan_imut_id', $record->id)
+            ->get(['id']);
 
-                            if ($total > 0 && $total === $filled) {
-                                $filledCount++;
-                            }
-                        }
+        $totalUnitKerja = $laporanUnitKerjas->count();
+        $filledCount = 0;
 
-                        return "{$filledCount} dari {$totalUnitKerja} unit kerja sudah mengisi";
-                    })
+        foreach ($laporanUnitKerjas as $unit) {
+            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
+            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
+                ->whereNotNull('numerator_value')
+                ->whereNotNull('denominator_value')
+                ->count();
 
-            ])
-            ->filters([
-                Tables\Filters\TrashedFilter::make(),
-            ])
-            ->actions([
-                // Aksi hanya jika record TIDAK dalam trash
-                Action::make('isi_penilaian')
-                    ->label('Isi Penilaian')
-                    ->icon('heroicon-s-clipboard-document-list')
-                    ->color('warning')
+            if ($total > 0 && $total === $filled) {
+                $filledCount++;
+            }
+        }
+
+        return $totalUnitKerja > 0 ? round(($filledCount / $totalUnitKerja) * 100, 2) : 0;
+    }
+
+    protected static function tooltipUnitKerjaTerisi($record): string
+    {
+        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
+            ->where('laporan_imut_id', $record->id)
+            ->get(['id']);
+
+        $totalUnitKerja = $laporanUnitKerjas->count();
+        $filledCount = 0;
+
+        foreach ($laporanUnitKerjas as $unit) {
+            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
+            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
+                ->whereNotNull('numerator_value')
+                ->whereNotNull('denominator_value')
+                ->count();
+
+            if ($total > 0 && $total === $filled) {
+                $filledCount++;
+            }
+        }
+
+        return "{$filledCount} dari {$totalUnitKerja} unit kerja sudah mengisi";
+    }
+
+    // Columns Logic End
+
+    protected static function getFilters(): array
+    {
+        return [ 
+            Action::make('isi_penilaian')
+                ->label('Isi Penilaian')
+                ->icon('heroicon-s-clipboard-document-list')
+                ->color('warning')
+                ->visible(
+                    fn($record) =>
+                    method_exists($record, 'trashed')
+                        && !$record->trashed()
+                        && self::userHasAccessToLaporan($record)
+                        && \Carbon\Carbon::today()->lte($record->assessment_period_end)
+                )
+                ->url(fn($record) => self::getIsiPenilaianUrl($record)),
+
+            Tables\Actions\ActionGroup::make([
+                Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+                Action::make('summary')
+                    ->label('Summary')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->color('success')
                     ->visible(
                         fn($record) =>
                         method_exists($record, 'trashed') &&
                             !$record->trashed() &&
-                            self::userHasAccessToLaporan($record)
+                            Gate::any([
+                                'view_unit_kerja_report_laporan::imut',
+                                'view_imut_data_report_laporan::imut',
+                            ])
                     )
-                    ->url(fn($record) => self::getIsiPenilaianUrl($record)),
+                    ->form([
+                        Select::make('summary_type')
+                            ->label('Pilih Tipe Summary')
+                            ->options([
+                                'unit_kerja' => 'Summary Unit Kerja – menampilkan rekapitulasi per unit kerja',
+                                'imut_data' => 'Summary IMUT DATA – menampilkan detail tiap IMUT',
+                            ])
+                            ->required(),
+                    ])
+                    ->modalHeading('Pilih Summary')
+                    ->modalSubmitActionLabel('Lihat')
+                    ->action(function ($record, array $data) {
+                        $type = $data['summary_type'];
 
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make()
-                        ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
-                    Tables\Actions\DeleteAction::make()
-                        ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
-                    Action::make('summary')
-                        ->label('Summary')
-                        ->icon('heroicon-o-clipboard-document-list')
-                        ->color('success')
-                        ->visible(
-                            fn($record) =>
-                            method_exists($record, 'trashed') &&
-                                !$record->trashed() &&
-                                Gate::any([
-                                    'view_unit_kerja_report_laporan::imut',
-                                    'view_imut_data_report_laporan::imut',
-                                ])
-                        )
-                        ->form([
-                            Select::make('summary_type')
-                                ->label('Pilih Tipe Summary')
-                                ->options([
-                                    'unit_kerja' => 'Summary Unit Kerja – menampilkan rekapitulasi per unit kerja',
-                                    'imut_data' => 'Summary IMUT DATA – menampilkan detail tiap IMUT',
-                                ])
-                                ->required(),
-                        ])
-                        ->modalHeading('Pilih Summary')
-                        ->modalSubmitActionLabel('Lihat')
-                        ->action(function ($record, array $data) {
-                            $type = $data['summary_type'];
+                        $map = [
+                            'unit_kerja' => [
+                                'permission' => 'view_unit_kerja_report_laporan::imut',
+                                'redirect' => UnitKerjaReport::getUrl(['laporan_id' => $record->id]),
+                            ],
+                            'imut_data' => [
+                                'permission' => 'view_imut_data_report_laporan::imut',
+                                'redirect' => ImutDataReport::getUrl(['laporan_id' => $record->id]),
+                            ],
+                        ];
 
-                            $map = [
-                                'unit_kerja' => [
-                                    'permission' => 'view_unit_kerja_report_laporan::imut',
-                                    'redirect' => UnitKerjaReport::getUrl(['laporan_id' => $record->id]),
-                                ],
-                                'imut_data' => [
-                                    'permission' => 'view_imut_data_report_laporan::imut',
-                                    'redirect' => ImutDataReport::getUrl(['laporan_id' => $record->id]),
-                                ],
-                            ];
+                        abort_unless(
+                            isset($map[$type]) && Gate::allows($map[$type]['permission']),
+                            403,
+                            'Anda tidak memiliki izin untuk mengakses summary ini.'
+                        );
 
-                            abort_unless(
-                                isset($map[$type]) && Gate::allows($map[$type]['permission']),
-                                403,
-                                'Anda tidak memiliki izin untuk mengakses summary ini.'
-                            );
+                        return redirect()->to($map[$type]['redirect']);
+                    })
+            ]),
 
-                            return redirect()->to($map[$type]['redirect']);
-                        })
-                ]),
+            // Aksi hanya jika record dalam trash
+            RestoreAction::make()
+                ->visible(
+                    fn($record) =>
+                    Gate::allows('restore', $record) &&
+                        method_exists($record, 'trashed') &&
+                        $record->trashed()
+                ),
 
-                // Aksi hanya jika record dalam trash
-                RestoreAction::make()
-                    ->visible(
-                        fn($record) =>
-                        Gate::allows('restore', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
-                    ),
-
-                ForceDeleteAction::make()
-                    ->visible(
-                        fn($record) =>
-                        Gate::allows('forceDelete', $record) &&
-                            method_exists($record, 'trashed') &&
-                            $record->trashed()
-                    ),
-            ])
-
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\RestoreBulkAction::make()
-                        ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
-                    Tables\Actions\ForceDeleteBulkAction::make()
-                        ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
-                ]),
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ForceDeleteAction::make()
+                ->visible(
+                    fn($record) =>
+                    Gate::allows('forceDelete', $record) &&
+                        method_exists($record, 'trashed') &&
+                        $record->trashed()
+                ),
+        ];
     }
+
+    protected static function getBulkActions(): array
+    {
+        return [
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\RestoreBulkAction::make()
+                    ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                Tables\Actions\ForceDeleteBulkAction::make()
+                    ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+            ]),
+            Tables\Actions\DeleteBulkAction::make(),
+        ];
+    }
+
+    // ===================== Table End Component =======================
 
     public static function getRelations(): array
     {

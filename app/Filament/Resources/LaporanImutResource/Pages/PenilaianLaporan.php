@@ -10,6 +10,7 @@ use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutData;
 use App\Models\ImutProfile;
 use App\Models\UnitKerja;
+use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -48,6 +49,11 @@ class PenilaianLaporan extends Page implements HasForms
         $user = Auth::user();
 
         return $user->can('view_imut_penilaian_laporan::imut');
+    }
+
+    public function isLaporanPeriodClosed(): bool
+    {
+        return $this->laporan?->assessment_period_end < Carbon::now();
     }
 
     /**
@@ -480,7 +486,16 @@ class PenilaianLaporan extends Page implements HasForms
                         ->label('Numerator')
                         ->numeric()
                         ->placeholder('0.00')
-                        ->readOnly(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
+                        ->readOnly(
+                            fn() =>
+                            $this->isLaporanPeriodClosed() ||
+                                !Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                        )
+                        ->readOnly(
+                            fn() =>
+                            $this->isLaporanPeriodClosed() ||
+                                !Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                        )
                         ->required()
                         ->reactive()
                         ->afterStateUpdated(function (callable $set, $state, callable $get) {
@@ -491,7 +506,11 @@ class PenilaianLaporan extends Page implements HasForms
 
                     TextInput::make('denominator_value')
                         ->label('Denominator')
-                        ->readOnly(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
+                        ->readOnly(
+                            fn() =>
+                            $this->isLaporanPeriodClosed() ||
+                                !Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                        )
                         ->numeric()
                         ->placeholder('0.00')
                         ->required()
@@ -526,7 +545,11 @@ class PenilaianLaporan extends Page implements HasForms
                         ->previewable(true)
                         ->preserveFilenames()
                         ->directory('uploads/imut-documents')
-                        ->disabled(fn() => !Auth::user()?->can('update_numerator_denominator_laporan::imut'))
+                        ->disabled(
+                            fn() =>
+                            $this->isLaporanPeriodClosed() ||
+                                !Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                        )
                         ->acceptedFileTypes([
                             'application/pdf',
                             'image/*',

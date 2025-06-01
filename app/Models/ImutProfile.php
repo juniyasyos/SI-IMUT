@@ -60,7 +60,7 @@ class ImutProfile extends Model
         parent::boot();
 
         static::saving(function ($model) {
-            if (empty($model->slug)) {
+            if ($model->isDirty('version') || empty($model->slug)) {
                 $model->slug = $model->generateSlug($model->version);
             }
         });

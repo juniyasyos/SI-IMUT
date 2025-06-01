@@ -31,7 +31,7 @@ class ImutCategory extends Model
         'short_name',
         'description',
         'is_use_global',
-        'is_imut_bencmarking',
+        'is_benchmark_category',
     ];
 
     /**

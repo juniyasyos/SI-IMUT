@@ -49,13 +49,14 @@ class ImutProfileForm
 
                     Tab::make('📍 Benchmarking')
                         ->schema(self::benchmarkingSchema())
-                        ->visible(fn(?Model $record) => ($record !== null && $record->imutData->categories->is_benchmark_category === 1))
-                        ->visibleOn('edit'),
+                        ->visible(fn(?Model $record) => $record !== null
+                            && request()->is('imut-datas/*/profile/edit=*')
+                            && $record->imutData->categories->is_benchmark_category === 1)
                 ])
                 ->columnSpan(['lg' => 2])
         ];
     }
-    
+
     protected static function basicInformationSchema(): array
     {
         return [

@@ -72,7 +72,24 @@ class ProfilesRelationManager extends RelationManager
                         'record' => $record->slug,
                     ])),
                 \Filament\Tables\Actions\ReplicateAction::make()
-                    ->successNotificationTitle('Imut Profile Successed replicated'),
+                    ->using(function (Model $record) {
+                        $newRecord = $record->replicate();
+                        $originalVersion = $record->version;
+
+                        $newVersion = "Copy dari $originalVersion";
+                        $newRecord->version = $newVersion;
+
+                        $slugBase = \Illuminate\Support\Str::slug($newVersion); // slugify version
+                        $uuid = \Illuminate\Support\Str::uuid()->toString();
+
+                        $newRecord->slug = "{$slugBase}-{$uuid}";
+
+                        $newRecord->push();
+
+                        return $newRecord;
+                    })
+                    ->successNotificationTitle('Imut Profile successfully replicated'),
+
                 DeleteAction::make(),
                 RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
