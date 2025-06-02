@@ -36,21 +36,27 @@ class EditLaporanImut extends EditRecord
         $laporan = $this->record;
 
         return [
-            Action::make('unitKerjaSummary')
-                ->label('Summary Unit Kerja')
-                ->icon('heroicon-o-clipboard-document-list')
-                ->color('success')
-                ->url(\App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaReport::getUrl(['laporan_id' => $laporan->id]))
-                ->openUrlInNewTab()
-                ->visible(fn() => Gate::allows('view_unit_kerja_report_laporan::imut')),
-
             Action::make('imutDataSummary')
                 ->label('Summary IMUT Data')
                 ->icon('heroicon-o-clipboard-document-list')
                 ->color('primary')
-                ->url(\App\Filament\Resources\LaporanImutResource\Pages\ImutDataReport::getUrl(['laporan_id' => $laporan->id]))
+                ->url(fn($record) => \App\Services\LaporanRedirectService::getRedirectUrlForImutData($record->id))
                 ->openUrlInNewTab()
-                ->visible(fn() => Gate::allows('view_imut_data_report_laporan::imut')),
+                ->visible(fn() => Gate::any([
+                    'view_imut_data_report_laporan::imut',
+                    'view_imut_data_report_detail_laporan::imut',
+                ])),
+
+            Action::make('unitKerjaSummary')
+                ->label('Summary Unit Kerja')
+                ->icon('heroicon-o-clipboard-document-list')
+                ->color('success')
+                ->url(fn($record) => \App\Services\LaporanRedirectService::getRedirectUrlForUnitKerja($record->id))
+                ->openUrlInNewTab()
+                ->visible(fn() => Gate::any([
+                    'view_unit_kerja_report_laporan::imut',
+                    'view_unit_kerja_report_detail_laporan::imut',
+                ]))
         ];
     }
 }

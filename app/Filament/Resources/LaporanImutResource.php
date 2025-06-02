@@ -361,7 +361,14 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
 
     protected static function getFilters(): array
     {
-        return [ 
+        return [
+            Tables\Filters\TrashedFilter::make(),
+        ];
+    }
+
+    protected static function getActions(): array
+    {
+        return [
             Action::make('isi_penilaian')
                 ->label('Isi Penilaian')
                 ->icon('heroicon-s-clipboard-document-list')
