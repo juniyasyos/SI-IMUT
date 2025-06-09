@@ -2,24 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\ImutProfile;
 use App\Support\CacheKey;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Cache;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class ImutPenilaian extends Model
+class ImutPenilaian extends Model implements HasMedia
 {
-    use LogsActivity;
-
     /** @use HasFactory<\Database\Factories\ImutPenilaianFactory> */
-    use HasFactory;
+    use HasFactory, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -62,6 +59,12 @@ class ImutPenilaian extends Model
         ];
     }
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('documents')
+            ->useDisk('public');
+    }
+
     public function clearCache()
     {
         $laporanUnitKerja = $this->laporanUnitKerja;
@@ -82,22 +85,17 @@ class ImutPenilaian extends Model
 
     protected static function booted()
     {
-        static::saved(fn($penilaian) => $penilaian->clearCache());
-        static::deleted(fn($penilaian) => $penilaian->clearCache());
+        static::saved(fn ($penilaian) => $penilaian->clearCache());
+        static::deleted(fn ($penilaian) => $penilaian->clearCache());
     }
-
-
 
     /**
      * Get the options for logging activity.
-     *
-     * @return LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()->logAll();
     }
-
 
     /**
      * Get the profile that owns the ImutPenilaian
