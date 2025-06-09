@@ -14,7 +14,7 @@ return [
     'fields' => [
         'id' => 'ID',
         'name' => 'Full Name',
-        'nik' => 'National ID (NIK)', // NIK field
+        'nik' => 'Staff ID (NIK)', // NIK field
         'email' => 'Email Address',
         'password' => 'Password',
         'created_at' => 'Created At',

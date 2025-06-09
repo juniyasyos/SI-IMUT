@@ -14,7 +14,7 @@ return [
     'fields' => [
         'id' => 'ID',
         'name' => 'Nama Lengkap',
-        'nik' => 'Nomor Induk Kependudukan (NIK)', // Field NIK
+        'nik' => 'Nomor Induk Kepegawaian (NIK)', // Field NIK
         'email' => 'Alamat Email',
         'password' => 'Kata Sandi',
         'created_at' => 'Tanggal Dibuat',
@@ -32,53 +32,53 @@ return [
         'status' => 'Status', // Status Pengguna
     ],
 
-'status' => [
-    'active' => 'Aktif',
-    'inactive' => 'Tidak Aktif',
-    'suspended' => 'Ditangguhkan'
-],
-
-// Form Sections
-'form' => [
-    'user' => [
-        'title' => 'Informasi Pengguna',
-        'description' => 'Isi data pengguna dengan lengkap. Pastikan peran dipilih dengan benar.',
-        'name_placeholder' => 'Masukkan nama lengkap',
-        'nik_placeholder' => 'Masukkan NIK',
-        'email_placeholder' => 'contoh@email.com',
-        'password_placeholder' => 'Masukkan kata sandi',
-        'helper_text' => 'Pastikan email unik dan kata sandi aman.',
-    ],
-    'position' => [
-        'title' => 'Jabatan & Akses',
-        'description' => 'Pilih jabatan pengguna dalam organisasi.',
-        'select_placeholder' => 'Pilih jabatan',
-        'create_label' => 'Nama Jabatan',
-        'create_description' => 'Deskripsi Jabatan',
-        'no_position' => 'Belum ada jabatan',
-        'edit_modal_title' => 'Ubah Jabatan'
-    ],
-    'personal_info' => [
-        'title' => 'Informasi Pribadi',
-        'description' => 'Isi data pribadi pengguna.',
-        'place_of_birth_placeholder' => 'Masukkan tempat lahir',
-        'date_of_birth_placeholder' => 'Masukkan tanggal lahir',
-        'gender_placeholder' => 'Pilih jenis kelamin',
-        'gender_male' => 'Laki-laki',
-        'gender_female' => 'Perempuan'
-    ],
-    'contact_info' => [
-        'title' => 'Informasi Kontak',
-        'description' => 'Isi detail kontak pengguna.',
-        'address_placeholder' => 'Masukkan alamat KTP',
-        'phone_number_placeholder' => 'Masukkan nomor telepon',
+    'status' => [
+        'active' => 'Aktif',
+        'inactive' => 'Tidak Aktif',
+        'suspended' => 'Ditangguhkan'
     ],
 
-    'account' => [
-        'title' => 'Pengaturan Akun',
-        'description' => 'Atur kredensial login dan izin akses.'
-    ]
-],
+    // Form Sections
+    'form' => [
+        'user' => [
+            'title' => 'Informasi Pengguna',
+            'description' => 'Isi data pengguna dengan lengkap. Pastikan peran dipilih dengan benar.',
+            'name_placeholder' => 'Masukkan nama lengkap',
+            'nik_placeholder' => 'Masukkan NIK',
+            'email_placeholder' => 'contoh@email.com',
+            'password_placeholder' => 'Masukkan kata sandi',
+            'helper_text' => 'Pastikan email unik dan kata sandi aman.',
+        ],
+        'position' => [
+            'title' => 'Jabatan & Akses',
+            'description' => 'Pilih jabatan pengguna dalam organisasi.',
+            'select_placeholder' => 'Pilih jabatan',
+            'create_label' => 'Nama Jabatan',
+            'create_description' => 'Deskripsi Jabatan',
+            'no_position' => 'Belum ada jabatan',
+            'edit_modal_title' => 'Ubah Jabatan'
+        ],
+        'personal_info' => [
+            'title' => 'Informasi Pribadi',
+            'description' => 'Isi data pribadi pengguna.',
+            'place_of_birth_placeholder' => 'Masukkan tempat lahir',
+            'date_of_birth_placeholder' => 'Masukkan tanggal lahir',
+            'gender_placeholder' => 'Pilih jenis kelamin',
+            'gender_male' => 'Laki-laki',
+            'gender_female' => 'Perempuan'
+        ],
+        'contact_info' => [
+            'title' => 'Informasi Kontak',
+            'description' => 'Isi detail kontak pengguna.',
+            'address_placeholder' => 'Masukkan alamat KTP',
+            'phone_number_placeholder' => 'Masukkan nomor telepon',
+        ],
+
+        'account' => [
+            'title' => 'Pengaturan Akun',
+            'description' => 'Atur kredensial login dan izin akses.'
+        ]
+    ],
 
 
     // Buttons / UI

@@ -20,7 +20,9 @@ class ProsesPenilaianImut implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public LaporanImut $laporan) {}
+    public function __construct(public LaporanImut $laporan)
+    {
+    }
 
     public function handle(): void
     {
@@ -32,16 +34,17 @@ class ProsesPenilaianImut implements ShouldQueue
             $unitKerjas->each(function ($unitKerja) use ($laporan) {
                 $laporanUnitKerja = LaporanUnitKerja::firstOrCreate([
                     'laporan_imut_id' => $laporan->id,
-                    'unit_kerja_id'   => $unitKerja->id,
+                    'unit_kerja_id' => $unitKerja->id,
                 ]);
 
                 $unitKerja->imutData->each(function ($imutData) use ($laporanUnitKerja) {
                     $latestProfile = $imutData->latestProfile;
 
-                    if (!$latestProfile) return;
+                    if (!$latestProfile)
+                        return;
 
                     ImutPenilaian::firstOrCreate([
-                        'imut_profil_id'        => $latestProfile->id,
+                        'imut_profil_id' => $latestProfile->id,
                         'laporan_unit_kerja_id' => $laporanUnitKerja->id
                     ]);
                 });

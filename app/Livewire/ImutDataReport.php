@@ -2,21 +2,21 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Filament\Tables\Table;
-use Illuminate\Support\Number;
-use App\Models\LaporanUnitKerja;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Contracts\HasForms;
-use Illuminate\Database\Query\Builder;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Columns\Summarizers\Summarizer;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataUnitKerjaReport;
+use App\Models\LaporanUnitKerja;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\Summarizers\Summarizer;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Number;
+use Livewire\Component;
 
-class ImutDataReport extends Component implements HasTable, HasForms
+class ImutDataReport extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -33,11 +33,10 @@ class ImutDataReport extends Component implements HasTable, HasForms
         $this->dispatch('$refresh');
     }
 
-
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn() => LaporanUnitKerja::getReportByImutData($this->laporanId))
+            ->query(fn () => LaporanUnitKerja::getReportByImutData($this->laporanId))
             ->columns([
                 TextColumn::make('imut_data_title')
                     ->label('IMUT Data')
@@ -47,29 +46,29 @@ class ImutDataReport extends Component implements HasTable, HasForms
                 TextColumn::make('total_numerator')
                     ->label('N')
                     ->alignCenter()
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total N')
-                            ->using(fn(Builder $query) => number_format($query->sum('total_numerator'), 2))
+                            ->using(fn (Builder $query) => number_format($query->sum('total_numerator'), 2))
                     ),
 
                 TextColumn::make('total_denominator')
                     ->label('D')
                     ->alignCenter()
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total D')
-                            ->using(fn(Builder $query) => number_format($query->sum('total_denominator'), 2))
+                            ->using(fn (Builder $query) => number_format($query->sum('total_denominator'), 2))
                     ),
 
                 TextColumn::make('percentage')
                     ->label('Persentase (%)')
                     ->alignCenter()
                     ->suffix('%')
-                    ->color(fn($record) => match (true) {
-                        !is_numeric($record->percentage) || !is_numeric($record->avg_standard) => null,
+                    ->color(fn ($record) => match (true) {
+                        ! is_numeric($record->percentage) || ! is_numeric($record->avg_standard) => null,
                         $record->percentage >= $record->avg_standard => 'success',
                         $record->percentage >= $record->avg_standard * 0.8 => 'warning',
                         default => 'danger',
@@ -80,6 +79,7 @@ class ImutDataReport extends Component implements HasTable, HasForms
                             ->using(function (Builder $query) {
                                 $n = $query->sum('total_numerator');
                                 $d = $query->sum('total_denominator');
+
                                 return $d > 0 ? round(($n / $d) * 100, 2) : 0;
                             })
                             ->suffix('%')
@@ -94,12 +94,16 @@ class ImutDataReport extends Component implements HasTable, HasForms
                     ->label('Lihat Detail')
                     ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->url(fn($record) => ImutDataUnitKerjaReport::getUrl([
+                    ->url(fn ($record) => ImutDataUnitKerjaReport::getUrl([
                         'laporan_id' => $record->laporan_imut_id,
                         'imut_data_id' => $record->id,
-                    ]))
+                    ])),
                 // ->openUrlInNewTab()
             ])
+            ->recordUrl(fn ($record) => ImutDataUnitKerjaReport::getUrl([
+                'laporan_id' => $record->laporan_imut_id,
+                'imut_data_id' => $record->id,
+            ]))
             ->bulkActions([
                 // ...
             ]);

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\ImutCategory;
-use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
+use App\Models\ImutCategory;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
@@ -15,6 +15,11 @@ class ImutCapaianWidget extends ApexChartWidget
     protected static ?string $heading = 'Capaian IMUT setiap Kategori';
     protected static ?int $sort = 4;
     protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        return Auth::user()?->can('widget_ImutCapaianWidget');
+    }
 
     protected array $colorThemes = [
         'modern' => ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#06b6d4', '#eab308', '#ef4444', '#0ea5e9', '#22c55e'],
@@ -29,7 +34,7 @@ class ImutCapaianWidget extends ApexChartWidget
             \App\Support\CacheKey::imutLaporans(),
             now()->addMinutes(5),
             fn() => LaporanImut::with([
-                'laporanUnitKerjas.imutPenilaians.profile.imutData.categories'
+                'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
             ])->orderBy('assessment_period_start')->get()
         );
         // Buat label sumbu X berdasarkan periode assessment

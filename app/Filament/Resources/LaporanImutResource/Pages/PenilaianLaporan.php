@@ -4,23 +4,21 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LaporanImutResource\Pages;
 
-use App\Models\ImutPenilaian;
-use App\Models\LaporanImut;
 use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutData;
+use App\Models\ImutPenilaian;
 use App\Models\ImutProfile;
+use App\Models\LaporanImut;
 use App\Models\UnitKerja;
-use Carbon\Carbon;
-use Filament\Forms;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
@@ -56,13 +54,15 @@ class PenilaianLaporan extends Page implements HasForms
         return $this->laporan?->assessment_period_end < now();
     }
 
-
     /**
      * The LaporanImut model instance related to this page.
      */
     public ?LaporanImut $laporan = null;
+
     public ?ImutProfile $profile = null;
+
     public ?UnitKerja $unitKerja = null;
+
     public ?ImutData $imutData = null;
 
     /**
@@ -75,7 +75,6 @@ class PenilaianLaporan extends Page implements HasForms
     /**
      * Mount the page, load laporan and penilaian data.
      *
-     * @return void
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -151,7 +150,7 @@ class PenilaianLaporan extends Page implements HasForms
         return [
             Action::make('save')
                 ->label('Simpan Penilaian')
-                ->action(fn() => $this->simpanPenilaian())
+                ->action(fn () => $this->simpanPenilaian())
                 ->requiresConfirmation()
                 ->color('success'),
         ];
@@ -175,7 +174,7 @@ class PenilaianLaporan extends Page implements HasForms
                             ...self::ImutPenilaianProfileSchema(),
                             ...self::basicInformationSchemaProfile(),
                             ...self::operationalDefinitionSchemaProfile(),
-                            ...self::dataAndAnalysisSchemaProfile()
+                            ...self::dataAndAnalysisSchemaProfile(),
                         ]),
 
                     // Tab Penilaian
@@ -183,7 +182,7 @@ class PenilaianLaporan extends Page implements HasForms
                         ->icon('heroicon-o-pencil')
                         ->schema(self::penilaianFormSchema()),
                 ])
-                ->columnSpanFull()
+                ->columnSpanFull(),
         ];
     }
 
@@ -191,7 +190,7 @@ class PenilaianLaporan extends Page implements HasForms
     {
         return [
             Section::make('Informasi Profil')
-                ->disabled(fn() => !Auth::user()?->can('update_profile_penilaian_laporan::imut'))
+                ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_laporan::imut'))
                 ->description('Pilih profil dan standar IMUT yang sesuai.')
                 ->schema([
                     // Hidden field for imut_data_id
@@ -206,8 +205,8 @@ class PenilaianLaporan extends Page implements HasForms
                             if ($imutDataId) {
                                 return ImutProfile::where('imut_data_id', $imutDataId)
                                     ->get()
-                                    ->mapWithKeys(fn($profile) => [
-                                        $profile->id => "{$profile->version}"
+                                    ->mapWithKeys(fn ($profile) => [
+                                        $profile->id => "{$profile->version}",
                                     ])
                                     ->toArray();
                             }
@@ -261,13 +260,13 @@ class PenilaianLaporan extends Page implements HasForms
                             return [
                                 '>=' => "≥ $value",
                                 '<=' => "≤ $value",
-                                '>'  => "> $value",
-                                '<'  => "< $value",
-                                '='  => "= $value",
+                                '>' => "> $value",
+                                '<' => "< $value",
+                                '=' => "= $value",
                             ];
                         })
                         ->disabled()
-                        ->dehydrated(false)
+                        ->dehydrated(false),
                 ])
                 ->columns(2),
         ];
@@ -300,7 +299,7 @@ class PenilaianLaporan extends Page implements HasForms
                             ->icons([
                                 'process' => 'heroicon-o-cog',
                                 'output' => 'heroicon-o-chart-bar',
-                                'outcome' => 'heroicon-o-academic-cap'
+                                'outcome' => 'heroicon-o-academic-cap',
                             ])
                             ->colors([
                                 'process' => 'warning',
@@ -310,8 +309,8 @@ class PenilaianLaporan extends Page implements HasForms
                             ->inline()
                             ->required()
                             ->columnSpan(1)
-                            ->helperText('Pilih jenis indikator yang sesuai.')
-                    ])
+                            ->helperText('Pilih jenis indikator yang sesuai.'),
+                    ]),
                 ]),
 
             Section::make('Deskripsi Profil Indikator')
@@ -333,7 +332,7 @@ class PenilaianLaporan extends Page implements HasForms
                     TextInput::make('quality_dimension')
                         ->label('Dimensi Mutu')
                         ->readOnly(),
-                ])
+                ]),
         ];
     }
 
@@ -382,7 +381,7 @@ class PenilaianLaporan extends Page implements HasForms
                                 ->placeholder('Contoh: Pasien tanpa rekam medis lengkap...')
                                 ->helperText('Data yang harus dikecualikan dari penghitungan.'),
                         ]),
-                ])
+                ]),
         ];
     }
 
@@ -487,9 +486,8 @@ class PenilaianLaporan extends Page implements HasForms
                         ->label('Numerator')
                         ->numeric()
                         ->placeholder('0.00')
-                        ->readOnly(fn ($livewire) =>
-                            $livewire->isLaporanPeriodClosed()
-                            || !Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                        ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
+                            || ! Auth::user()?->can('update_numerator_denominator_laporan::imut')
                         )
                         ->required()
                         ->reactive()
@@ -501,9 +499,8 @@ class PenilaianLaporan extends Page implements HasForms
 
                     TextInput::make('denominator_value')
                         ->label('Denominator')
-                        ->readOnly(fn ($livewire) =>
-                            $livewire->isLaporanPeriodClosed()
-                            || !Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                        ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
+                            || ! Auth::user()?->can('update_numerator_denominator_laporan::imut')
                         )
                         ->numeric()
                         ->placeholder('0.00')
@@ -530,19 +527,18 @@ class PenilaianLaporan extends Page implements HasForms
                             $set('result_operation', $result);
                         }),
 
-                    FileUpload::make('document_upload')
+                    SpatieMediaLibraryFileUpload::make('document_upload')
                         ->label('Unggah Dokumen Pendukung')
+                        ->collection('documents')
                         ->openable()
                         ->downloadable()
                         ->maxSize(20480)
-                        ->columnSpanFull()
-                        ->previewable(true)
                         ->preserveFilenames()
+                        ->previewable(true)
+                        ->columnSpanFull()
                         ->directory('uploads/imut-documents')
-                        ->disabled( fn ($livewire) =>
-                           $livewire->isLaporanPeriodClosed()
-                            || !Auth::user()?->can('update_numerator_denominator_laporan::imut')
-                        )
+                        ->disabled(fn ($livewire) => $livewire->isLaporanPeriodClosed()
+                            || ! Auth::user()?->can('update_numerator_denominator_laporan::imut'))
                         ->acceptedFileTypes([
                             'application/pdf',
                             'image/*',
@@ -564,7 +560,7 @@ class PenilaianLaporan extends Page implements HasForms
 
                     Textarea::make('recommendations')
                         ->label('Rekomendasi')
-                        ->disabled(fn() => !Auth::user()?->can('create_recommendation_penilaian_laporan::imut'))
+                        ->disabled(fn () => ! Auth::user()?->can('create_recommendation_penilaian_laporan::imut'))
                         ->rows(4)
                         ->placeholder('Berikan saran atau rekomendasi...')
                         ->columnSpanFull(),
@@ -574,8 +570,6 @@ class PenilaianLaporan extends Page implements HasForms
 
     /**
      * Get the form state path.
-     *
-     * @return string
      */
     protected function getFormStatePath(): string
     {
@@ -584,15 +578,13 @@ class PenilaianLaporan extends Page implements HasForms
 
     /**
      * Save the updated penilaian data to the database.
-     *
-     * @return void
      */
     public function save(): void
     {
         foreach ($this->formData as $id => $data) {
             $penilaian = ImutPenilaian::find($id);
 
-            if (!$penilaian) {
+            if (! $penilaian) {
                 continue;
             }
 
@@ -608,8 +600,6 @@ class PenilaianLaporan extends Page implements HasForms
 
     /**
      * Get the page title.
-     *
-     * @return string
      */
     public function getTitle(): string
     {
@@ -632,7 +622,7 @@ class PenilaianLaporan extends Page implements HasForms
         return [
             LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
             LaporanImutResource::getUrl('edit', ['record' => $this->laporan->slug]) => $laporanName,
-            "Penilaian Laporan",
+            'Penilaian Laporan',
             UnitKerjaImutDataReport::getUrl(['laporan_id' => $this->laporan->id, 'unit_kerja_id' => $this->unitKerja->id]) => "{$unitKerjaName}",
             "{$imutDataTitleShort} | {$profileVersion}",
         ];
