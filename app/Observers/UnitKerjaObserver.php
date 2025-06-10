@@ -57,8 +57,8 @@ class UnitKerjaObserver
             'is_favorite' => false,
             'is_public' => true,
             'has_user_access' => false,
-            'model_type' => UnitKerja::class,
-            'model_id' => $unitKerja->id,
+            'model_type' => null,
+            'model_id' => null,
             'user_id' => $user?->id ?? 1,
             'user_type' => $user ? get_class($user) : User::class,
         ]);
