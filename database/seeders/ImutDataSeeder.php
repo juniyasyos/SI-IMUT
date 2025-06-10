@@ -301,7 +301,6 @@ class ImutDataSeeder extends Seeder
                     // 'imut_standar_id' => $imutStandard->id,
                     'analysis' => $this->faker->sentence(2),
                     'recommendations' => $this->faker->sentence(15),
-                    'document_upload' => "{$this->faker->word}.pdf",
                     'numerator_value' => $numerator,
                     'denominator_value' => $denominator,
                 ]);

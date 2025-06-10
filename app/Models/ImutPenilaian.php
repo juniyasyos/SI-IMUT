@@ -28,7 +28,6 @@ class ImutPenilaian extends Model implements HasMedia
         'laporan_unit_kerja_id',
         'analysis',
         'recommendations',
-        'document_upload',
         'numerator_value',
         'denominator_value',
     ];

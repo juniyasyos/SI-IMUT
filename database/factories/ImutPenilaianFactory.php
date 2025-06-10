@@ -24,7 +24,6 @@ class ImutPenilaianFactory extends Factory
             'laporan_unit_kerja_id' => LaporanUnitKerja::random()->id,
             'analysis' => $this->faker->paragraph,
             'recommendations' => $this->faker->sentence,
-            'document_upload' => $this->faker->word . '.pdf',
             'numerator_value' => $this->faker->randomFloat(2, 0, 100),
             'denominator_value' => $this->faker->randomFloat(2, 0, 100),
         ];

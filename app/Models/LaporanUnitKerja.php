@@ -137,7 +137,6 @@ class LaporanUnitKerja extends Model
                 'imut_profil.end_period',
                 'imut_penilaians.numerator_value',
                 'imut_penilaians.denominator_value',
-                'imut_penilaians.document_upload',
                 'imut_penilaians.recommendations',
                 'imut_penilaians.analysis',
                 'imut_kategori.id as imut_kategori_id',
@@ -183,7 +182,6 @@ class LaporanUnitKerja extends Model
                 'imut_profil.end_period',
                 'imut_penilaians.numerator_value',
                 'imut_penilaians.denominator_value',
-                'imut_penilaians.document_upload',
                 'imut_penilaians.recommendations',
                 'imut_penilaians.analysis',
                 DB::raw("

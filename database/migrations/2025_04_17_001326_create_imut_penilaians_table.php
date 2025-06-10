@@ -18,7 +18,6 @@ return new class extends Migration {
             // fields imut penilaian
             $table->text('analysis')->nullable();
             $table->text('recommendations')->nullable();
-            $table->string('document_upload')->nullable();
 
             // fields imut penilaian calculation
             $table->decimal('numerator_value', 10, 2)->nullable();
