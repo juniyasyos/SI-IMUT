@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\UnitKerja;
+use App\Observers\MediaObserver;
 use App\Observers\UnitKerjaObserver;
 use BezhanSalleh\FilamentLanguageSwitch\Enums\Placement;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Juniyasyos\FilamentMediaManager\Models\Media;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
@@ -112,5 +114,6 @@ class AppServiceProvider extends ServiceProvider
     protected function registerObservers(): void
     {
         UnitKerja::observe(UnitKerjaObserver::class);
+        Media::observe(MediaObserver::class);
     }
 }
