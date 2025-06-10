@@ -48,6 +48,6 @@ class MediaPolicy
 
     public function creteSubFolder(User $user): bool
     {
-        return $user->can('create_sub_folder_media::custom');
+        return $user->can('create_sub_folder');
     }
 }
