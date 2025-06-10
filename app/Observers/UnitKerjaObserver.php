@@ -50,7 +50,7 @@ class UnitKerjaObserver
         Folder::create([
             'name' => Str::slug($unitKerja->unit_name),
             'description' => "Media untuk Unit Kerja: {$unitKerja->unit_name}",
-            'collection' => 'unitkerja',
+            'collection' => Str::uuid()->toString(),
             'color' => null,
             'is_protected' => false,
             'is_hidden' => false,

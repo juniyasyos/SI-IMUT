@@ -68,7 +68,7 @@ class ListMediaCustom extends ListMedia
             && $folder->user_id === Auth::id()
             && $folder->user_type === get_class(Auth::user());
 
-        $isAllowed = $isOwner || ! filament(config('filament-media-manager.allow_user_access', false));
+        $isAllowed = $isOwner || ! config('filament-media-manager.allow_user_access', false);
 
         // dd([
         //     'user_id' => Auth::id(),
