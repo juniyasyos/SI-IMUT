@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom;
 use App\Traits\HasActiveIcon;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Juniyasyos\FilamentMediaManager\Resources\MediaResource as BaseMediaResource;
@@ -10,6 +9,7 @@ use Juniyasyos\FilamentMediaManager\Resources\MediaResource as BaseMediaResource
 class MediaCustomResource extends BaseMediaResource implements HasShieldPermissions
 {
     use HasActiveIcon;
+
     public static function getPermissionPrefixes(): array
     {
         return [
@@ -19,7 +19,7 @@ class MediaCustomResource extends BaseMediaResource implements HasShieldPermissi
             'create',
             'update',
             'delete',
-            'delete_any',
+            'create_sub_folder_media'
         ];
     }
 
@@ -36,5 +36,12 @@ class MediaCustomResource extends BaseMediaResource implements HasShieldPermissi
     public static function getSlug(): string
     {
         return config('filament-media-manager.slug_media', 'media-custom');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => \App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom::route('/'),
+        ];
     }
 }

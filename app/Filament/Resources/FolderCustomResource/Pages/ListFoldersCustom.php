@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\FolderCustomResource\Pages;
 
-use Filament\Actions;
 use App\Filament\Resources\FolderCustomResource;
+use Filament\Actions;
+use Illuminate\Support\Facades\Gate;
 use Juniyasyos\FilamentMediaManager\Resources\FolderResource\Pages\ListFolders;
 
 class ListFoldersCustom extends ListFolders
@@ -13,15 +14,29 @@ class ListFoldersCustom extends ListFolders
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->visible(fn () => Gate::any(['create_folder::custom'])),
         ];
     }
+
+    //     protected function getHeaderActions(): array
+    // {
+    //     dd([
+    //         'user_permissions' => Auth::user()?->getAllPermissions()->pluck('name'),
+    //         'all_permissions' => Permission::all()->pluck('name'),
+    //     ]);
+
+    //     return [
+    //         Actions\CreateAction::make()
+    //             ->visible(fn () => Gate::any(['create_folder'])),
+    //     ];
+    // }
 
     public function getBreadcrumbs(): array
     {
         return [
             url('/') => 'Dashboard',
-            'folders'
+            'folders',
         ];
     }
 }

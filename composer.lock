@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8242efbf9f174cf93cae806c79669fa9",
+    "content-hash": "d48eacacc9b91bd2e79b9a13e673cf3c",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3389,16 +3389,16 @@
         },
         {
             "name": "jeffgreco13/filament-breezy",
-            "version": "v2.6.3",
+            "version": "v2.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jeffgreco13/filament-breezy.git",
-                "reference": "c32a449395cfcb060833dcf992774ad6b97fa331"
+                "reference": "3c59d37aaf907e97e02606c7bccb20bc62f71ecf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jeffgreco13/filament-breezy/zipball/c32a449395cfcb060833dcf992774ad6b97fa331",
-                "reference": "c32a449395cfcb060833dcf992774ad6b97fa331",
+                "url": "https://api.github.com/repos/jeffgreco13/filament-breezy/zipball/3c59d37aaf907e97e02606c7bccb20bc62f71ecf",
+                "reference": "3c59d37aaf907e97e02606c7bccb20bc62f71ecf",
                 "shasum": ""
             },
             "require": {
@@ -3452,9 +3452,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jeffgreco13/filament-breezy/issues",
-                "source": "https://github.com/jeffgreco13/filament-breezy/tree/v2.6.3"
+                "source": "https://github.com/jeffgreco13/filament-breezy/tree/v2.6.4"
             },
-            "time": "2025-05-05T19:14:32+00:00"
+            "time": "2025-06-09T17:18:54+00:00"
         },
         {
             "name": "jenssegers/agent",
@@ -3686,17 +3686,11 @@
         },
         {
             "name": "juniyasyos/filament-media-manager",
-            "version": "v1.3.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/juniyasyos/filament-media-manager.git",
-                "reference": "40f749ea7a5d88e9227f2f47dbf18c5d2d133334"
-            },
+            "version": "dev-main",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/filament-media-manager/zipball/40f749ea7a5d88e9227f2f47dbf18c5d2d133334",
-                "reference": "40f749ea7a5d88e9227f2f47dbf18c5d2d133334",
-                "shasum": ""
+                "type": "path",
+                "url": "packages/juniyasyos/filament-media-manager",
+                "reference": "c345afe65c9215c57985de411e48f8edd64cc612"
             },
             "require": {
                 "bezhansalleh/filament-shield": "^3.3",
@@ -3721,7 +3715,11 @@
                     "Juniyasyos\\FilamentMediaManager\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -3745,11 +3743,10 @@
                 "php",
                 "spatie"
             ],
-            "support": {
-                "issues": "https://github.com/juniyasyos/filament-media-manager/issues",
-                "source": "https://github.com/juniyasyos/filament-media-manager/tree/v1.3.3"
-            },
-            "time": "2025-05-28T15:26:09+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "juniyasyos/filament-pwa-kaido",
@@ -16267,7 +16264,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "juniyasyos/filament-media-manager": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

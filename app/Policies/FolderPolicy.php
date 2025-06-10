@@ -15,7 +15,7 @@ class FolderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_folder');
+        return $user->can('view_any_folder::custom');
     }
 
     /**
@@ -23,12 +23,12 @@ class FolderPolicy
      */
     public function viewAll(User $user): bool
     {
-        return $user->can('view_all_folder');
+        return $user->can('view_all_folder::custom');
     }
 
     public function viewByUnitKerja(User $user): bool
     {
-        return $user->can('view_by_unit_kerja_folder');
+        return $user->can('view_by_unit_kerja_folder::custom');
     }
 
     /**
@@ -36,7 +36,7 @@ class FolderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_folder');
+        return $user->can('create_folder::custom');
     }
 
     /**
@@ -44,6 +44,14 @@ class FolderPolicy
      */
     public function update(User $user): bool
     {
-        return $user->can('update_folder');
+        return $user->can('update_folder::custom');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function delete(User $user): bool
+    {
+        return $user->can('delete_folder::custom');
     }
 }

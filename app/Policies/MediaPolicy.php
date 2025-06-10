@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use TomatoPHP\FilamentMediaManager\Models\Media;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MediaPolicy
@@ -15,7 +14,7 @@ class MediaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_media');
+        return $user->can('view_any_media::custom');
     }
 
     /**
@@ -23,12 +22,12 @@ class MediaPolicy
      */
     public function viewAll(User $user): bool
     {
-        return $user->can('view_all_media');
+        return $user->can('view_all_media::custom');
     }
 
     public function viewByUnitKerja(User $user): bool
     {
-        return $user->can('view_by_unit_kerja_media');
+        return $user->can('view_by_unit_kerja_media::custom');
     }
 
     /**
@@ -36,7 +35,7 @@ class MediaPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_media');
+        return $user->can('create_media::custom');
     }
 
     /**
@@ -44,6 +43,11 @@ class MediaPolicy
      */
     public function update(User $user): bool
     {
-        return $user->can('update_media');
+        return $user->can('update_media::custom');
+    }
+
+    public function creteSubFolder(User $user): bool
+    {
+        return $user->can('create_sub_folder_media::custom');
     }
 }

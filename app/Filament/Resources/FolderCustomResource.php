@@ -37,4 +37,12 @@ class FolderCustomResource extends BaseFolderResource implements HasShieldPermis
     {
         return config('filament-media-manager.slug_folder', 'folder-custom');
     }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => \App\Filament\Resources\FolderCustomResource\Pages\ListFoldersCustom::route('/'),
+            'media' => \Juniyasyos\FilamentMediaManager\Resources\MediaResource\Pages\ListMedia::route('/media-name={folderName}'),
+        ];
+    }
 }
