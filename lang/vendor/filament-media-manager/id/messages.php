@@ -2,7 +2,7 @@
 
 return [
     'empty' => [
-        'title' => "Tidak ada Media atau Folder ditemukan",
+        'title' => 'Tidak ada Media atau Folder ditemukan',
     ],
     'folders' => [
         'title' => 'Manajer Media',
@@ -20,7 +20,7 @@ return [
             'password' => 'Kata Sandi',
             'password_confirmation' => 'Konfirmasi Kata Sandi',
         ],
-        'group' => 'Konten',
+        'group' => '',
     ],
     'media' => [
         'title' => 'Media',
@@ -39,7 +39,7 @@ return [
         ],
         'actions' => [
             'sub_folder' => [
-                'label' => "Buat Sub Folder"
+                'label' => 'Buat Sub Folder',
             ],
             'create' => [
                 'label' => 'Tambah Media',

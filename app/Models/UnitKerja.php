@@ -2,23 +2,37 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use App\Models\LaporanImut;
-use App\Models\ImutDataUnitKerja;
-use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Class UnitKerja
+ *
+ * @property int $id
+ * @property string $unit_name
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ImutData[] $imutData
+ * @property-read Folder|null $folder
+ * @property-read \App\Models\LaporanImut|null $laporanImut
+ */
 class UnitKerja extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
-    /** @use HasFactory<\Database\Factories\UnitKerjaFactory> */
-    use HasFactory;
+    /**
+     * Table name.
+     *
+     * @var string
+     */
+    protected $table = 'unit_kerja';
 
     /**
      * The attributes that are mass assignable.
@@ -31,42 +45,35 @@ class UnitKerja extends Model
     ];
 
     /**
-     * table
-     *
-     * @var string
-     */
-    protected $table = 'unit_kerja';
-
-    /**
-     * The attributes that are guarded.
+     * The attributes that are hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $guarded = ['id'];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
 
     /**
      * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * Activity log configuration.
+     */
+    public function getActivitylogOptions(): LogOptions
     {
-        return [
-            'deleted_at' => 'datetime',
-        ];
+        return LogOptions::defaults()->logAll();
     }
 
     /**
-     * Relation to users with pivot table
-     *
-     * @return BelongsToMany
+     * Get related users with pivot.
      */
     public function users(): BelongsToMany
     {
@@ -74,9 +81,7 @@ class UnitKerja extends Model
     }
 
     /**
-     * Relation to imut data with pivot table
-     *
-     * @return void
+     * Get related imut data with pivot.
      */
     public function imutData(): BelongsToMany
     {
@@ -87,24 +92,20 @@ class UnitKerja extends Model
     }
 
     /**
-     * Get the options for logging activity.
+     * Get related laporan imut.
      *
-     * @return LogOptions
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()->logAll();
-    }
-
     public function laporanImut()
     {
         return $this->belongsTo(LaporanImut::class, 'laporan_imut_id');
     }
 
-    public function folder()
+    /**
+     * Get the associated folder for the unit.
+     */
+    public function folder(): HasOne
     {
-        return $this->hasOne(Folder::class, 'model_id')
-            ->where('model_type', self::class);
+        return $this->hasOne(Folder::class, 'model_id')->where('model_type', self::class);
     }
-
 }

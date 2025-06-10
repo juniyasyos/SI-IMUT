@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\UnitKerja;
-use Juniyasyos\FilamentMediaManager\Models\Folder;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Juniyasyos\FilamentMediaManager\Models\Folder;
 
 class UnitKerjaSeeder extends Seeder
 {
@@ -16,8 +16,9 @@ class UnitKerjaSeeder extends Seeder
     {
         $filePath = database_path('data/unit_kerja.json');
 
-        if (!File::exists($filePath)) {
+        if (! File::exists($filePath)) {
             Log::warning('File "unit_kerja.json" tidak ditemukan di folder database/data.');
+
             return;
         }
 
@@ -25,7 +26,8 @@ class UnitKerjaSeeder extends Seeder
         $data = json_decode($json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::error('Gagal mendecode file JSON: ' . json_last_error_msg());
+            Log::error('Gagal mendecode file JSON: '.json_last_error_msg());
+
             return;
         }
 
@@ -41,12 +43,14 @@ class UnitKerjaSeeder extends Seeder
             // Fuzzy match untuk Pengumpul
             $pengumpul = $users->sortByDesc(function ($user) use ($item) {
                 similar_text(strtolower($user->name), strtolower($item['Pengumpul Data']), $percent);
+
                 return $percent;
             })->first();
 
             // Fuzzy match juga untuk PIC
             $pic = $users->sortByDesc(function ($user) use ($item) {
                 similar_text(strtolower($user->name), strtolower($item['PIC Indikator']), $percent);
+
                 return $percent;
             })->first();
 
@@ -60,26 +64,26 @@ class UnitKerjaSeeder extends Seeder
                 $unitKerja->users()->syncWithoutDetaching($userIds);
             }
 
-            // ======= CREATE FOLDER UNTUK UNIT KERJA =======
-            $existingFolder = Folder::where('name', Str::slug($unitKerja->unit_name))->first();
+            // // ======= CREATE FOLDER UNTUK UNIT KERJA =======
+            // $existingFolder = Folder::where('name', Str::slug($unitKerja->unit_name))->first();
 
-            if (!$existingFolder) {
-                Folder::create([
-                    'name' => Str::slug($unitKerja->unit_name),
-                    'description' => "Media untuk Unit Kerja: {$unitKerja->unit_name}",
-                    'collection' => 'unitkerja',
-                    'color' => null,
-                    'is_protected' => false,
-                    'is_hidden' => false,
-                    'is_favorite' => false,
-                    'is_public' => true,
-                    'has_user_access' => false,
-                    'model_type' => null,
-                    'model_id' => null,
-                    'user_id' => 1,
-                    'user_type' => User::class, 
-                ]);
-            }
+            // if (!$existingFolder) {
+            //     Folder::create([
+            //         'name' => Str::slug($unitKerja->unit_name),
+            //         'description' => "Media untuk Unit Kerja: {$unitKerja->unit_name}",
+            //         'collection' => 'unitkerja',
+            //         'color' => null,
+            //         'is_protected' => false,
+            //         'is_hidden' => false,
+            //         'is_favorite' => false,
+            //         'is_public' => true,
+            //         'has_user_access' => false,
+            //         'model_type' => null,
+            //         'model_id' => null,
+            //         'user_id' => 1,
+            //         'user_type' => User::class,
+            //     ]);
+            // }
         }
     }
 }
