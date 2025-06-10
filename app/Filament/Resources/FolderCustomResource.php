@@ -42,7 +42,7 @@ class FolderCustomResource extends BaseFolderResource implements HasShieldPermis
     {
         return [
             'index' => \App\Filament\Resources\FolderCustomResource\Pages\ListFoldersCustom::route('/'),
-            'media' => \Juniyasyos\FilamentMediaManager\Resources\MediaResource\Pages\ListMedia::route('/media-name={folderName}'),
+            'media' => \App\Filament\Resources\MediaCustomResource\Pages\ListMediaCustom::route('/media-name={folderName}'),
         ];
     }
 }
