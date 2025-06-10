@@ -85,7 +85,7 @@ class ListMediaCustom extends ListMedia
 
         return $isAllowed ? [
             CreateMediaAction::make($folder->id)->visible(fn () => Gate::any(['create_media::custom'])),
-            CreateSubFolderAction::make($folder->id)->visible(fn () => Gate::any(['create_sub_folder_media::custom'])),
+            // CreateSubFolderAction::make($folder->id)->visible(fn () => Gate::any(['create_sub_folder_media::custom'])), -> bug here, mush be fix
             DeleteFolderAction::make($folder->id)->visible(fn () => Gate::any(['delete_folder::custom'])),
             EditCurrentFolderAction::make($folder->id)->visible(fn () => Gate::any(['update_folder::custom'])),
         ] : [];
