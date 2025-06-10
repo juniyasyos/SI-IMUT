@@ -2,29 +2,29 @@
 
 namespace App\Livewire;
 
-use App\Filament\Resources\LaporanImutResource\Pages\PenilaianLaporan;
-use Filament\Tables\Actions\Action;
-use Livewire\Component;
-use Filament\Tables\Table;
 use App\Models\ImutCategory;
-use Illuminate\Support\Number;
 use App\Models\LaporanUnitKerja;
+use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Illuminate\Database\Query\Builder;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Columns\Summarizers\Summarizer;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Number;
+use Livewire\Component;
 
-class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
+class ImutDataUnitKerjaReport extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
     public ?int $laporanId = null;
+
     public ?int $imutDataId = null;
 
     protected $listeners = [
@@ -41,12 +41,12 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn() => LaporanUnitKerja::getReportByImutDataDetails($this->laporanId, $this->imutDataId))
+            ->query(fn () => LaporanUnitKerja::getReportByImutDataDetails($this->laporanId, $this->imutDataId))
             ->columns([
                 TextColumn::make('unit_kerja')
                     ->label('Unit Kerja')
                     ->grow()
-                    ->searchable(query: fn(EloquentBuilder $query, string $search) => $query->where('unit_kerja.unit_name', 'like', "%{$search}%"))
+                    ->searchable(query: fn (EloquentBuilder $query, string $search) => $query->where('unit_kerja.unit_name', 'like', "%{$search}%"))
                     ->extraAttributes([
                         'style' => 'padding-right: 9rem;',
                     ]),
@@ -66,22 +66,22 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                     ->label('N')
                     ->alignCenter()
                     ->toggleable()
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total N')
-                            ->using(fn(Builder $query) => number_format($query->sum('numerator_value'), 2))
+                            ->using(fn (Builder $query) => number_format($query->sum('numerator_value'), 2))
                     ),
 
                 TextColumn::make('denominator_value')
                     ->label('D')
                     ->alignCenter()
                     ->toggleable()
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total D')
-                            ->using(fn(Builder $query) => number_format($query->sum('denominator_value'), 2))
+                            ->using(fn (Builder $query) => number_format($query->sum('denominator_value'), 2))
                     ),
 
                 TextColumn::make('percentage')
@@ -89,25 +89,25 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                     ->alignCenter()
                     ->toggleable()
                     ->suffix('%')
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
-                    ->color(fn($record) => match (true) {
-                        !is_numeric($record->percentage) || !is_numeric($record->imut_standard) => null,
+                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->color(fn ($record) => match (true) {
+                        ! is_numeric($record->percentage) || ! is_numeric($record->imut_standard) => null,
 
                         match ($record->imut_standard_type_operator) {
-                            '='  => $record->percentage == $record->imut_standard,
+                            '=' => $record->percentage == $record->imut_standard,
                             '>=' => $record->percentage >= $record->imut_standard,
                             '<=' => $record->percentage <= $record->imut_standard,
-                            '<'  => $record->percentage < $record->imut_standard,
-                            '>'  => $record->percentage > $record->imut_standard,
+                            '<' => $record->percentage < $record->imut_standard,
+                            '>' => $record->percentage > $record->imut_standard,
                             default => false,
                         } => 'success',
 
                         match ($record->imut_standard_type_operator) {
-                            '='  => $record->percentage == ($record->imut_standard * 0.8),
+                            '=' => $record->percentage == ($record->imut_standard * 0.8),
                             '>=' => $record->percentage >= ($record->imut_standard * 0.8),
                             '<=' => $record->percentage <= ($record->imut_standard * 1.2),
-                            '<'  => $record->percentage <  ($record->imut_standard * 1.2),
-                            '>'  => $record->percentage >  ($record->imut_standard * 0.8),
+                            '<' => $record->percentage < ($record->imut_standard * 1.2),
+                            '>' => $record->percentage > ($record->imut_standard * 0.8),
                             default => false,
                         } => 'warning',
 
@@ -119,6 +119,7 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                             ->using(function (Builder $query) {
                                 $n = $query->sum('numerator_value');
                                 $d = $query->sum('denominator_value');
+
                                 return $d > 0 ? round(($n / $d) * 100, 2) : 0;
                             })
                             ->suffix('%')
@@ -140,7 +141,7 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                 SelectFilter::make('imut_kategori')
                     ->label('Imut Kategori')
                     ->options(
-                        fn() => ImutCategory::query()
+                        fn () => ImutCategory::query()
                             ->pluck('short_name', 'id')
                             ->toArray()
                     )
@@ -153,14 +154,23 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
                     ->label('Edit Penilaian')
                     ->icon('heroicon-o-pencil-square')
                     ->color('info')
-                    // ->action(dd(fn($record) => dd($record->laporan_imut_id) ))
-                    ->url(fn($record) => url()->route('filament.admin.resources.laporan-imuts.edit-penilaian') .
-                        '?laporan_id=' . $record->laporan_imut_id .
-                        '&penilaian_id=' . $record->id)
+                    ->url(function ($record) {
+                        $laporanSlug = \App\Models\LaporanImut::findOrFail($record->laporan_imut_id)->slug;
+
+                        return \App\Filament\Resources\LaporanImutResource::getUrl('edit-penilaian', [
+                            'laporanSlug' => $laporanSlug,
+                            'record' => $record->id,
+                        ]);
+                    }),
             ])
-            ->recordUrl(fn($record) => url()->route('filament.admin.resources.laporan-imuts.edit-penilaian') .
-                '?laporan_id=' . $record->laporan_imut_id .
-                '&penilaian_id=' . $record->id)
+            ->recordUrl(function ($record) {
+                $laporanSlug = \App\Models\LaporanImut::findOrFail($record->laporan_imut_id)->slug;
+
+                return \App\Filament\Resources\LaporanImutResource::getUrl('edit-penilaian', [
+                    'laporanSlug' => $laporanSlug,
+                    'record' => $record->id,
+                ]);
+            })
             ->bulkActions([
                 // Define bulk actions here
             ]);
@@ -172,8 +182,7 @@ class ImutDataUnitKerjaReport extends Component implements HasTable, HasForms
             ->label($label)
             ->toggleable()
             ->searchable(
-                query: fn($query, string $search) =>
-                $query->where($dbColumn, 'like', "%{$search}%")
+                query: fn ($query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
             );
     }
 

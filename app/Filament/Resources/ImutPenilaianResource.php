@@ -1,18 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Filament\Resources;
 
-namespace App\Filament\Resources\LaporanImutResource\Pages;
-
-use App\Filament\Resources\LaporanImutResource;
-use App\Models\ImutData;
+use App\Filament\Resources\ImutPenilaianResource\Pages;
 use App\Models\ImutPenilaian;
 use App\Models\ImutProfile;
-use App\Models\LaporanImut;
-use App\Models\UnitKerja;
-use App\Models\User;
-use Filament\Actions\Action;
-use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -24,165 +16,49 @@ use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\Page;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
-class PenilaianLaporan extends Page implements HasForms
+class ImutPenilaianResource extends Resource
 {
-    use InteractsWithForms;
+    protected static ?string $model = ImutPenilaian::class;
 
-    protected static string $resource = LaporanImutResource::class;
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static string $view = 'filament.resources.laporan-imut-resource.pages.penilaian-laporan';
+    protected static bool $shouldRegisterNavigation = false;
 
-    public static function canAccess(array $parameters = []): bool
+    public static function form(Form $form): Form
     {
-        /** @var User $user */
-        $user = Auth::user();
+        return $form
+            ->schema([
+                Tabs::make('Penilaian IMUT')
+                    ->tabs([
 
-        return $user->can('view_imut_penilaian_laporan::imut');
+                        // Tab Profil
+                        Tab::make('Profil IMUT')
+                            ->icon('heroicon-o-book-open')
+                            ->schema([
+                                ...self::ImutPenilaianProfileSchema(),
+                                ...self::basicInformationSchemaProfile(),
+                                ...self::operationalDefinitionSchemaProfile(),
+                                ...self::dataAndAnalysisSchemaProfile(),
+                            ]),
+
+                        // Tab Penilaian
+                        Tab::make('Penilaian')
+                            ->icon('heroicon-o-pencil')
+                            ->schema(self::penilaianFormSchema()),
+                    ])
+                    ->columnSpanFull(),
+            ]);
     }
 
-    public function isLaporanPeriodClosed(): bool
-    {
-        return $this->laporan?->assessment_period_end < now();
-    }
-
-    /**
-     * The LaporanImut model instance related to this page.
-     */
-    public ?LaporanImut $laporan = null;
-
-    public ?ImutProfile $profile = null;
-
-    public ?UnitKerja $unitKerja = null;
-
-    public ?ImutData $imutData = null;
-
-    /**
-     * Form data keyed by ImutPenilaian ID.
-     *
-     * @var array<string, array<string, mixed>>
-     */
-    public array $formData = [];
-
-    /**
-     * Mount the page, load laporan and penilaian data.
-     *
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
-    public function mount(): void
-    {
-        $laporanId = request()->integer('laporan_id');
-        $penilaianId = request()->integer('penilaian_id');
-
-        // if (!$laporanId || !$penilaianId) {
-        //     abort(404, 'Invalid request parameters.');
-        // }
-
-        // Verify laporan has the penilaian with the given ID
-        $this->laporan = LaporanImut::
-            // ->whereHas('imutPenilaians', fn($query) => $query->where('imut_penilaians.id', $penilaianId))
-            findOrFail($laporanId);
-        // $this->laporan = LaporanImut::select(['id', 'name'])
-        //     // ->whereHas('imutPenilaians', fn($query) => $query->where('imut_penilaians.id', $penilaianId))
-        //     ->findOrFail($laporanId);
-
-        // dd($this->laporan);
-
-        // Fetch the specific penilaian for this laporan
-        $penilaian = ImutPenilaian::with('profile')
-            ->where('id', $penilaianId)
-            // ->where('laporan_unit_kerja_id', $laporanId)
-            ->firstOrFail();
-
-        // dd($this->laporan, $penilaian);
-
-        $this->profile = $penilaian->profile;
-        $this->unitKerja = $penilaian->laporanUnitKerja->unitKerja;
-        $this->imutData = $this->profile->imutData;
-
-        $this->formData = [
-            'penilaian_id' => $penilaian->id,
-            'analysis' => $penilaian->analysis,
-            'recommendations' => $penilaian->recommendations,
-            'numerator_value' => $penilaian->numerator_value,
-            'denominator_value' => $penilaian->denominator_value,
-            'imut_profile_id' => $this->profile->id,
-            'imut_data_id' => $this->imutData->id,
-
-            'responsible_person' => $this->profile->responsible_person,
-            'indicator_type' => $this->profile->indicator_type,
-            'rationale' => $this->profile->rationale,
-            'objective' => $this->profile->objective,
-            'operational_definition' => $this->profile->operational_definition,
-            'quality_dimension' => $this->profile->quality_dimension,
-            'numerator_formula' => $this->profile->numerator_formula,
-            'denominator_formula' => $this->profile->denominator_formula,
-            'inclusion_criteria' => $this->profile->inclusion_criteria,
-            'exclusion_criteria' => $this->profile->exclusion_criteria,
-            'data_source' => $this->profile->data_source,
-            'data_collection_frequency' => $this->profile->data_collection_frequency,
-            'data_collection_method' => $this->profile->data_collection_method,
-            'sampling_method' => $this->profile->sampling_method,
-            'analysis_period_type' => $this->profile->analysis_period_type,
-            'analysis_period_value' => $this->profile->analysis_period_value,
-            'target_operator' => $this->profile->target_operator,
-            'target_value' => $this->profile->target_value,
-            'start_periode' => $this->profile->start_periode,
-            'end_periode' => $this->profile->end_periode,
-            'data_collection_tool' => $this->profile->data_collection_tool,
-            'analysis_plan' => $this->profile->analysis_plan,
-        ];
-
-        $this->form->fill($this->formData);
-    }
-
-    protected function getHeaderActions(): array
+    public static function getPages(): array
     {
         return [
-            Action::make('save')
-                ->label('Simpan Penilaian')
-                ->action(fn () => $this->simpanPenilaian())
-                ->requiresConfirmation()
-                ->color('success'),
-        ];
-    }
-
-    /**
-     * Get the form schema for the penilaian fields.
-     *
-     * @return array<int, Forms\Components\Component>
-     */
-    protected function getFormSchema(): array
-    {
-        return [
-            Tabs::make('Penilaian IMUT')
-                ->tabs([
-
-                    // Tab Profil
-                    Tab::make('Profil IMUT')
-                        ->icon('heroicon-o-book-open')
-                        ->schema([
-                            ...self::ImutPenilaianProfileSchema(),
-                            ...self::basicInformationSchemaProfile(),
-                            ...self::operationalDefinitionSchemaProfile(),
-                            ...self::dataAndAnalysisSchemaProfile(),
-                        ]),
-
-                    // Tab Penilaian
-                    Tab::make('Penilaian')
-                        ->icon('heroicon-o-pencil')
-                        ->schema(self::penilaianFormSchema()),
-                ])
-                ->columnSpanFull(),
+            'edit' => Pages\EditImutPenilaian::route('/'),
         ];
     }
 
@@ -479,7 +355,7 @@ class PenilaianLaporan extends Page implements HasForms
     protected static function penilaianFormSchema(): array
     {
         return [
-            Forms\Components\Hidden::make('penilaian_id'),
+            Hidden::make('penilaian_id'),
             Section::make('Perhitungan')
                 ->schema([
                     TextInput::make('numerator_value')
@@ -566,108 +442,5 @@ class PenilaianLaporan extends Page implements HasForms
                         ->columnSpanFull(),
                 ]),
         ];
-    }
-
-    /**
-     * Get the form state path.
-     */
-    protected function getFormStatePath(): string
-    {
-        return 'formData';
-    }
-
-    /**
-     * Save the updated penilaian data to the database.
-     */
-    public function save(): void
-    {
-        foreach ($this->formData as $id => $data) {
-            $penilaian = ImutPenilaian::find($id);
-
-            if (! $penilaian) {
-                continue;
-            }
-
-            $penilaian->fill($data);
-
-            if ($penilaian->isDirty()) {
-                $penilaian->save();
-            }
-        }
-
-        $this->notify('success', 'All penilaian changes have been saved successfully.');
-    }
-
-    /**
-     * Get the page title.
-     */
-    public function getTitle(): string
-    {
-        return 'Penilaian IMUT';
-    }
-
-    /**
-     * Generate breadcrumbs array for navigation.
-     *
-     * @return array<string, string|array<string, mixed>>
-     */
-    public function getBreadcrumbs(): array
-    {
-        // dd($this->laporan);
-        $laporanName = $this->laporan?->name ?? 'Detail Laporan';
-        $unitKerjaName = $this->unitKerja?->unit_name ?? 'Unit Kerja';
-        $imutDataTitleShort = \Illuminate\Support\Str::limit($this->imutData?->title ?? 'Data IMUT', 35);
-        $profileVersion = \Illuminate\Support\Str::limit($this->profile?->version ?? 'Versi Profil', 15);
-
-        return [
-            LaporanImutResource::getUrl('index') => 'Daftar Laporan IMUT',
-            LaporanImutResource::getUrl('edit', ['record' => $this->laporan->slug]) => $laporanName,
-            'Penilaian Laporan',
-            UnitKerjaImutDataReport::getUrl(['laporan_id' => $this->laporan->id, 'unit_kerja_id' => $this->unitKerja->id]) => "{$unitKerjaName}",
-            "{$imutDataTitleShort} | {$profileVersion}",
-        ];
-    }
-
-    public function simpanPenilaian(): void
-    {
-        // Ambil data form dari state
-        $data = $this->form->getState();
-
-        // Validasi eksplisit
-        $validated = Validator::make($data, [
-            'penilaian_id' => ['required', 'integer', Rule::exists(ImutPenilaian::class, 'id')],
-            'analysis' => ['required', 'string'],
-            'recommendations' => ['required', 'string'],
-            'numerator_value' => ['required', 'numeric'],
-            'denominator_value' => ['required', 'numeric'],
-            'document_upload' => ['nullable', 'array'],
-        ])->validate();
-
-        // Cari record berdasarkan ID
-        $penilaian = ImutPenilaian::findOrFail($validated['penilaian_id']);
-
-        // Simpan ID laporan sebelum update
-        $laporanId = optional($penilaian->laporanUnitKerja)->laporan_imut_id;
-
-        // Update nilai-nilai yang dibutuhkan
-        $penilaian->update([
-            'analysis' => $validated['analysis'],
-            'recommendations' => $validated['recommendations'],
-            'numerator_value' => $validated['numerator_value'],
-            'denominator_value' => $validated['denominator_value'],
-            'document_upload' => $validated['document_upload'] ?? [],
-        ]);
-
-        // Hapus cache terkait dashboard
-        if ($laporanId) {
-            Cache::forget("dashboard_siimut_chart_data_{$laporanId}");
-            Cache::forget("dashboard_siimut_laporan_data_{$laporanId}");
-        }
-
-        // Notifikasi sukses
-        Notification::make()
-            ->title('Penilaian berhasil disimpan.')
-            ->success()
-            ->send();
     }
 }

@@ -2,47 +2,38 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\UnitKerja;
-use Filament\Tables\Table;
-use App\Models\LaporanImut;
-use App\Models\ImutPenilaian;
-use App\Models\LaporanUnitKerja;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\DB;
-use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Select;
-use Illuminate\Support\Facades\Cache;
-use App\Tables\Columns\ProgressColumn;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\ToggleButtons;
 use App\Filament\Resources\LaporanImutResource\Pages;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataReport;
-use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaReport;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataUnitKerjaReport;
 use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaImutDataReport;
-use Filament\Tables\Actions\{EditAction, ViewAction, DeleteAction, RestoreAction, ForceDeleteAction};
-use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkAction, ForceDeleteBulkAction};
+use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaReport;
+use App\Models\ImutPenilaian;
+use App\Models\LaporanImut;
+use App\Models\UnitKerja;
+use App\Models\User;
+use App\Tables\Columns\ProgressColumn;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class LaporanImutResource extends Resource implements HasShieldPermissions
 {
     use \App\Traits\HasActiveIcon;
+
     protected static ?string $model = LaporanImut::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
@@ -50,6 +41,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
     protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Laporan IMUT';
+
     protected static ?string $modelLabel = 'Laporan IMUT';
 
     public static function getGloballySearchableAttributes(): array
@@ -134,7 +126,8 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                         ->columnSpanFull()
                         ->default(function () {
                             $count = LaporanImut::count();
-                            return 'Laporan IMUT Periode ' . ($count + 1);
+
+                            return 'Laporan IMUT Periode '.($count + 1);
                         }),
 
                     DatePicker::make('assessment_period_start')
@@ -148,14 +141,13 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                         ->label('Berakhirnya Periode Asesmen')
                         ->placeholder('YYYY-MM-DD')
                         ->required()
-                        ->minDate(fn(callable $get) => $get('assessment_period_start'))
+                        ->minDate(fn (callable $get) => $get('assessment_period_start'))
                         ->rule('after_or_equal:assessment_period_start'),
-
 
                     Select::make('created_by')
                         ->label('Dibuat oleh')
                         ->options(User::pluck('name', 'id'))
-                        ->default(fn() => Auth::id())
+                        ->default(fn () => Auth::id())
                         ->disabled()
                         ->columnSpanFull(),
 
@@ -187,9 +179,9 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                 [
                     Tables\Actions\BulkActionGroup::make([
                         Tables\Actions\RestoreBulkAction::make()
-                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                            ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                         Tables\Actions\ForceDeleteBulkAction::make()
-                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                            ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                     ]),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]
@@ -214,13 +206,13 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             Tables\Columns\TextColumn::make('assessment_period')
                 ->label('Periode Asesmen')
                 ->alignCenter()
-                ->getStateUsing(fn($record) => self::formatAssessmentPeriod($record)),
+                ->getStateUsing(fn ($record) => self::formatAssessmentPeriod($record)),
 
             Tables\Columns\TextColumn::make('status')
                 ->label('Status')
                 ->badge()
                 ->alignCenter()
-                ->color(fn(string $state): string => match ($state) {
+                ->color(fn (string $state): string => match ($state) {
                     'canceled' => 'danger',
                     'process' => 'primary',
                     'complete' => 'success',
@@ -243,9 +235,9 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
     {
         return ProgressColumn::make('progress')
             ->label('Progress')
-            ->visible(fn() => Auth::user()?->unitKerjas()->exists())
-            ->getStateUsing(fn($record) => self::calculateProgress($record))
-            ->tooltip(fn($record) => self::progressTooltip($record));
+            ->visible(fn () => Auth::user()?->unitKerjas()->exists())
+            ->getStateUsing(fn ($record) => self::calculateProgress($record))
+            ->tooltip(fn ($record) => self::progressTooltip($record));
     }
 
     protected static function calculateProgress($record): ?float
@@ -258,7 +250,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             ->pluck('id')
             ->toArray();
 
-        if (empty($laporanUnitKerjaIds) || !self::userHasAccessToLaporan($record)) {
+        if (empty($laporanUnitKerjaIds) || ! self::userHasAccessToLaporan($record)) {
             return null;
         }
 
@@ -299,14 +291,13 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         return ProgressColumn::make('unit_kerja_terisi')
             ->label('Unit Kerja Terisi')
             ->visible(
-                fn() =>
-                Gate::check('view_unit_kerja_report_laporan::imut') &&
+                fn () => Gate::check('view_unit_kerja_report_laporan::imut') &&
                     Gate::check('view_imut_data_report_laporan::imut') &&
                     Gate::check('update_profile_penilaian_laporan::imut') &&
                     Gate::check('create_recommendation_penilaian_laporan::imut')
             )
-            ->getStateUsing(fn($record) => self::calculateUnitKerjaTerisi($record))
-            ->tooltip(fn($record) => self::tooltipUnitKerjaTerisi($record));
+            ->getStateUsing(fn ($record) => self::calculateUnitKerjaTerisi($record))
+            ->tooltip(fn ($record) => self::tooltipUnitKerjaTerisi($record));
     }
 
     protected static function calculateUnitKerjaTerisi($record): float
@@ -374,27 +365,25 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                 ->icon('heroicon-s-clipboard-document-list')
                 ->color('warning')
                 ->visible(
-                    fn($record) =>
-                    method_exists($record, 'trashed')
-                        && !$record->trashed()
+                    fn ($record) => method_exists($record, 'trashed')
+                        && ! $record->trashed()
                         && self::userHasAccessToLaporan($record)
                         && \Carbon\Carbon::today()->lte($record->assessment_period_end)
                 )
-                ->url(fn($record) => self::getIsiPenilaianUrl($record)),
+                ->url(fn ($record) => self::getIsiPenilaianUrl($record)),
 
             Tables\Actions\ActionGroup::make([
                 Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+                    ->visible(fn ($record) => method_exists($record, 'trashed') && ! $record->trashed()),
                 Tables\Actions\DeleteAction::make()
-                    ->visible(fn($record) => method_exists($record, 'trashed') && !$record->trashed()),
+                    ->visible(fn ($record) => method_exists($record, 'trashed') && ! $record->trashed()),
                 Action::make('summary')
                     ->label('Summary')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->color('success')
                     ->visible(
-                        fn($record) =>
-                        method_exists($record, 'trashed') &&
-                            !$record->trashed() &&
+                        fn ($record) => method_exists($record, 'trashed') &&
+                            ! $record->trashed() &&
                             Gate::any([
                                 'view_unit_kerja_report_laporan::imut',
                                 'view_imut_data_report_laporan::imut',
@@ -432,22 +421,20 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                         );
 
                         return redirect()->to($map[$type]['redirect']);
-                    })
+                    }),
             ]),
 
             // Aksi hanya jika record dalam trash
             RestoreAction::make()
                 ->visible(
-                    fn($record) =>
-                    Gate::allows('restore', $record) &&
+                    fn ($record) => Gate::allows('restore', $record) &&
                         method_exists($record, 'trashed') &&
                         $record->trashed()
                 ),
 
             ForceDeleteAction::make()
                 ->visible(
-                    fn($record) =>
-                    Gate::allows('forceDelete', $record) &&
+                    fn ($record) => Gate::allows('forceDelete', $record) &&
                         method_exists($record, 'trashed') &&
                         $record->trashed()
                 ),
@@ -459,9 +446,9 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         return [
             Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\RestoreBulkAction::make()
-                    ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                 Tables\Actions\ForceDeleteBulkAction::make()
-                    ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
             ]),
             Tables\Actions\DeleteBulkAction::make(),
         ];
@@ -484,7 +471,8 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             'unit-kerja-imut-data-report-detail' => UnitKerjaImutDataReport::route('/unit-kerja-imut-data-report'),
             'imut-data-report' => ImutDataReport::route('/imut-data-report'),
             'imut-data-unit-kerja-report-detail' => ImutDataUnitKerjaReport::route('/imut-data-unit-kerja-report'),
-            'edit-penilaian' => Pages\PenilaianLaporan::route('/penilaian'),
+            // 'edit-penilaian' => Pages\PenilaianLaporan::route('/penilaian'),
+            'edit-penilaian' => \App\Filament\Resources\ImutPenilaianResource\Pages\EditImutPenilaian::route('/{laporanSlug}/penilaian-edit={record}'),
         ];
     }
 
@@ -501,7 +489,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         $userUnitKerjaIds = $user->unitKerjas->pluck('id')->toArray();
         $laporanUnitKerjaIds = $record->unitKerjas->pluck('id')->toArray();
 
-        return !empty(array_intersect($userUnitKerjaIds, $laporanUnitKerjaIds));
+        return ! empty(array_intersect($userUnitKerjaIds, $laporanUnitKerjaIds));
     }
 
     protected static function getIsiPenilaianUrl($record): ?string
