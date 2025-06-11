@@ -64,7 +64,7 @@ class ImutDataOverview extends Page
     public function getHeaderWidgets(): array
     {
         return [
-            ImutDataLineChart::class,
+            ImutDataLineChart::make(['imutData' => $this->imutData]),
         ];
     }
 }

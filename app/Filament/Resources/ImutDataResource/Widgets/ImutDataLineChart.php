@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ImutDataResource\Widgets;
 
+use App\Models\ImutData;
 use App\Models\LaporanImut;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
@@ -12,6 +13,8 @@ class ImutDataLineChart extends ApexChartWidget
     protected static ?string $heading = 'Grafik Penilaian IMUT per Bulan';
 
     protected int|string|array $columnSpan = 'full';
+
+    public ImutData $imutData;
 
     protected function getFormSchema(): array
     {
