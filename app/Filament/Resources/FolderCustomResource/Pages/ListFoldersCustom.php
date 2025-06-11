@@ -11,6 +11,13 @@ class ListFoldersCustom extends ListFolders
 {
     protected static string $resource = FolderCustomResource::class;
 
+    public static function canAccess(array $parameters = []): bool
+    {
+        $user = auth()->user();
+
+        return $user->can('view_all_folder::custom') || $user->can('view_by_unit_kerja_folder::custom');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
