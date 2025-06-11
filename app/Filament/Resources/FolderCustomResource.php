@@ -15,6 +15,7 @@ class FolderCustomResource extends BaseFolderResource implements HasShieldPermis
     {
         return [
             'view_any',
+            'view',
             'view_all',
             'view_by_unit_kerja',
             'create',
@@ -44,18 +45,13 @@ class FolderCustomResource extends BaseFolderResource implements HasShieldPermis
         $user = auth()->user();
         $query = parent::getEloquentQuery();
 
-        dd([
-            $user->can('view_all_folder::custom'),
-            $user->can('view_by_unit_kerja_folder::custom')
-        ]);
-
         if ($user->can('view_all_folder::custom')) {
             return $query;
         }
 
         if ($user->can('view_by_unit_kerja_folder::custom')) {
             $collection = \Illuminate\Support\Str::slug($user->unitKerja->unit_name ?? 'default');
-
+            
             return $query->where('collection', $collection);
         }
 
