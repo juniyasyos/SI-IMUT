@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use App\Policies\ActivityPolicy;
-use App\Policies\FolderPolicy;
-use App\Policies\MediaPolicy;
+use App\Policies\FolderCustomPolicy;
+use App\Policies\MediaCustomPolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
         Activity::class => ActivityPolicy::class,
-        \TomatoPHP\FilamentMediaManager\Models\Folder::class => FolderPolicy::class,
-        \TomatoPHP\FilamentMediaManager\Models\Media::class => MediaPolicy::class,
+        \Juniyasyos\FilamentMediaManager\Models\Folder::class => FolderCustomPolicy::class,
+        \Juniyasyos\FilamentMediaManager\Models\Media::class => MediaCustomPolicy::class,
     ];
 
     public function boot(): void

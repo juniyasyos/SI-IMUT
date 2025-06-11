@@ -6,7 +6,7 @@ use App\Models\User;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class FolderPolicy
+class FolderCustomPolicy
 {
     use HandlesAuthorization;
 
