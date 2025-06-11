@@ -56,34 +56,13 @@ class UnitKerjaSeeder extends Seeder
 
             // Relasikan jika ditemukan
             $userIds = collect([$pengumpul, $pic])
-                ->filter() // buang null
+                ->filter() 
                 ->pluck('id')
                 ->unique();
 
             if ($userIds->isNotEmpty()) {
                 $unitKerja->users()->syncWithoutDetaching($userIds);
             }
-
-            // // ======= CREATE FOLDER UNTUK UNIT KERJA =======
-            // $existingFolder = Folder::where('name', Str::slug($unitKerja->unit_name))->first();
-
-            // if (!$existingFolder) {
-            //     Folder::create([
-            //         'name' => Str::slug($unitKerja->unit_name),
-            //         'description' => "Media untuk Unit Kerja: {$unitKerja->unit_name}",
-            //         'collection' => 'unitkerja',
-            //         'color' => null,
-            //         'is_protected' => false,
-            //         'is_hidden' => false,
-            //         'is_favorite' => false,
-            //         'is_public' => true,
-            //         'has_user_access' => false,
-            //         'model_type' => null,
-            //         'model_id' => null,
-            //         'user_id' => 1,
-            //         'user_type' => User::class,
-            //     ]);
-            // }
         }
     }
 }

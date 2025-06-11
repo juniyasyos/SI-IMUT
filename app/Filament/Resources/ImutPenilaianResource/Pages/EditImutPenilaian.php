@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\ImutPenilaianResource\Pages;
 
 use App\Filament\Resources\ImutPenilaianResource;
-use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutPenilaian;
+use Illuminate\Support\Str;
 use App\Models\LaporanImut;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Juniyasyos\FilamentMediaManager\Models\Folder;
 
 class EditImutPenilaian extends EditRecord
 {
@@ -47,6 +48,8 @@ class EditImutPenilaian extends EditRecord
         $profile = $penilaian->profile;
         $imutData = $profile?->imutData;
         $unitKerja = $penilaian->laporanUnitKerja?->unitKerja;
+        $folder = Folder::where('collection', Str::slug($unitKerja->unit_name))->first();
+
 
         return array_merge([
             'penilaian_id' => $penilaian->id,
@@ -79,6 +82,7 @@ class EditImutPenilaian extends EditRecord
             'end_periode' => $profile?->end_periode,
             'data_collection_tool' => $profile?->data_collection_tool,
             'analysis_plan' => $profile?->analysis_plan,
+            'selected_collection' => $folder?->collection ?? 'default',
         ], $data);
     }
 

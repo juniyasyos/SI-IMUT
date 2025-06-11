@@ -18,7 +18,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
 class ImutPenilaianResource extends Resource
@@ -405,14 +404,14 @@ class ImutPenilaianResource extends Resource
 
                     SpatieMediaLibraryFileUpload::make('document_upload')
                         ->label('Unggah Dokumen Pendukung')
-                        ->collection('documents')
+                        ->collection(fn (callable $get) => $get('selected_collection') ?? 'default')
+                        ->directory(fn (callable $get) => 'uploads/imut-documents/'.($get('selected_collection') ?? 'default'))
                         ->openable()
                         ->downloadable()
                         ->maxSize(20480)
                         ->preserveFilenames()
                         ->previewable(true)
                         ->columnSpanFull()
-                        ->directory('uploads/imut-documents')
                         ->disabled(fn ($livewire) => $livewire->isLaporanPeriodClosed()
                             || ! Auth::user()?->can('update_numerator_denominator_laporan::imut'))
                         ->acceptedFileTypes([
