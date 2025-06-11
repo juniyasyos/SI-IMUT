@@ -25,7 +25,7 @@ class ImutPenilaian extends Model implements HasMedia
      */
     protected $fillable = [
         'imut_profil_id',
-        'laporan_unit_kerja_id',
+        'laporan_unit_kerja_id', 
         'analysis',
         'recommendations',
         'numerator_value',

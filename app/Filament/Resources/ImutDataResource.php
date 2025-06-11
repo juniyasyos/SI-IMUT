@@ -2,40 +2,40 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\User;
+use App\Filament\Resources\ImutDataResource\Pages;
+use App\Filament\Resources\ImutDataResource\Pages\ImutDataOverview;
+use App\Filament\Resources\ImutDataResource\RelationManagers\ProfilesRelationManager;
 use App\Models\ImutData;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\ImutKategori;
-use Filament\Resources\Resource;
+use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Section;
-use Illuminate\Database\Query\Builder;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action as ActionTable;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Forms\Components\Actions\Action;
-use App\Filament\Resources\ImutDataResource\Pages;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use App\Filament\Resources\ImutDataResource\RelationManagers\ProfilesRelationManager;
-use Filament\Tables\Actions\{EditAction, ViewAction, DeleteAction, RestoreAction, ForceDeleteAction};
-use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkAction, ForceDeleteBulkAction};
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ImutDataResource extends Resource implements HasShieldPermissions
 {
     use \App\Traits\HasActiveIcon;
+
     protected static ?string $model = ImutData::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
@@ -126,7 +126,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                             ->label(__('filament-forms::imut-data.fields.imut_kategori_id'))
                             ->relationship('categories', 'category_name', function ($query) {
                                 $user = \Illuminate\Support\Facades\Auth::user();
-                                if (!($user->can('create_imut::category') && $user->can('update_imut::category'))) {
+                                if (! ($user->can('create_imut::category') && $user->can('update_imut::category'))) {
                                     $query->where('is_use_global', true);
                                 }
                             })
@@ -155,11 +155,11 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                         Select::make('created_by')
                             ->label('Dibuat oleh')
                             ->options(User::pluck('name', 'id'))
-                            ->default(fn() => \Illuminate\Support\Facades\Auth::id())
+                            ->default(fn () => \Illuminate\Support\Facades\Auth::id())
                             ->disabled()
                             ->columnSpanFull(),
 
-                    ])
+                    ]),
                 ])
                 ->heading(__('filament-forms::imut-data.form.main.title')),
         ]);
@@ -177,6 +177,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
 
                 if ($user->can('view_by_unit_kerja_imut::data')) {
                     $unitKerjaIds = $user->unitKerjas->pluck('id')->toArray();
+
                     return ImutData::query()
                         ->whereHas('unitKerja', function ($query) use ($unitKerjaIds) {
                             $query->whereIn('unit_kerja.id', $unitKerjaIds);
@@ -188,7 +189,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
             ->columns([
                 TextColumn::make('title')
                     ->label(__('filament-forms::imut-data.fields.title'))
-                    ->tooltip(fn(ImutData $record): string => $record->description ?? '-')
+                    ->tooltip(fn (ImutData $record): string => $record->description ?? '-')
                     ->searchable()
                     ->sortable()
                     ->limit(60),
@@ -200,6 +201,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->color(function ($record) {
                         $colors = ['primary', 'success', 'warning', 'danger', 'info', 'gray'];
                         $id = $record->categories->id ?? 0;
+
                         return $colors[$id % count($colors)];
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -209,10 +211,10 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->translateLabel()
                     ->alignCenter()
                     ->size('xl')
-                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
+                    ->disabled(fn () => \Illuminate\Support\Facades\Gate::any([
                         'update_imut::data',
                     ]))
-                    ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
+                    ->tooltip(fn (Model $record) => $record->status ? 'Active' : 'Unactive')
                     ->sortable(),
 
                 TextColumn::make('created_at')
@@ -233,43 +235,47 @@ class ImutDataResource extends Resource implements HasShieldPermissions
 
             ])
             ->actions([
+                ActionTable::make('lihat_grafik')
+                    ->label('Lihat Grafik')
+                    ->icon('heroicon-s-chart-bar')
+                    ->color('info')
+                    ->url(fn ($record) => ImutDataOverview::getUrl(['record' => $record->slug])),
+
                 \Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction::make('user-relation-manager')
                     ->slideOver()
                     ->label('Imut Profile')
                     ->color('success')
                     ->icon('heroicon-c-document-plus')
                     ->relationManager(ProfilesRelationManager::make())
-                    ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
+                    ->visible(fn () => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
 
                 ViewAction::make()->slideOver(),
                 EditAction::make(),
                 ActionGroup::make([
                     RestoreAction::make()
                         ->visible(
-                            fn($record) =>
-                            \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
+                            fn ($record) => \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
                                 method_exists($record, 'trashed') &&
                                 $record->trashed()
                         ),
 
                     ForceDeleteAction::make()
                         ->visible(
-                            fn($record) =>
-                            \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
+                            fn ($record) => \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
                                 method_exists($record, 'trashed') &&
                                 $record->trashed()
                         ),
-                ])
+                ]),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
 
                     RestoreBulkAction::make()
-                        ->visible(fn() => method_exists(static::getModel(), 'bootSoftDeletes')),
+                        ->visible(fn () => method_exists(static::getModel(), 'bootSoftDeletes')),
 
                     ForceDeleteBulkAction::make()
-                        ->visible(fn() => method_exists(static::getModel(), 'bootSoftDeletes'))
+                        ->visible(fn () => method_exists(static::getModel(), 'bootSoftDeletes')),
                 ]),
             ]);
     }
@@ -295,7 +301,6 @@ class ImutDataResource extends Resource implements HasShieldPermissions
         return $query->whereRaw('1 = 0');
     }
 
-
     public static function getRelations(): array
     {
         return [
@@ -312,6 +317,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
             'create-profile' => \App\Filament\Resources\ImutProfileResource\Pages\CreateImutProfile::route('/{imutDataSlug}/profile/create'),
             'edit-profile' => \App\Filament\Resources\ImutProfileResource\Pages\EditImutProfile::route('/{imutDataSlug}/profile/edit={record}'),
             'bencmarking' => \App\Filament\Resources\RegionTypeBencmarkingResource\Pages\ListRegionTypeBencmarkings::route('/bencmarkings'),
+            'overview' => ImutDataOverview::route('/overview'),
         ];
     }
 }

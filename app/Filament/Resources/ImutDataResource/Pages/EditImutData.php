@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\ImutDataResource\Pages;
 
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\Concerns\CanNotify;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ImutDataResource;
 use App\Models\ImutData;
+use Filament\Actions\Action;
+use Filament\Actions\Concerns\CanNotify;
+use Filament\Actions\DeleteAction;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Gate;
 
 class EditImutData extends EditRecord
@@ -20,6 +20,12 @@ class EditImutData extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('lihat_grafik')
+                ->label('Lihat Grafik')
+                ->icon('heroicon-s-chart-bar')
+                ->color('info')
+                ->url(fn ($record) => \App\Filament\Resources\ImutDataResource\Pages\ImutDataOverview::getUrl(['record' => $record->slug])),
+                
             $this->getDeleteAction(),
         ];
     }
@@ -53,7 +59,7 @@ class EditImutData extends EditRecord
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
-            ->visible(fn() => Gate::allows('delete_imut::data', ImutData::class))
+            ->visible(fn () => Gate::allows('delete_imut::data', ImutData::class))
             ->modalHeading(__('filament-forms::imut-data.actions.delete.modal_heading'))
             ->modalDescription(__('filament-forms::imut-data.actions.delete.modal_description'))
             ->modalIcon('heroicon-o-exclamation-triangle')
@@ -66,5 +72,4 @@ class EditImutData extends EditRecord
                     ->body(__('filament-forms::imut-data.notifications.deleted.body'))
             );
     }
-
 }
