@@ -33,4 +33,18 @@ class CacheKey
     {
         return 'dashboard:siimut:all_chart_data';
     }
+
+    public static function imutPenilaian(int $imutDataId, int $year): string
+    {
+        return "imut:penilaian:{$imutDataId}:{$year}";
+    }
+
+    public static function imutBenchmarking(int $year, array|int|null $regionTypeId = null): string
+    {
+        $idPart = is_array($regionTypeId)
+            ? implode(',', $regionTypeId)
+            : ($regionTypeId ?? 'all');
+
+        return "imut:benchmarking:{$year}:{$idPart}";
+    }
 }

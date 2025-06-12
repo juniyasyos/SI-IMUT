@@ -25,7 +25,7 @@ class ImutPenilaian extends Model implements HasMedia
      */
     protected $fillable = [
         'imut_profil_id',
-        'laporan_unit_kerja_id', 
+        'laporan_unit_kerja_id',
         'analysis',
         'recommendations',
         'numerator_value',
@@ -73,9 +73,23 @@ class ImutPenilaian extends Model implements HasMedia
             $unitKerjaId = $laporanUnitKerja->unit_kerja_id;
 
             Cache::forget(CacheKey::laporanUnitDetail($laporanId, $unitKerjaId));
-
             Cache::forget(CacheKey::dashboardSiimutAllData($laporanId));
             Cache::forget(CacheKey::dashboardSiimutAllChartData());
+
+            $laporanImut = $laporanUnitKerja->laporanImut;
+            if ($laporanImut && $this->imutProfil) {
+                $imutDataId = $this->imutProfil->imut_data_id;
+                $year = \Carbon\Carbon::parse($laporanImut->assessment_period_start)->year;
+
+                // Hapus cache penilaian
+                Cache::forget(CacheKey::imutPenilaian($imutDataId, $year));
+
+                // Hapus cache benchmarking untuk semua region_type yang ada di DB
+                $regionTypeIds = RegionType::query()->pluck('id');
+                foreach ($regionTypeIds as $regionTypeId) {
+                    Cache::forget(CacheKey::imutBenchmarking($year, $regionTypeId));
+                }
+            }
         }
 
         Cache::forget(CacheKey::imutLaporans());

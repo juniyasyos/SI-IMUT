@@ -258,7 +258,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                         ->label('🏢 Unit Kerja')
                         ->color('success')
                         ->url(fn ($record) => ImutDataOverview::getUrl(['record' => $record->slug])),
-                ])->icon('heroicon-s-chart-bar')->label('Lihat Grafik'),
+                ])->icon('heroicon-s-chart-bar')->label('Lihat Grafik')->button(),
 
                 ActionGroup::make([
                     RestoreAction::make()
