@@ -2,29 +2,23 @@
 
 namespace App\Models;
 
-use App\Models\UnitKerja;
-use App\Models\ImutProfile;
 use App\Support\CacheKey;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use App\Models\ImutCategory;
-use App\Models\ImutBenchmarking;
-use App\Models\ImutDataUnitKerja;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ImutData extends Model
 {
-
     /** @use HasFactory<\Database\Factories\ImutDataFactory> */
-    use SoftDeletes, LogsActivity, HasFactory;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -74,7 +68,6 @@ class ImutData extends Model
         ];
     }
 
-
     public function clearCache()
     {
         $laporanUnitKerja = $this->laporanUnitKerja;
@@ -95,13 +88,12 @@ class ImutData extends Model
 
     protected static function booted()
     {
-        static::saved(fn($penilaian) => $penilaian->clearCache());
-        static::deleted(fn($penilaian) => $penilaian->clearCache());
+        static::saved(fn ($penilaian) => $penilaian->clearCache());
+        static::deleted(fn ($penilaian) => $penilaian->clearCache());
     }
+
     /**
      * Get the options for logging activity.
-     *
-     * @return LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -120,8 +112,6 @@ class ImutData extends Model
 
     /**
      * function to get the benchmarking of the indicator
-     *
-     * @return HasMany
      */
     public function profiles(): HasMany
     {
@@ -130,8 +120,6 @@ class ImutData extends Model
 
     /**
      * function to get the benchmarking of the indicator
-     *
-     * @return void
      */
     public function unitKerja(): BelongsToMany
     {
@@ -146,7 +134,6 @@ class ImutData extends Model
     {
         return $this->hasOne(ImutProfile::class)->latestOfMany('version');
     }
-
 
     public function profileById($profileId): HasOne
     {

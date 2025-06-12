@@ -4,13 +4,15 @@ namespace App\Filament\Resources\ImutDataResource\Widgets;
 
 use App\Models\ImutData;
 use App\Models\LaporanImut;
+use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class ImutDataLineChart extends ApexChartWidget
 {
     protected static ?string $chartId = 'imutDataLineChart';
 
-    protected static ?string $heading = 'Grafik Penilaian IMUT per Bulan';
+    protected static ?string $heading = 'Grafik Penilaian IMUT per Periode';
 
     protected int|string|array $columnSpan = 'full';
 
@@ -18,14 +20,16 @@ class ImutDataLineChart extends ApexChartWidget
 
     protected function getFormSchema(): array
     {
+        $years = LaporanImut::selectRaw('YEAR(assessment_period_start) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year', 'year')
+            ->toArray();
+
         return [
-            \Filament\Forms\Components\Select::make('year')
+            Select::make('year')
                 ->label('Tahun')
-                ->options([
-                    '2023' => '2023',
-                    '2024' => '2024',
-                    '2025' => '2025',
-                ])
+                ->options($years)
                 ->default(now()->year)
                 ->reactive(),
         ];
@@ -52,15 +56,15 @@ class ImutDataLineChart extends ApexChartWidget
             ],
             'stroke' => ['width' => 4],
             'markers' => ['size' => 5],
-            'colors' => ['#6366f1', '#10b981', '#f59e0b', '#ef4444'],
+            'colors' => ['#6366f1'],
             'series' => $this->getChartSeries(),
             'xaxis' => [
                 'categories' => $this->getMonthLabels(),
-                'title' => ['text' => 'Bulan'],
+                'title' => ['text' => 'Periode'],
                 'labels' => ['style' => ['fontFamily' => 'inherit']],
             ],
             'yaxis' => [
-                'title' => ['text' => 'Nilai'],
+                'title' => ['text' => 'Nilai (%)'],
                 'labels' => ['style' => ['fontFamily' => 'inherit']],
             ],
             'legend' => [
@@ -77,14 +81,11 @@ class ImutDataLineChart extends ApexChartWidget
     {
         $year = $this->filterFormData['year'] ?? now()->year;
 
-        $laporanList = LaporanImut::select('assessment_period_start')
-            ->whereYear('assessment_period_start', $year)
+        return LaporanImut::whereYear('assessment_period_start', $year)
             ->orderBy('assessment_period_start')
-            ->get();
-
-        return $laporanList
+            ->get()
             ->pluck('assessment_period_start')
-            ->map(fn ($date) => \Carbon\Carbon::parse($date)->locale('id')->translatedFormat('M'))
+            ->map(fn ($date) => \Carbon\Carbon::parse($date)->translatedFormat('F Y'))
             ->unique()
             ->values()
             ->toArray();
@@ -94,10 +95,36 @@ class ImutDataLineChart extends ApexChartWidget
     {
         $year = $this->filterFormData['year'] ?? now()->year;
 
+        $penilaianData = DB::table('imut_penilaians')
+            ->join('laporan_unit_kerjas', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
+            ->join('laporan_imuts', 'laporan_imuts.id', '=', 'laporan_unit_kerjas.laporan_imut_id')
+            ->whereYear('laporan_imuts.assessment_period_start', $year)
+            ->whereNull('laporan_imuts.deleted_at')
+            ->selectRaw("
+            DATE_FORMAT(laporan_imuts.assessment_period_start, '%Y-%m') as periode,
+            SUM(imut_penilaians.numerator_value) as total_num,
+            SUM(imut_penilaians.denominator_value) as total_denum
+        ")
+            ->groupBy('periode')
+            ->orderBy('periode')
+            ->get();
+
+        $data = [];
+
+        foreach ($penilaianData as $row) {
+            $label = \Carbon\Carbon::parse($row->periode.'-01')->translatedFormat('F Y');
+            $nilai = ($row->total_denum > 0) ? round(($row->total_num / $row->total_denum) * 100, 2) : 0;
+            $data[$label] = $nilai;
+        }
+
+        // Label konsisten dari hasil query
+        $labels = array_keys($data);
+        $values = array_values($data);
+
         return [
             [
-                'name' => 'Unit Gawat Darurat',
-                'data' => [90, 88, 85, 87, 91, 92, 90, 93, 95, 94, 92, 90],
+                'name' => 'Total Nilai IMUT',
+                'data' => $values,
             ],
         ];
     }

@@ -161,6 +161,7 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
                                 ->columns(3)
                                 ->required()
                                 ->disabledOn('edit')
+                                ->bulkToggleable()
                                 ->default(UnitKerja::pluck('id')->toArray()),
                         ]),
                 ])
