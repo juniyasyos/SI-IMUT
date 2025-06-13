@@ -1,5 +1,4 @@
 services:
-
     ####################################################################################################
     # PHP
     ####################################################################################################
@@ -55,7 +54,6 @@ services:
             PMA_HOST: db
             PMA_PORT: 3306
             PMA_ARBITRARY: 1
-            PHP_INI_SESSION_SAVE_PATH: /tmp
         volumes:
             - .docker/phpmyadmin/sessions:/sessions
 
@@ -75,8 +73,8 @@ services:
     mail:
         image: axllent/mailpit:latest
         ports:
-        - 8025:8025
-        - 1025:1025
+            - 8025:8025
+            - 1025:1025
 
     ####################################################################################################
     # Redis
@@ -85,9 +83,9 @@ services:
         image: redis:latest
         command: redis-server --appendonly yes
         volumes:
-        - .docker/redis/data:/data
+            - .docker/redis/data:/data
         ports:
-        - 6379:6379
+            - 6379:6379
 
     # ####################################################################################################
     # # DATABASE (MariaDB)
