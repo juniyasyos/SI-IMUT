@@ -68,7 +68,7 @@ class UnitKerjaRelationManager extends RelationManager
                     ->action(function (array $data, $livewire) {
                         $imut = $livewire->ownerRecord;
 
-                        $imut->unitKerja()->attach($data['unit_kerja_id'], [
+                        $imut->unitKerja()->attach($data['recordId'], [
                             'assigned_by' => auth()->id(),
                             'assigned_at' => now(),
                         ]);
