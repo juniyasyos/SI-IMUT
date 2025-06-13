@@ -254,10 +254,16 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                         ->color('primary')
                         ->url(fn ($record) => SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
 
-                    ActionTable::make('lihat_berdasarkan_unit_kerja')
+                    // ActionTable::make('lihat_berdasarkan_unit_kerja')
+                    //     ->label('🏢 Unit Kerja')
+                    //     ->color('success')
+                    //     ->url(fn ($record) => ImutDataOverview::getUrl(['record' => $record->slug])),
+
+                    \Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction::make('unit-kerja-relation')
+                        ->slideOver()
                         ->label('🏢 Unit Kerja')
-                        ->color('success')
-                        ->url(fn ($record) => ImutDataOverview::getUrl(['record' => $record->slug])),
+                        ->color('primary')
+                        ->relationManager(\App\Filament\Resources\ImutDataResource\RelationManagers\UnitKerjaRelationManager::make())
                 ])->icon('heroicon-s-chart-bar')->label('Lihat Grafik')->button(),
 
                 ActionGroup::make([
