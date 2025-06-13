@@ -24,8 +24,8 @@ class EditImutData extends EditRecord
                 ->label('Lihat Grafik')
                 ->icon('heroicon-s-chart-bar')
                 ->color('info')
-                ->url(fn ($record) => \App\Filament\Resources\ImutDataResource\Pages\ImutDataOverview::getUrl(['record' => $record->slug])),
-                
+                ->url(fn ($record) => \App\Filament\Resources\ImutDataResource\Pages\SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
+
             $this->getDeleteAction(),
         ];
     }
