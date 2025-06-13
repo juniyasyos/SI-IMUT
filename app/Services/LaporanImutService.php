@@ -36,7 +36,7 @@ class LaporanImutService
             $penilaianAll = $this->getGroupedPenilaianByLaporan($laporanIds);
             $penilaianByProfile = $this->getGroupedPenilaianByProfile($laporanIds, $indikatorAktif);
 
-            return $laporanList->map(function ($laporan) use ($indikatorAktif, $penilaianAll, $penilaianByProfile) {
+            return array_map(null, ...$laporanList->map(function ($laporan) use ($indikatorAktif, $penilaianAll, $penilaianByProfile) {
                 $penilaian = $penilaianAll->get($laporan->id, collect());
 
                 return [
@@ -48,7 +48,7 @@ class LaporanImutService
                                    is_null($p->recommendations)
                     )->count(),
                 ];
-            })->transpose()->toArray();
+            })->toArray());
         });
     }
 
