@@ -121,7 +121,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                     ->visible(fn($record) => $record->name !== 'super_admin'),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

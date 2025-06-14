@@ -18,7 +18,8 @@ class EditRole extends EditRecord
     protected function getActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->visible(fn ($record) => $record->name !== 'super_admin'),
         ];
     }
 

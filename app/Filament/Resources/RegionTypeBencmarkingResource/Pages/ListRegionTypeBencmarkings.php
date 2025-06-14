@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\RegionTypeBencmarkingResource\Pages;
 
-use App\Models\ImutData;
-use App\Models\RegionTypeBencmarking;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\ImutDataResource;
 use App\Filament\Resources\RegionTypeBencmarkingResource;
+use Filament\Resources\Pages\ListRecords;
 
 class ListRegionTypeBencmarkings extends ListRecords
 {
@@ -14,8 +13,9 @@ class ListRegionTypeBencmarkings extends ListRecords
     public function getBreadcrumbs(): array
     {
         return [
-            route('filament.admin.resources.imut-datas.index') => 'Imut Datas',
-            url()->current() => 'Benchmarkings',
+            ImutDataResource::getUrl() => 'Imut Datas',
+            'Benchmarking Region Types ',
+            url()->current() => 'List',
         ];
     }
 }

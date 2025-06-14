@@ -331,7 +331,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
             'edit' => Pages\EditImutData::route('/edit={record:slug}'),
             'create-profile' => \App\Filament\Resources\ImutProfileResource\Pages\CreateImutProfile::route('/{imutDataSlug}/profile/create'),
             'edit-profile' => \App\Filament\Resources\ImutProfileResource\Pages\EditImutProfile::route('/{imutDataSlug}/profile/edit={record}'),
-            'bencmarking' => \App\Filament\Resources\RegionTypeBencmarkingResource\Pages\ListRegionTypeBencmarkings::route('/bencmarkings'),
+            'bencmarking-region-type' => \App\Filament\Resources\RegionTypeBencmarkingResource\Pages\ListRegionTypeBencmarkings::route('/bencmarkings/region-type'),
             'overview-unit-kerja' => ImutDataUnitKerjaOverview::route('/overview/unit-kerja'),
             'overview-imut-data' => SummaryImutDataDiagram::route('overview/summary-imut-data'),
         ];
