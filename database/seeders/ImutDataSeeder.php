@@ -248,9 +248,9 @@ class ImutDataSeeder extends Seeder
 
             foreach ($regionTypes as $type) {
                 $regionName = match ($type->type) {
-                    'nasional' => null,
-                    'provinsi' => 'Jawa Timur',
-                    'rs' => "{$this->faker->company} Hospital",
+                    '🌐 Nasional' => null,
+                    '🏛️ Provinsi' => 'Jawa Timur',
+                    '🏥 Rumah Sakit' => "{$this->faker->company} Hospital",
                     default => 'Unknown',
                 };
 
