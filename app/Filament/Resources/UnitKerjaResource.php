@@ -209,7 +209,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
         return [
             'index' => Pages\ListUnitKerja::route('/'),
             'create' => Pages\CreateUnitKerja::route('/create'),
-            'edit' => Pages\EditUnitKerja::route('/{record}/edit'),
+            'edit' => Pages\EditUnitKerja::route('/{record:slug}/edit'),
         ];
     }
 }

@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
 use Spatie\Activitylog\LogOptions;
@@ -42,6 +41,7 @@ class UnitKerja extends Model
     protected $fillable = [
         'unit_name',
         'description',
+        'slug',
     ];
 
     /**
@@ -54,6 +54,20 @@ class UnitKerja extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $model->slug = \Illuminate\Support\Str::slug($model->unit_name);
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     /**
      * The attributes that should be cast.
