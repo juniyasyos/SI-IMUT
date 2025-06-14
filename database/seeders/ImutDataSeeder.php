@@ -2,30 +2,35 @@
 
 namespace Database\Seeders;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\ImutData;
-use App\Models\UnitKerja;
-use App\Models\RegionType;
-use App\Models\ImutProfile;
-use App\Models\LaporanImut;
-use Faker\Factory as Faker;
-use App\Models\ImutCategory;
-use App\Models\ImutStandard;
-use App\Models\ImutPenilaian;
-use Illuminate\Database\Seeder;
 use App\Models\ImutBenchmarking;
+use App\Models\ImutCategory;
+use App\Models\ImutData;
+use App\Models\ImutPenilaian;
+use App\Models\ImutProfile;
+use App\Models\ImutStandard;
+use App\Models\LaporanImut;
 use App\Models\LaporanUnitKerja;
+use App\Models\RegionType;
+use App\Models\UnitKerja;
+use App\Models\User;
+use Carbon\Carbon;
+use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 class ImutDataSeeder extends Seeder
 {
     protected $faker;
+
     protected $now;
+
     protected $adminUserId;
+
     protected $unitKerjaIds;
+
     protected $category;
+
     protected $laporanList = [];
 
     public function run(): void
@@ -34,10 +39,10 @@ class ImutDataSeeder extends Seeder
             $this->init();
 
             $filesByCategoryShortName = [
-                'INM'     => 'inm.json',
+                'INM' => 'inm.json',
                 'IMP-UNIT' => 'imp-unit.json',
-                'IMP-RS'  => 'imp-rs.json',
-                'IMIKP'   => 'imp_kp.json',
+                'IMP-RS' => 'imp-rs.json',
+                'IMIKP' => 'imp_kp.json',
             ];
 
             $this->createLaporanImut();
@@ -45,13 +50,16 @@ class ImutDataSeeder extends Seeder
             foreach ($filesByCategoryShortName as $shortName => $filename) {
                 $category = ImutCategory::where('short_name', $shortName)->first();
 
-                if (!$category) {
+                if (! $category) {
                     $this->command->warn("Kategori dengan short_name \"$shortName\" tidak ditemukan. Lewati file \"$filename\".");
+
                     continue;
                 }
 
                 $indicators = $this->getJsonData($filename);
-                if (!$indicators) continue;
+                if (! $indicators) {
+                    continue;
+                }
 
                 foreach ($indicators as $indicator) {
                     $this->processIndicator($indicator, $category);
@@ -60,19 +68,18 @@ class ImutDataSeeder extends Seeder
         });
     }
 
-
     private function init(): void
     {
         $this->faker = Faker::create();
         $this->now = Carbon::now();
 
         $this->category = ImutCategory::where('category_name', 'Indikator Mutu Nasional (INM)')->first();
-        if (!$this->category) {
+        if (! $this->category) {
             $this->command->warn('Kategori INM tidak ditemukan. Jalankan ImutCategorySeeder terlebih dahulu.');
         }
 
         $this->adminUserId = User::where('name', 'admin')->value('id');
-        if (!$this->adminUserId) {
+        if (! $this->adminUserId) {
             $this->command->warn('User admin tidak ditemukan.');
         }
 
@@ -83,8 +90,9 @@ class ImutDataSeeder extends Seeder
     {
         $filePath = database_path("data/$filename");
 
-        if (!File::exists($filePath)) {
+        if (! File::exists($filePath)) {
             $this->command->warn("File \"$filename\" tidak ditemukan di folder database/data.");
+
             return null;
         }
 
@@ -129,7 +137,7 @@ class ImutDataSeeder extends Seeder
                 'imut_kategori_id' => $category->id,
                 'description' => $indicator['description'],
                 'status' => true,
-                'created_by' => $this->adminUserId
+                'created_by' => $this->adminUserId,
             ]);
 
             $profile = $indicator['profile'];
@@ -154,11 +162,11 @@ class ImutDataSeeder extends Seeder
                 'data_collection_method',
                 'sampling_method',
                 'data_collection_tool',
-                'responsible_person'
+                'responsible_person',
             ];
 
             foreach ($requiredKeys as $key) {
-                if (!array_key_exists($key, $profile)) {
+                if (! array_key_exists($key, $profile)) {
                     throw new \Exception("Missing key in profile: '$key'");
                 }
             }
@@ -224,7 +232,7 @@ class ImutDataSeeder extends Seeder
                     $unitId => [
                         'assigned_by' => $this->adminUserId,
                         'assigned_at' => now(),
-                    ]
+                    ],
                 ]);
             }
 
@@ -248,7 +256,7 @@ class ImutDataSeeder extends Seeder
 
             foreach ($regionTypes as $type) {
                 $regionName = match ($type->type) {
-                    '🌐 Nasional' => null,
+                    '🌐 Nasional' => 'Indonesia',
                     '🏛️ Provinsi' => 'Jawa Timur',
                     '🏥 Rumah Sakit' => "{$this->faker->company} Hospital",
                     default => 'Unknown',
@@ -274,8 +282,9 @@ class ImutDataSeeder extends Seeder
                     ->where('unit_kerja_id', $unitId)
                     ->value('id');
 
-                if (!$pivotId) {
+                if (! $pivotId) {
                     $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
+
                     continue;
                 }
 

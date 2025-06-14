@@ -106,20 +106,15 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
             ])
             ->actions([
                 EditAction::make()
-                    ->modalHeading('Edit Data') 
-                    ->modalWidth('xl') 
+                    ->modalHeading('Edit Data')
+                    ->modalWidth('xl')
                     ->modal(),
-                DeleteAction::make(),
-                RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
-                ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn($record) => $record->name !== 'super_admin'),
+                // RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
+                // ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
             ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                    ForceDeleteBulkAction::make()
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array

@@ -2,31 +2,33 @@
 
 namespace App\Filament\Forms;
 
-use Filament\Forms;
-use App\Models\RegionType;
-use Awcodes\TableRepeater\Header;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\ImutDataResource;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\Actions\Action;
+use App\Models\RegionType;
 use Awcodes\TableRepeater\Components\TableRepeater;
-use App\Filament\Resources\RegionTypeBencmarkingResource;
-use Filament\Forms\Components\{TextInput, Textarea, Select};
+use Awcodes\TableRepeater\Header;
+use Filament\Forms;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
 
 class ImutProfileForm
 {
     /**
      * Summary of make
+     *
      * @return Forms\Components\Tabs[]
      */
     public static function make(): array
@@ -49,11 +51,11 @@ class ImutProfileForm
 
                     Tab::make('📍 Benchmarking')
                         ->schema(self::benchmarkingSchema())
-                        ->visible(fn(?Model $record) => $record !== null
+                        ->visible(fn (?Model $record) => $record !== null
                             && request()->is('imut-datas/*/profile/edit=*')
-                            && $record->imutData->categories->is_benchmark_category === 1)
+                            && $record->imutData->categories->is_benchmark_category === 1),
                 ])
-                ->columnSpan(['lg' => 2])
+                ->columnSpan(['lg' => 2]),
         ];
     }
 
@@ -95,7 +97,7 @@ class ImutProfileForm
                             ->icons([
                                 'process' => 'heroicon-o-cog',
                                 'output' => 'heroicon-o-chart-bar',
-                                'outcome' => 'heroicon-o-academic-cap'
+                                'outcome' => 'heroicon-o-academic-cap',
                             ])
                             ->colors([
                                 'process' => 'warning',
@@ -105,8 +107,8 @@ class ImutProfileForm
                             ->inline()
                             ->required()
                             ->columnSpan(2)
-                            ->helperText('Pilih jenis indikator yang sesuai.')
-                    ])
+                            ->helperText('Pilih jenis indikator yang sesuai.'),
+                    ]),
                 ]),
 
             Section::make('Deskripsi Indikator')
@@ -127,7 +129,7 @@ class ImutProfileForm
                     TextInput::make('quality_dimension')
                         ->label('Dimensi Mutu')
                         ->hint('Contoh: Efektivitas, Efisiensi, Aksesibilitas.'),
-                ])
+                ]),
         ];
     }
 
@@ -171,7 +173,7 @@ class ImutProfileForm
                                 ->placeholder('Contoh: Pasien tanpa rekam medis lengkap...')
                                 ->helperText('Data yang harus dikecualikan dari penghitungan.'),
                         ]),
-                ])
+                ]),
         ];
     }
 
@@ -229,7 +231,7 @@ class ImutProfileForm
                                 ->options([
                                     '>=' => '≥',
                                     '<=' => '≤',
-                                    '='  => '=',
+                                    '=' => '=',
                                 ])
                                 ->default('=')
                                 ->inline()
@@ -242,7 +244,6 @@ class ImutProfileForm
                                 ->helperText('Target pencapaian kinerja indikator.')
                                 ->prefixIcon('heroicon-o-arrow-trending-up'),
                         ]),
-
 
                     // === Periode Analisis ===
                     Fieldset::make('🗓️ Periode Analisis')
@@ -289,7 +290,6 @@ class ImutProfileForm
                                 ->required(),
                         ]),
 
-
                     // === Alat & Rencana Analisis ===
                     Fieldset::make('🛠️ Alat & Strategi Analisis')
                         ->columns(1)
@@ -323,6 +323,8 @@ class ImutProfileForm
                         ];
 
                         $schema = [
+                            Hidden::make('region_type_id')->default($regionType->id),
+
                             TextInput::make('year')
                                 ->numeric()
                                 ->minValue(2000)
@@ -371,7 +373,7 @@ class ImutProfileForm
                             ->schema([
                                 TableRepeater::make("{$regionType->type}_benchmarkings")
                                     ->label('')
-                                    ->relationship('benchmarkings', fn($query) => $query->where('region_type_id', $regionType->id))
+                                    ->relationship('benchmarkings', fn ($query) => $query->where('region_type_id', $regionType->id))
                                     ->headers($headers)
                                     ->schema($schema)
                                     ->defaultItems(1)
@@ -409,15 +411,15 @@ class ImutProfileForm
                                 Action::make('goto_region_type_list')
                                     ->icon('heroicon-m-list-bullet')
                                     ->tooltip('Lihat daftar semua Region Type')
-                                    ->url(fn() => ImutDataResource::getUrl('bencmarking'))
+                                    ->url(fn () => ImutDataResource::getUrl('bencmarking'))
                                     ->openUrlInNewTab(),
                             ])
-                                ->label('Aksi')
+                                ->label('Aksi'),
                         ])
 
                     )
                         ->toArray()
-                )
+                ),
         ];
     }
 
