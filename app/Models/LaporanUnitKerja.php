@@ -2,14 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\UnitKerja;
-use App\Models\LaporanImut;
 use App\Support\CacheKey;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Database\Query\Builder;
 
 class LaporanUnitKerja extends Model
 {
@@ -35,8 +31,8 @@ class LaporanUnitKerja extends Model
 
     protected static function booted()
     {
-        static::saved(fn($laporan) => $laporan->clearCache());
-        static::deleted(fn($laporan) => $laporan->clearCache());
+        static::saved(fn ($laporan) => $laporan->clearCache());
+        static::deleted(fn ($laporan) => $laporan->clearCache());
     }
 
     public function clearCache()
@@ -47,7 +43,6 @@ class LaporanUnitKerja extends Model
         Cache::forget(CacheKey::laporanUnitDetail($laporanId, $unitKerjaId));
         Cache::forget(CacheKey::dashboardSiimutAllData($laporanId));
     }
-
 
     public static function getReportByUnitKerja(int $laporanId)
     {
@@ -62,7 +57,7 @@ class LaporanUnitKerja extends Model
                 'laporan_unit_kerjas.laporan_imut_id',
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
-                DB::raw("
+                DB::raw('
                     ROUND(
                         CASE
                             WHEN SUM(imut_penilaians.denominator_value) > 0
@@ -70,7 +65,7 @@ class LaporanUnitKerja extends Model
                             ELSE 0
                         END, 2
                     ) as percentage
-                ")
+                ')
             )
             ->groupBy(
                 'laporan_unit_kerjas.id',
@@ -80,37 +75,34 @@ class LaporanUnitKerja extends Model
             );
     }
 
-
     public static function getReportByImutData(int $laporanId)
     {
         return self::query()
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-            ->leftJoin('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id') // <-- Tambahkan ini
+            ->leftJoin('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
             ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
             ->select(
                 'imut_data.id as id',
                 'imut_data.title as imut_data_title',
-                'laporan_unit_kerjas.laporan_imut_id',
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
-                DB::raw("ROUND(
-                CASE
-                    WHEN SUM(imut_penilaians.denominator_value) > 0
-                    THEN SUM(imut_penilaians.numerator_value) * 100.0 / NULLIF(SUM(imut_penilaians.denominator_value), 0)
-                    ELSE 0
-                END, 2
-            ) as percentage")
+                DB::raw('
+                ROUND(
+                    CASE
+                        WHEN SUM(imut_penilaians.denominator_value) > 0
+                        THEN SUM(imut_penilaians.numerator_value) * 100.0 / NULLIF(SUM(imut_penilaians.denominator_value), 0)
+                        ELSE 0
+                    END, 2
+                ) as percentage
+            ')
             )
             ->groupBy(
                 'imut_data.id',
-                'imut_data.title',
-                'laporan_unit_kerjas.laporan_imut_id',
-                'laporan_unit_kerjas.id'
-            );
+                'imut_data.title'
+            )
+            ->orderBy('imut_data.title');
     }
-
-
 
     public static function getReportByUnitKerjaDetails(int $laporanId, int $unitKerjaId)
     {
@@ -140,7 +132,7 @@ class LaporanUnitKerja extends Model
                 'imut_penilaians.recommendations',
                 'imut_penilaians.analysis',
                 'imut_kategori.id as imut_kategori_id',
-                DB::raw("
+                DB::raw('
                     ROUND(
                         CASE
                             WHEN imut_penilaians.denominator_value > 0 THEN
@@ -148,7 +140,7 @@ class LaporanUnitKerja extends Model
                             ELSE 0
                         END, 2
                     ) as percentage
-                ")
+                ')
             );
 
         // dd($query->get());
@@ -184,7 +176,7 @@ class LaporanUnitKerja extends Model
                 'imut_penilaians.denominator_value',
                 'imut_penilaians.recommendations',
                 'imut_penilaians.analysis',
-                DB::raw("
+                DB::raw('
                 ROUND(
                     CASE
                         WHEN imut_penilaians.denominator_value > 0 THEN
@@ -192,7 +184,7 @@ class LaporanUnitKerja extends Model
                         ELSE 0
                     END, 2
                 ) as percentage
-            ")
+            ')
             );
 
         // dd($query->get());

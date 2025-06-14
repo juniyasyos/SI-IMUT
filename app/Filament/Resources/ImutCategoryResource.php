@@ -113,7 +113,6 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ->label(__('filament-forms::imut-category.fields.scope'))
                         ->options([
                             'internal' => __('filament-forms::imut-category.fields.scope_internal'),
-                            'national' => __('filament-forms::imut-category.fields.scope_national'),
                             'unit' => __('filament-forms::imut-category.fields.scope_unit'),
                             'global' => __('filament-forms::imut-category.fields.scope_global'),
                         ])
@@ -123,8 +122,7 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ->columnSpan(2)
                         ->colors([
                             'internal' => 'success',
-                            'national' => 'warning',
-                            'unit' => 'gray',
+                            'unit' => 'warning',
                             'global' => 'primary',
                         ])
                         ->helperText(__('filament-forms::imut-category.fields.scope_helper_text')),
