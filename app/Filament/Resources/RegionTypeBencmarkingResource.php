@@ -4,16 +4,21 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RegionTypeBencmarkingResource\Pages;
 use App\Models\RegionType;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Filters\TrashedFilter;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Tables\Actions\{EditAction, ViewAction, DeleteAction, RestoreAction, ForceDeleteAction};
-use Filament\Tables\Actions\{BulkActionGroup, DeleteBulkAction, RestoreBulkAction, ForceDeleteBulkAction};
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Gate;
 
 class RegionTypeBencmarkingResource extends Resource implements HasShieldPermissions
 {
@@ -109,8 +114,61 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
                     ->modalHeading('Edit Data')
                     ->modalWidth('xl')
                     ->modal(),
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn($record) => $record->name !== 'super_admin'),
+
+                DeleteAction::make()
+                    ->visible(fn ($record) => $record->name !== 'super_admin')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        try {
+                            $record->delete();
+
+                            Notification::make()
+                                ->title('Data berhasil dihapus')
+                                ->body('Data telah dihapus dengan sukses.')
+                                ->success()
+                                ->send();
+                        } catch (QueryException $e) {
+                            Notification::make()
+                                ->title('Gagal Menghapus Data')
+                                ->body('Data ini masih terhubung ke data lain, sehingga tidak bisa dihapus. Silakan periksa relasi yang terkait.')
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                        }
+                    }),
+
+                RestoreAction::make()
+                    ->visible(
+                        fn ($record) => Gate::allows('restore', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                    ),
+
+                ForceDeleteAction::make()
+                    ->visible(
+                        fn ($record) => Gate::allows('forceDelete', $record) &&
+                            method_exists($record, 'trashed') &&
+                            $record->trashed()
+                    )
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        try {
+                            $record->forceDelete();
+
+                            Notification::make()
+                                ->title('Data berhasil dihapus permanen')
+                                ->body('Data telah dihapus secara permanen dari sistem.')
+                                ->success()
+                                ->send();
+                        } catch (QueryException $e) {
+                            Notification::make()
+                                ->title('Gagal Menghapus Permanen')
+                                ->body('Data ini masih memiliki keterkaitan dengan data lain. Silakan hapus relasi terkait terlebih dahulu.')
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                        }
+                    }),
                 // RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
                 // ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
             ])

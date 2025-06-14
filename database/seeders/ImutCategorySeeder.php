@@ -13,7 +13,7 @@ class ImutCategorySeeder extends Seeder
             [
                 'category_name' => 'Indikator Mutu Nasional (INM)',
                 'short_name' => 'INM',
-                'scope' => 'global',
+                'scope' => 'national',
                 'is_benchmark_category' => true,
                 'description' => 'Indikator yang ditetapkan secara nasional untuk menilai mutu pelayanan di rumah sakit seluruh Indonesia.',
             ],
