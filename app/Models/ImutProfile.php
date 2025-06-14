@@ -68,7 +68,7 @@ class ImutProfile extends Model
 
     /**
      * Generate a unique slug based on the given string.
-     * 
+     *
      * @param string $source
      * @return string
      */
@@ -149,16 +149,6 @@ class ImutProfile extends Model
     public function imutData()
     {
         return $this->belongsTo(ImutData::class);
-    }
-
-    /**
-     * Get the related Imut Bencmarking.
-     *
-     * @return HasMany
-     */
-    public function benchmarkings(): HasMany
-    {
-        return $this->hasMany(related: ImutBenchmarking::class);
     }
 
     public function penilaian()

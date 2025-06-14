@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class ImutBenchmarking
@@ -22,7 +22,6 @@ use Spatie\Activitylog\LogOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\ImutProfile $imutProfile
  * @property-read \App\Models\RegionType $regionType
  *
@@ -30,7 +29,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class ImutBenchmarking extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -38,7 +37,7 @@ class ImutBenchmarking extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'imut_profile_id',
+        'imut_data_id',
         'region_type_id',
         'region_name',
         'year',
@@ -71,8 +70,6 @@ class ImutBenchmarking extends Model
 
     /**
      * Configure the activity log options.
-     *
-     * @return \Spatie\Activitylog\LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -81,18 +78,14 @@ class ImutBenchmarking extends Model
 
     /**
      * Get the related ImutProfile.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function imutProfile(): BelongsTo
+    public function imutData(): BelongsTo
     {
-        return $this->belongsTo(ImutProfile::class);
+        return $this->belongsTo(ImutData::class);
     }
 
     /**
      * Get the related RegionType.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function regionType(): BelongsTo
     {

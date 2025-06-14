@@ -129,6 +129,14 @@ class ImutData extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Get the related Imut Bencmarking.
+     */
+    public function benchmarkings(): HasMany
+    {
+        return $this->hasMany(related: ImutBenchmarking::class);
+    }
+
     // Di model ImutData
     public function latestProfile()
     {

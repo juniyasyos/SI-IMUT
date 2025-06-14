@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\ImutProfileResource\Pages;
 
+use App\Filament\Resources\ImutProfileResource;
 use App\Models\ImutData;
 use App\Models\ImutProfile;
-use App\Filament\Resources\ImutProfileResource;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,8 +45,15 @@ class EditImutProfile extends EditRecord
             $imutData
                 ? route('filament.admin.resources.imut-datas.edit', ['record' => $imutData->slug])
                 : '#' => $label,
-            null => 'Edit Profile | ' . $this->record->version,
+            null => 'Edit Profile | '.$this->record->version,
         ];
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        dd($data); // Ini akan menampilkan semua data dari form SEBELUM disimpan
+
+        return parent::handleRecordUpdate($record, $data);
     }
 
     protected function getHeaderActions(): array

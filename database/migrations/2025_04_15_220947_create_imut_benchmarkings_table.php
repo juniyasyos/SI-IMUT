@@ -20,7 +20,7 @@ return new class extends Migration {
 
         Schema::create('imut_benchmarkings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('imut_profile_id')->constrained('imut_profil')->onDelete('cascade');
+            $table->foreignId('imut_data_id')->constrained('imut_data')->onDelete('cascade');
             $table->foreignId('region_type_id')->constrained('region_types')->onDelete('restrict');
             $table->string('region_name')->nullable();
             $table->year('year');

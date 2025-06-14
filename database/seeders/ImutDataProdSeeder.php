@@ -13,23 +13,16 @@ use App\Models\RegionType;
 use App\Models\UnitKerja;
 use App\Models\User;
 use Carbon\Carbon;
-use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
-class ImutDataSeeder extends Seeder
+class ImutDataProdSeeder extends Seeder
 {
-    protected $faker;
-
     protected $now;
-
     protected $adminUserId;
-
     protected $unitKerjaIds;
-
     protected $category;
-
     protected $laporanList = [];
 
     public function run(): void
@@ -51,7 +44,6 @@ class ImutDataSeeder extends Seeder
 
                 if (! $category) {
                     $this->command->warn("Kategori dengan short_name \"$shortName\" tidak ditemukan. Lewati file \"$filename\".");
-
                     continue;
                 }
 
@@ -69,7 +61,6 @@ class ImutDataSeeder extends Seeder
 
     private function init(): void
     {
-        $this->faker = Faker::create();
         $this->now = Carbon::now();
 
         $this->category = ImutCategory::where('category_name', 'Indikator Mutu Nasional (INM)')->first();
@@ -91,7 +82,6 @@ class ImutDataSeeder extends Seeder
 
         if (! File::exists($filePath)) {
             $this->command->warn("File \"$filename\" tidak ditemukan di folder database/data.");
-
             return null;
         }
 
@@ -141,7 +131,6 @@ class ImutDataSeeder extends Seeder
 
             $profile = $indicator['profile'];
 
-            // Cek apakah semua key penting ada
             $requiredKeys = [
                 'rationale',
                 'quality_dimension',
@@ -178,7 +167,6 @@ class ImutDataSeeder extends Seeder
             $analysisPeriodValue = (int) $profile['analysis_period_value'];
 
             $start_periode = Carbon::now()->startOfYear();
-
             $end_periode = match ($analysisPeriodType) {
                 'mingguan' => $start_periode->copy()->addWeeks($analysisPeriodValue),
                 'bulanan' => $start_periode->copy()->addMonths($analysisPeriodValue),
@@ -221,11 +209,7 @@ class ImutDataSeeder extends Seeder
             ]);
         }
 
-        // Hanya buat laporan jika kategori adalah INM
         if ($category->short_name === 'INM') {
-            // $this->createStandard($imutProfile);
-
-            // Relasi Unit Kerja
             foreach ($this->unitKerjaIds as $unitId) {
                 $imutData->unitKerja()->syncWithoutDetaching([
                     $unitId => [
@@ -236,20 +220,19 @@ class ImutDataSeeder extends Seeder
             }
 
             if ($category->is_benchmark_category) {
-                $this->createBenchmarking($imutData);
+                $this->createBenchmarking($imutProfile);
             }
 
             $this->createPenilaian($imutProfile);
         }
     }
 
-    private function createBenchmarking(ImutData $imutData): void
+    private function createBenchmarking(ImutProfile $imutProfile): void
     {
         $regionTypes = RegionType::all();
 
         for ($i = 0; $i < 3; $i++) {
             $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
-            $end = $start->copy()->endOfMonth();
             $month = $start->month;
             $year = $start->year;
 
@@ -257,16 +240,18 @@ class ImutDataSeeder extends Seeder
                 $regionName = match ($type->type) {
                     '🌐 Nasional' => 'Indonesia',
                     '🏛️ Provinsi' => 'Jawa Timur',
-                    '🏥 Rumah Sakit' => "{$this->faker->company} Hospital",
+                    '🏥 Rumah Sakit' => 'RSU Contoh',
                     default => 'Unknown',
                 };
 
-                ImutBenchmarking::factory()->create([
-                    'imut_data_id' => $imutData->id,
+                ImutBenchmarking::create([
+                    'imut_profile_id' => $imutProfile->id,
                     'region_type_id' => $type->id,
                     'region_name' => $regionName,
                     'year' => $year,
                     'month' => $month,
+                    'benchmark_numerator' => 85,
+                    'benchmark_denominator' => 100,
                 ]);
             }
         }
@@ -283,23 +268,16 @@ class ImutDataSeeder extends Seeder
 
                 if (! $pivotId) {
                     $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
-
                     continue;
                 }
-
-                $denominator = $this->faker->numberBetween(80, 120);
-                $numerator = $this->faker->numberBetween(
-                    (int) ($denominator * 0.7),
-                    $denominator
-                );
 
                 ImutPenilaian::create([
                     'imut_profil_id' => $imutProfile->id,
                     'laporan_unit_kerja_id' => $pivotId,
-                    'analysis' => $this->faker->sentence(2),
-                    'recommendations' => $this->faker->sentence(15),
-                    'numerator_value' => $numerator,
-                    'denominator_value' => $denominator,
+                    'analysis' => 'Analisis hasil penilaian indikator.',
+                    'recommendations' => 'Lakukan evaluasi berkala dan peningkatan berkelanjutan.',
+                    'numerator_value' => 85,
+                    'denominator_value' => 100,
                 ]);
             }
         }
