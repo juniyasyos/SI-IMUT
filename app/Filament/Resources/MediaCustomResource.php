@@ -13,7 +13,7 @@ class MediaCustomResource extends BaseMediaResource implements HasShieldPermissi
     public static function getPermissionPrefixes(): array
     {
         return [
-            'view',
+            'view_any',
             'view_all',
             'view_by_unit_kerja',
             'create',

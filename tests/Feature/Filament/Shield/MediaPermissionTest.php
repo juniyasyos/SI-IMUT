@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     // Buat permission terkait media
     Permission::firstOrCreate(['name' => 'view_media']);
-    Permission::firstOrCreate(['name' => 'view_any_media']);
+    Permission::firstOrCreate(['name' => 'view_,media']);
     Permission::firstOrCreate(['name' => 'create_media']);
     Permission::firstOrCreate(['name' => 'update_media']);
     Permission::firstOrCreate(['name' => 'delete_media']);
@@ -27,7 +27,7 @@ beforeEach(function () {
     $adminIT = Role::firstOrCreate(['name' => 'Admin IT']);
     $adminIT->syncPermissions([
         'view_media',
-        'view_any_media',
+        'view_,media',
         'create_media',
         'update_media',
         'delete_media',
@@ -42,7 +42,7 @@ it('Tim Mutu can only update media', function () {
     expect($user->can('update_media'))->toBeTrue();
     expect($user->can('create_media'))->toBeFalse();
     expect($user->can('view_media'))->toBeFalse();
-    expect($user->can('view_any_media'))->toBeFalse();
+    expect($user->can('view_,media'))->toBeFalse();
     expect($user->can('delete_media'))->toBeFalse();
 });
 
@@ -51,7 +51,7 @@ it('Admin IT can do everything related to media', function () {
     $user->assignRole('Admin IT');
 
     expect($user->can('view_media'))->toBeTrue();
-    expect($user->can('view_any_media'))->toBeTrue();
+    expect($user->can('view_,media'))->toBeTrue();
     expect($user->can('create_media'))->toBeTrue();
     expect($user->can('update_media'))->toBeTrue();
     expect($user->can('delete_media'))->toBeTrue();
@@ -70,7 +70,7 @@ it('Staff has no access to media', function () {
 it('User without role cannot access media', function () {
     $user = User::factory()->create();
 
-    expect($user->can('view_any_media'))->toBeFalse();
+    expect($user->can('view_,media'))->toBeFalse();
     expect($user->can('create_media'))->toBeFalse();
 });
 

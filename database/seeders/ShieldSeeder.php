@@ -125,7 +125,7 @@ class ShieldSeeder extends Seeder
 
                     // Folder & Media Viewer
                     "view_media",
-                    "view_any_media",
+                    "view_media",
                     "view_folder",
                     "view_any_folder",
                 ]
@@ -156,7 +156,7 @@ class ShieldSeeder extends Seeder
                     "page_SettingsHub",
 
                     // Media & Folder (semua akses)
-                    "view_media", "view_any_media", "create_media", "update_media", "delete_media", "delete_any_media",
+                    "view_media", "view_media", "create_media", "update_media", "delete_media", "delete_any_media",
                     "restore_media", "restore_any_media", "replicate_media", "reorder_media",
                     "force_delete_media", "force_delete_any_media",
 
