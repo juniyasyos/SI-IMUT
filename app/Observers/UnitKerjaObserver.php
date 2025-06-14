@@ -8,37 +8,61 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
+use Throwable;
 
 class UnitKerjaObserver
 {
     public function created(UnitKerja $unitKerja): void
     {
-        $this->createAssociatedFolder($unitKerja);
-        Log::info("UnitKerja created: {$unitKerja->id} - {$unitKerja->unit_name}");
+        try {
+            $this->createAssociatedFolder($unitKerja);
+            Log::info("✅ UnitKerja berhasil dibuat: ID {$unitKerja->id} - {$unitKerja->unit_name}");
+        } catch (Throwable $e) {
+            Log::error("❌ Gagal membuat folder untuk UnitKerja ID {$unitKerja->id}: ".$e->getMessage(), [
+                'exception' => $e,
+            ]);
+        }
     }
 
     public function updated(UnitKerja $unitKerja): void
     {
-        $this->updateAssociatedFolder($unitKerja);
-        Log::info("UnitKerja updated: {$unitKerja->id}");
+        try {
+            $this->updateAssociatedFolder($unitKerja);
+            Log::info("✏️ UnitKerja diperbarui: ID {$unitKerja->id}");
+        } catch (Throwable $e) {
+            Log::error("❌ Gagal memperbarui folder untuk UnitKerja ID {$unitKerja->id}: ".$e->getMessage(), [
+                'exception' => $e,
+            ]);
+        }
     }
 
     public function deleted(UnitKerja $unitKerja): void
     {
-        $this->deleteAssociatedFolder($unitKerja);
-        Log::warning("UnitKerja soft-deleted: {$unitKerja->id}");
+        try {
+            $this->markFolderAsDeleted($unitKerja);
+            Log::warning("⚠️ UnitKerja dihapus (soft delete): ID {$unitKerja->id}");
+        } catch (Throwable $e) {
+            Log::error("❌ Gagal menandai folder sebagai dihapus untuk UnitKerja ID {$unitKerja->id}: ".$e->getMessage(), [
+                'exception' => $e,
+            ]);
+        }
     }
 
     public function restored(UnitKerja $unitKerja): void
     {
-        $this->restoreAssociatedFolder($unitKerja);
-        Log::notice("UnitKerja restored: {$unitKerja->id}");
+        try {
+            $this->restoreFolderNameAndStyle($unitKerja);
+            Log::notice("🔄 UnitKerja dipulihkan: ID {$unitKerja->id}");
+        } catch (Throwable $e) {
+            Log::error("❌ Gagal memulihkan folder UnitKerja ID {$unitKerja->id}: ".$e->getMessage(), [
+                'exception' => $e,
+            ]);
+        }
     }
 
     public function forceDeleted(UnitKerja $unitKerja): void
     {
-        $this->forceDeleteAssociatedFolder($unitKerja);
-        Log::error("UnitKerja permanently deleted: {$unitKerja->id}");
+        Log::info("🗑️ UnitKerja dihapus permanen: ID {$unitKerja->id}. Folder tetap dipertahankan.");
     }
 
     // ==== Helper Methods ====
@@ -66,36 +90,49 @@ class UnitKerjaObserver
 
     protected function updateAssociatedFolder(UnitKerja $unitKerja): void
     {
-        $folder = $unitKerja->folder;
+        $slug = Str::slug($unitKerja->unit_name);
+
+        $folder = Folder::where('name', $slug)->first();
+
+        if ($folder) {
+            $folder->update([
+                'name' => $slug,
+                'description' => "Updated folder for Unit Kerja: {$unitKerja->unit_name}",
+            ]);
+        } else {
+            Log::warning("⚠️ Folder tidak ditemukan saat update UnitKerja ID {$unitKerja->id}");
+        }
+    }
+
+    protected function markFolderAsDeleted(UnitKerja $unitKerja): void
+    {
+        $slug = Str::slug($unitKerja->unit_name);
+
+        $folder = Folder::where('name', $slug)->first();
+
+        if ($folder && ! str_starts_with($folder->name, '[Dihapus]')) {
+            $folder->update([
+                'name' => '[Dihapus] '.$folder->name,
+                'color' => 'gray',
+            ]);
+        } elseif (! $folder) {
+            Log::warning("⚠️ Folder tidak ditemukan saat mencoba menandai sebagai dihapus untuk UnitKerja ID {$unitKerja->id}");
+        }
+    }
+
+    protected function restoreFolderNameAndStyle(UnitKerja $unitKerja): void
+    {
+        $slug = '[Dihapus] '.Str::slug($unitKerja->unit_name);
+
+        $folder = Folder::where('name', $slug)->first();
+
         if ($folder) {
             $folder->update([
                 'name' => Str::slug($unitKerja->unit_name),
-                'description' => "Updated folder for Unit Kerja: {$unitKerja->unit_name}",
+                'color' => null,
             ]);
-        }
-    }
-
-    protected function deleteAssociatedFolder(UnitKerja $unitKerja): void
-    {
-        $folder = $unitKerja->folder;
-        if ($folder) {
-            $folder->delete(); // Soft delete
-        }
-    }
-
-    protected function restoreAssociatedFolder(UnitKerja $unitKerja): void
-    {
-        $folder = $unitKerja->folder()->withTrashed()->first();
-        if ($folder && $folder->trashed()) {
-            $folder->restore();
-        }
-    }
-
-    protected function forceDeleteAssociatedFolder(UnitKerja $unitKerja): void
-    {
-        $folder = $unitKerja->folder()->withTrashed()->first();
-        if ($folder) {
-            $folder->forceDelete(); // Permanent delete
+        } else {
+            Log::warning("⚠️ Folder tidak ditemukan saat mencoba memulihkan nama untuk UnitKerja ID {$unitKerja->id}");
         }
     }
 }

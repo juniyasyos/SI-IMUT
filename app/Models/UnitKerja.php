@@ -100,12 +100,4 @@ class UnitKerja extends Model
     {
         return $this->belongsTo(LaporanImut::class, 'laporan_imut_id');
     }
-
-    /**
-     * Get the associated folder for the unit.
-     */
-    public function folder(): HasOne
-    {
-        return $this->hasOne(Folder::class, 'model_id')->where('model_type', self::class);
-    }
 }
