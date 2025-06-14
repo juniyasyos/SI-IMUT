@@ -85,6 +85,7 @@ class LaporanUnitKerja extends Model
             ->select(
                 'imut_data.id as id',
                 'imut_data.title as imut_data_title',
+                'laporan_unit_kerjas.laporan_imut_id',
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
                 DB::raw('
@@ -99,7 +100,8 @@ class LaporanUnitKerja extends Model
             )
             ->groupBy(
                 'imut_data.id',
-                'imut_data.title'
+                'imut_data.title',
+                'laporan_unit_kerjas.laporan_imut_id'
             )
             ->orderBy('imut_data.title');
     }
@@ -142,8 +144,6 @@ class LaporanUnitKerja extends Model
                     ) as percentage
                 ')
             );
-
-        // dd($query->get());
 
         return $query;
     }

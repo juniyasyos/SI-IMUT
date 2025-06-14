@@ -134,7 +134,7 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
                 //     ->using(fn(Builder $query) => $query->min('standard'))),
 
                 $this->makeSearchableColumn('analysis', 'Analisis', 'imut_penilaians.analysis'),
-                $this->makeSearchableColumn('document_upload', 'Dokumen Upload', 'imut_penilaians.document_upload'),
+                // $this->makeSearchableColumn('document_upload', 'Dokumen Upload', 'imut_penilaians.document_upload'),
                 $this->makeSearchableColumn('recommendations', 'Rekomendasi', 'imut_penilaians.recommendations'),
             ])
             ->filters([
@@ -180,7 +180,7 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
             ->label($label)
             ->toggleable()
             ->searchable(
-                query: fn (Builder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
+                query: fn (EloquentBuilder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
             );
     }
 

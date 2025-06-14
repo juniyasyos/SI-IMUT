@@ -46,7 +46,12 @@ class ImutDataUnitKerjaReport extends Component implements HasForms, HasTable
                 TextColumn::make('unit_kerja')
                     ->label('Unit Kerja')
                     ->grow()
-                    ->searchable(query: fn (EloquentBuilder $query, string $search) => $query->where('unit_kerja.unit_name', 'like', "%{$search}%"))
+                    ->searchable(query: function (EloquentBuilder $query, string $search) {
+                        $query->where('unit_kerja.unit_name', 'like', "%{$search}%");
+                        // dd($query->toSql(), $query->getBindings(), $query->get());
+
+                        return $query;
+                    })
                     ->extraAttributes([
                         'style' => 'padding-right: 9rem;',
                     ]),
@@ -134,7 +139,7 @@ class ImutDataUnitKerjaReport extends Component implements HasForms, HasTable
                     ->alignCenter(),
 
                 $this->makeSearchableColumn('analysis', 'Analisis', 'imut_penilaians.analysis'),
-                $this->makeSearchableColumn('document_upload', 'Dokumen Upload', 'imut_penilaians.document_upload'),
+                // $this->makeSearchableColumn('document_upload', 'Dokumen Upload', 'imut_penilaians.document_upload'),
                 $this->makeSearchableColumn('recommendations', 'Rekomendasi', 'imut_penilaians.recommendations'),
             ])
             ->filters([
@@ -182,7 +187,7 @@ class ImutDataUnitKerjaReport extends Component implements HasForms, HasTable
             ->label($label)
             ->toggleable()
             ->searchable(
-                query: fn ($query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
+                query: fn (EloquentBuilder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
             );
     }
 

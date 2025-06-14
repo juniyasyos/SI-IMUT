@@ -59,7 +59,7 @@ class EditImutPenilaian extends EditRecord
             'recommendations' => $penilaian->recommendations,
             'numerator_value' => $penilaian->numerator_value,
             'denominator_value' => $penilaian->denominator_value,
-            'document_upload' => $penilaian->getMedia('documents')->pluck('uuid')->toArray(),
+            // 'document_upload' => $penilaian->getMedia('documents')->pluck('uuid')->toArray(),
             'responsible_person' => $profile?->responsible_person,
             'indicator_type' => $profile?->indicator_type,
             'rationale' => $profile?->rationale,
