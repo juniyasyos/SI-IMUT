@@ -11,6 +11,7 @@ use App\Models\ImutData;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -33,6 +34,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ImutDataResource extends Resource implements HasShieldPermissions
 {
@@ -154,12 +156,14 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                             ->columnSpan(2)
                             ->maxLength(255),
 
-                        Select::make('created_by')
+                        TextInput::make('created_by_display')
                             ->label('Dibuat oleh')
-                            ->options(User::pluck('name', 'id'))
-                            ->default(fn () => \Illuminate\Support\Facades\Auth::id())
-                            ->disabled()
-                            ->columnSpanFull(),
+                            ->default(fn () => Auth::user()?->name)
+                            ->readOnly()
+                            ->dehydrated(false),
+
+                        Hidden::make('created_by')
+                            ->default(fn () => Auth::id()),
 
                     ]),
                 ])
@@ -263,7 +267,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                         ->slideOver()
                         ->label('🏢 Unit Kerja')
                         ->color('primary')
-                        ->relationManager(\App\Filament\Resources\ImutDataResource\RelationManagers\UnitKerjaRelationManager::make())
+                        ->relationManager(\App\Filament\Resources\ImutDataResource\RelationManagers\UnitKerjaRelationManager::make()),
                 ])->icon('heroicon-s-chart-bar')->label('Lihat Grafik')->button(),
 
                 ActionGroup::make([
