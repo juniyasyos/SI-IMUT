@@ -13,14 +13,27 @@ use Illuminate\Support\Facades\Log;
 
 class LaporanImutService
 {
+    public function getLatestLaporanId(): int
+    {
+        return $this->getLatestLaporan()?->id ?? 0;
+    }
+
     public function getLatestLaporan(): ?LaporanImut
     {
         return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
             try {
-                return LaporanImut::where('status', LaporanImut::STATUS_PROCESS)
+                // return LaporanImut::where('status', LaporanImut::STATUS_PROCESS)
+                //     ->latest('assessment_period_start')
+                //     ->first()
+                //     ?? LaporanImut::latest('assessment_period_start')->first();
+                return LaporanImut::select(['id', 'assessment_period_start', 'status'])
+                    ->where('status', LaporanImut::STATUS_PROCESS)
                     ->latest('assessment_period_start')
                     ->first()
-                    ?? LaporanImut::latest('assessment_period_start')->first();
+                    ?? LaporanImut::select(['id', 'assessment_period_start', 'status'])
+                        ->latest('assessment_period_start')
+                        ->first();
+
             } catch (\Throwable $e) {
                 Log::error('Gagal mengambil laporan terbaru: '.$e->getMessage());
 
@@ -29,47 +42,35 @@ class LaporanImutService
         });
     }
 
-    public function getLatestLaporanId(): int
-    {
-        return $this->getLatestLaporan()?->id ?? 0;
-    }
-
     public function getChartDataForLastLaporan(int $limit = 6): array
     {
-        return Cache::remember(CacheKey::dashboardSiimutAllChartData(), now()->addDays(7), function () use ($limit) {
-            $laporanList = $this->getRecentLaporanList($limit);
-            $laporanIds = $laporanList->pluck('id');
+        $laporanList = $this->getRecentLaporanList($limit);
 
-            if ($laporanIds->isEmpty()) {
-                Log::warning('Tidak ada laporan yang ditemukan untuk chart.');
+        return $laporanList->map(function ($laporan) {
+            return Cache::remember(CacheKey::dashboardSiimutChartData($laporan->id), now()->addDays(7), function () use ($laporan) {
+                $laporanId = $laporan->id;
 
-                return [];
-            }
+                $indikatorAktif = $this->getAktifIndikatorWithProfiles(collect([$laporanId]));
+                $profileIds = $this->getLatestProfileIds($indikatorAktif);
 
-            $indikatorAktif = $this->getAktifIndikatorWithProfiles($laporanIds);
-            $profileIds = $this->getLatestProfileIds($indikatorAktif);
+                $penilaian = $this->getGroupedPenilaian(
+                    laporanIds: [$laporanId],
+                    groupBy: 'laporan_unit_kerjas.laporan_imut_id'
+                )->get($laporanId, collect());
 
-            $penilaianAll = $this->getGroupedPenilaian(
-                laporanIds: $laporanIds->all(),
-                groupBy: 'laporan_unit_kerjas.laporan_imut_id'
-            );
-
-            $penilaianByProfile = $this->getGroupedPenilaian(
-                laporanIds: $laporanIds->all(),
-                profileIds: $profileIds->all(),
-                groupBy: 'imut_penilaians.imut_profil_id'
-            );
-
-            return $laporanList->map(function ($laporan) use ($indikatorAktif, $penilaianAll, $penilaianByProfile) {
-                $penilaian = $penilaianAll->get($laporan->id, collect());
+                $penilaianByProfile = $this->getGroupedPenilaian(
+                    laporanIds: [$laporanId],
+                    profileIds: $profileIds->all(),
+                    groupBy: 'imut_penilaians.imut_profil_id'
+                );
 
                 return [
-                    'tercapai' => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporan->id),
+                    'tercapai' => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporanId),
                     'unitMelapor' => $penilaian->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
                     'belumDinilai' => $this->countBelumDinilai($penilaian),
                 ];
-            })->toArray();
-        });
+            });
+        })->toArray();
     }
 
     public function getCurrentLaporanData(LaporanImut $laporan): ?array
@@ -220,38 +221,10 @@ class LaporanImutService
         return $query->get()->groupBy($groupBy);
     }
 
-    // private function getGroupedPenilaianByLaporan(Collection $laporanIds): Collection
-    // {
-    //     return ImutPenilaian::with(['profile', 'laporanUnitKerja'])
-    //         ->whereHas('laporanUnitKerja', fn ($q) => $q->whereIn('laporan_imut_id', $laporanIds))
-    //         ->get()
-    //         ->groupBy('laporanUnitKerja.laporan_imut_id');
-    // }
-
-    // private function getGroupedPenilaianByProfile(Collection $laporanIds, Collection $indikatorAktif): Collection
-    // {
-    //     $profileIds = $this->getLatestProfileIds($indikatorAktif);
-
-    //     return ImutPenilaian::with(['profile', 'laporanUnitKerja'])
-    //         ->whereIn('imut_profil_id', $profileIds)
-    //         ->whereHas('laporanUnitKerja', fn ($q) => $q->whereIn('laporan_imut_id', $laporanIds))
-    //         ->get()
-    //         ->groupBy('imut_profil_id');
-    // }
-
-    // private function getPenilaianByProfile(int $laporanId, Collection $profileIds): Collection
-    // {
-    //     return ImutPenilaian::with(['profile', 'laporanUnitKerja'])
-    //         ->whereIn('imut_profil_id', $profileIds)
-    //         ->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
-    //         ->get()
-    //         ->groupBy('imut_profil_id');
-    // }
-
     private function getLatestProfileIds(Collection $indikatorAktif): Collection
     {
         return $indikatorAktif
-            ->map(fn ($indikator) => $indikator->profiles->sortByDesc('version')->first()?->id)
+            ->map(fn ($indikator) => $indikator->profiles->first()?->id)
             ->filter()
             ->unique()
             ->values();

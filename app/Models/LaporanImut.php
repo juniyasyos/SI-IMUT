@@ -3,22 +3,22 @@
 namespace App\Models;
 
 use App\Support\CacheKey;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use App\Models\ImutPenilaian;
-use App\Models\LaporanUnitKerja;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LaporanImut extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     public const string STATUS_PROCESS = 'process';
+
     public const string STATUS_COMPLETE = 'complete';
+
     public const string STATUS_CANCELED = 'canceled';
 
     protected $fillable = [
@@ -26,7 +26,7 @@ class LaporanImut extends Model
         'status',
         'assessment_period_start',
         'assessment_period_end',
-        'created_by'
+        'created_by',
     ];
 
     protected $guarded = ['id'];
@@ -47,19 +47,19 @@ class LaporanImut extends Model
     {
         static::creating(function ($laporan) {
             if (empty($laporan->slug)) {
-                $laporan->slug = Str::slug($laporan->name ?? $laporan->id . '-' . now()->timestamp);
+                $laporan->slug = Str::slug($laporan->name ?? $laporan->id.'-'.now()->timestamp);
             }
         });
 
-        static::saved(fn($laporan) => $laporan->clearCache());
-        static::deleted(fn($laporan) => $laporan->clearCache());
+        static::saved(fn ($laporan) => $laporan->clearCache());
+        static::deleted(fn ($laporan) => $laporan->clearCache());
     }
 
     public function clearCache()
     {
         Cache::forget(CacheKey::imutLaporans());
         Cache::forget(CacheKey::latestLaporan());
-        Cache::forget(CacheKey::dashboardSiimutAllChartData());
+        Cache::forget(CacheKey::dashboardSiimutAllChartData($this->id));
         Cache::forget(CacheKey::dashboardSiimutAllData($this->id));
     }
 

@@ -79,7 +79,7 @@ class ImutData extends Model
             Cache::forget(CacheKey::laporanUnitDetail($laporanId, $unitKerjaId));
 
             Cache::forget(CacheKey::dashboardSiimutAllData($laporanId));
-            Cache::forget(CacheKey::dashboardSiimutAllChartData());
+            Cache::forget(CacheKey::dashboardSiimutChartData($laporanId));
         }
 
         Cache::forget(CacheKey::imutLaporans());
