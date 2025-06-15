@@ -297,10 +297,9 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                                         ->toArray()
                                 ),
 
-                        ]),
-                    // ->visible(fn (?Model $record) => $record !== null
-                    //     // && request()->is('imut-datas/*/profile/edit=*')
-                    //     && $record->imutData->categories->is_benchmark_category === 1),
+                        ])
+                    ->visible(fn (?Model $record) => $record !== null
+                        && $record->categories->is_benchmark_category === 1),
 
                 ]),
         ]);
