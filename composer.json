@@ -105,6 +105,12 @@
             "@php artisan shield:generate --all --panel=admin",
             "@php artisan shield:super-admin --user=1"
         ],
+        "prod-setup": [
+            "@php artisan migrate:fresh",
+            "@php artisan db:seed --class=DatabaseProductionSeeder",
+            "@php artisan shield:generate --all --panel=admin",
+            "@php artisan shield:super-admin --user=1"
+        ],
         "dev-setup": [
             "@php artisan shield:generate --option=permissions --panel=admin"
         ]

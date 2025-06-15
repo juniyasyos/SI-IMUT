@@ -21,14 +21,9 @@ class ImutDataPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function viewAll(User $user): bool
+    public function view(User $user, ImutData $imutData): bool
     {
-        return $user->can('view_all_data_imut::data');
-    }
-
-    public function viewByUnitKerja(User $user): bool
-    {
-        return $user->can('view_by_unit_kerja_imut::data');
+        return $user->can('view_imut::data');
     }
 
     /**
@@ -42,7 +37,7 @@ class ImutDataPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user): bool
+    public function update(User $user, ImutData $imutData): bool
     {
         return $user->can('update_imut::data');
     }
@@ -93,5 +88,21 @@ class ImutDataPolicy
     public function restoreAny(User $user): bool
     {
         return $user->can('restore_any_imut::data');
+    }
+
+    /**
+     * Determine whether the user can replicate.
+     */
+    public function replicate(User $user, ImutData $imutData): bool
+    {
+        return $user->can('replicate_imut::data');
+    }
+
+    /**
+     * Determine whether the user can reorder.
+     */
+    public function reorder(User $user): bool
+    {
+        return $user->can('reorder_imut::data');
     }
 }

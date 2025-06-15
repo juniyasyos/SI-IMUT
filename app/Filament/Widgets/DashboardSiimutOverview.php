@@ -11,33 +11,39 @@ class DashboardSiimutOverview extends BaseWidget
 {
     protected static ?int $sort = 2;
 
-    // Hapus constructor
+    public static function canView(): bool
+    {
+        return Auth::user()?->can('widget_DashboardSiimutOverview');
+    }
 
     protected function getDashboardService(): DashboardImutService
     {
         return app(DashboardImutService::class);
     }
 
-    public static function canView(): bool
-    {
-        return Auth::user()?->can('widget_DashboardSiimutOverview');
-    }
-
     protected function getStats(): array
     {
-        $dashboardService = $this->getDashboardService();
+        $service = $this->getDashboardService();
+        $data = $service->getAllDashboardData();
 
-        $data = $dashboardService->getAllDashboardData();
-        $statsConfig = $dashboardService->getStatsConfig($data);
+        if (($data['totalIndikator'] ?? 0) === 0) {
+            return [
+                Stat::make('📢 Belum Ada Laporan Aktif', '')
+                    ->description('Tidak dapat menampilkan data karena belum ada laporan aktif.')
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->color('gray'),
+            ];
+        }
 
-        return collect($statsConfig)->map(fn($config) => Stat::make(
+        return collect($service->getStatsConfig($data))->map(fn ($config) => Stat::make(
             $config['label'],
-            $dashboardService->formatValue(data_get($data, $config['key']), $config['format'] ?? null)
+            $service->formatValue(data_get($data, $config['key']), $config['format'] ?? null)
         )
             ->icon($config['icon'] ?? null)
             ->description($config['description'])
             ->descriptionIcon($config['descriptionIcon'] ?? null)
             ->chart($data['chart'][$config['chart']] ?? [])
-            ->color(is_callable($config['color']) ? ($config['color'])($data) : $config['color']))->toArray();
+            ->color(is_callable($config['color']) ? $config['color']($data) : $config['color'])
+        )->toArray();
     }
 }

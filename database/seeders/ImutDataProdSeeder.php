@@ -20,9 +20,13 @@ use Illuminate\Support\Facades\File;
 class ImutDataProdSeeder extends Seeder
 {
     protected $now;
+
     protected $adminUserId;
+
     protected $unitKerjaIds;
+
     protected $category;
+
     protected $laporanList = [];
 
     public function run(): void
@@ -37,13 +41,14 @@ class ImutDataProdSeeder extends Seeder
                 'IMIKP' => 'imp_kp.json',
             ];
 
-            $this->createLaporanImut();
+            // $this->createLaporanImut();
 
             foreach ($filesByCategoryShortName as $shortName => $filename) {
                 $category = ImutCategory::where('short_name', $shortName)->first();
 
                 if (! $category) {
                     $this->command->warn("Kategori dengan short_name \"$shortName\" tidak ditemukan. Lewati file \"$filename\".");
+
                     continue;
                 }
 
@@ -82,41 +87,42 @@ class ImutDataProdSeeder extends Seeder
 
         if (! File::exists($filePath)) {
             $this->command->warn("File \"$filename\" tidak ditemukan di folder database/data.");
+
             return null;
         }
 
         return json_decode(File::get($filePath), true);
     }
 
-    private function createLaporanImut(): void
-    {
-        for ($i = 0; $i < 3; $i++) {
-            $month = $this->now->copy()->subMonths($i)->month;
-            $year = $this->now->copy()->subMonths($i)->year;
+    // private function createLaporanImut(): void
+    // {
+    //     for ($i = 0; $i < 3; $i++) {
+    //         $month = $this->now->copy()->subMonths($i)->month;
+    //         $year = $this->now->copy()->subMonths($i)->year;
 
-            $start = Carbon::create($year, $month, 1);
-            $end = $start->copy()->endOfMonth();
-            $assessmentStart = $end->copy()->subDays(4);
+    //         $start = Carbon::create($year, $month, 1);
+    //         $end = $start->copy()->endOfMonth();
+    //         $assessmentStart = $end->copy()->subDays(4);
 
-            $laporan = LaporanImut::firstOrCreate([
-                'name' => "Laporan IMUT Periode $month/$year",
-            ], [
-                'assessment_period_start' => $assessmentStart,
-                'assessment_period_end' => $end,
-                'status' => LaporanImut::STATUS_COMPLETE,
-                'created_by' => $this->adminUserId,
-            ]);
+    //         $laporan = LaporanImut::firstOrCreate([
+    //             'name' => "Laporan IMUT Periode $month/$year",
+    //         ], [
+    //             'assessment_period_start' => $assessmentStart,
+    //             'assessment_period_end' => $end,
+    //             'status' => LaporanImut::STATUS_COMPLETE,
+    //             'created_by' => $this->adminUserId,
+    //         ]);
 
-            foreach ($this->unitKerjaIds as $unitKerjaId) {
-                LaporanUnitKerja::firstOrCreate([
-                    'laporan_imut_id' => $laporan->id,
-                    'unit_kerja_id' => $unitKerjaId,
-                ]);
-            }
+    //         foreach ($this->unitKerjaIds as $unitKerjaId) {
+    //             LaporanUnitKerja::firstOrCreate([
+    //                 'laporan_imut_id' => $laporan->id,
+    //                 'unit_kerja_id' => $unitKerjaId,
+    //             ]);
+    //         }
 
-            $this->laporanList[] = $laporan;
-        }
-    }
+    //         $this->laporanList[] = $laporan;
+    //     }
+    // }
 
     private function processIndicator(array $indicator, ImutCategory $category): void
     {
@@ -219,67 +225,67 @@ class ImutDataProdSeeder extends Seeder
                 ]);
             }
 
-            if ($category->is_benchmark_category) {
-                $this->createBenchmarking($imutProfile);
-            }
+            // if ($category->is_benchmark_category) {
+            //     $this->createBenchmarking($imutProfile);
+            // }
 
-            $this->createPenilaian($imutProfile);
+            // $this->createPenilaian($imutProfile);
         }
     }
 
-    private function createBenchmarking(ImutProfile $imutProfile): void
-    {
-        $regionTypes = RegionType::all();
+    // private function createBenchmarking(ImutData $imutData): void
+    // {
+    //     $regionTypes = RegionType::all();
 
-        for ($i = 0; $i < 3; $i++) {
-            $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
-            $month = $start->month;
-            $year = $start->year;
+    //     for ($i = 0; $i < 3; $i++) {
+    //         $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
+    //         $end = $start->copy()->endOfMonth();
+    //         $month = $start->month;
+    //         $year = $start->year;
 
-            foreach ($regionTypes as $type) {
-                $regionName = match ($type->type) {
-                    '🌐 Nasional' => 'Indonesia',
-                    '🏛️ Provinsi' => 'Jawa Timur',
-                    '🏥 Rumah Sakit' => 'RSU Contoh',
-                    default => 'Unknown',
-                };
+    //         foreach ($regionTypes as $type) {
+    //             $regionName = match ($type->type) {
+    //                 '🌐 Nasional' => 'Indonesia',
+    //                 '🏛️ Provinsi' => 'Jawa Timur',
+    //                 '🏥 Rumah Sakit' => 'RS Contoh Sehat',
+    //                 default => 'Wilayah Tidak Diketahui',
+    //             };
 
-                ImutBenchmarking::create([
-                    'imut_profile_id' => $imutProfile->id,
-                    'region_type_id' => $type->id,
-                    'region_name' => $regionName,
-                    'year' => $year,
-                    'month' => $month,
-                    'benchmark_numerator' => 85,
-                    'benchmark_denominator' => 100,
-                ]);
-            }
-        }
-    }
+    //             ImutBenchmarking::factory()->create([
+    //                 'imut_data_id' => $imutData->id,
+    //                 'region_type_id' => $type->id,
+    //                 'region_name' => $regionName,
+    //                 'year' => $year,
+    //                 'month' => $month,
+    //             ]);
+    //         }
+    //     }
+    // }
 
-    private function createPenilaian(ImutProfile $imutProfile): void
-    {
-        foreach ($this->laporanList as $laporan) {
-            foreach ($this->unitKerjaIds as $unitId) {
-                $pivotId = DB::table('laporan_unit_kerjas')
-                    ->where('laporan_imut_id', $laporan->id)
-                    ->where('unit_kerja_id', $unitId)
-                    ->value('id');
+    // private function createPenilaian(ImutProfile $imutProfile): void
+    // {
+    //     foreach ($this->laporanList as $laporan) {
+    //         foreach ($this->unitKerjaIds as $unitId) {
+    //             $pivotId = DB::table('laporan_unit_kerjas')
+    //                 ->where('laporan_imut_id', $laporan->id)
+    //                 ->where('unit_kerja_id', $unitId)
+    //                 ->value('id');
 
-                if (! $pivotId) {
-                    $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
-                    continue;
-                }
+    //             if (! $pivotId) {
+    //                 $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
 
-                ImutPenilaian::create([
-                    'imut_profil_id' => $imutProfile->id,
-                    'laporan_unit_kerja_id' => $pivotId,
-                    'analysis' => 'Analisis hasil penilaian indikator.',
-                    'recommendations' => 'Lakukan evaluasi berkala dan peningkatan berkelanjutan.',
-                    'numerator_value' => 85,
-                    'denominator_value' => 100,
-                ]);
-            }
-        }
-    }
+    //                 continue;
+    //             }
+
+    //             ImutPenilaian::create([
+    //                 'imut_profil_id' => $imutProfile->id,
+    //                 'laporan_unit_kerja_id' => $pivotId,
+    //                 'analysis' => 'Analisis hasil penilaian indikator.',
+    //                 'recommendations' => 'Lakukan evaluasi berkala dan peningkatan berkelanjutan.',
+    //                 'numerator_value' => 85,
+    //                 'denominator_value' => 100,
+    //             ]);
+    //         }
+    //     }
+    // }
 }

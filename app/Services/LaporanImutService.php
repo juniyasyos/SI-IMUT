@@ -8,29 +8,54 @@ use App\Models\LaporanImut;
 use App\Support\CacheKey;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Service untuk pengambilan dan perhitungan data laporan mutu (Siimut)
+ */
 class LaporanImutService
 {
+    /**
+     * Ambil laporan terbaru (status PROCESS jika ada).
+     */
     public function getLatestLaporan(): ?LaporanImut
     {
         return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
-            return LaporanImut::where('status', LaporanImut::STATUS_PROCESS)
-                ->latest('assessment_period_start')
-                ->first()
-                ?? LaporanImut::latest('assessment_period_start')->first();
+            try {
+                return LaporanImut::where('status', LaporanImut::STATUS_PROCESS)
+                    ->latest('assessment_period_start')
+                    ->first()
+                    ?? LaporanImut::latest('assessment_period_start')->first();
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengambil laporan terbaru: '.$e->getMessage());
+
+                return null;
+            }
         });
     }
 
+    /**
+     * Ambil ID laporan terbaru.
+     */
     public function getLatestLaporanId(): int
     {
         return $this->getLatestLaporan()?->id ?? 0;
     }
 
+    /**
+     * Ambil data chart dari beberapa laporan terakhir.
+     */
     public function getChartDataForLastLaporan(int $limit = 6): array
     {
         return Cache::remember(CacheKey::dashboardSiimutAllChartData(), now()->addDays(7), function () use ($limit) {
             $laporanList = $this->getRecentLaporanList($limit);
             $laporanIds = $laporanList->pluck('id');
+
+            if ($laporanIds->isEmpty()) {
+                Log::warning('Tidak ada laporan yang ditemukan untuk chart.');
+
+                return [];
+            }
 
             $indikatorAktif = $this->getAktifIndikatorWithProfiles($laporanIds);
             $penilaianAll = $this->getGroupedPenilaianByLaporan($laporanIds);
@@ -44,7 +69,7 @@ class LaporanImutService
                     'unitMelapor' => $penilaian->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
                     'belumDinilai' => $penilaian->filter(
                         fn ($p) => ! is_null($p->numerator_value) &&
-                                   ! is_null($p->denominator_value) &&
+                                  ! is_null($p->denominator_value) &&
                                    is_null($p->recommendations)
                     )->count(),
                 ];
@@ -52,34 +77,46 @@ class LaporanImutService
         });
     }
 
+    /**
+     * Ambil data laporan saat ini untuk tampilan dashboard.
+     */
     public function getCurrentLaporanData(LaporanImut $laporan): ?array
     {
-        $laporanId = $laporan->id;
+        try {
+            $laporanId = $laporan->id;
 
-        $imutPenilaians = ImutPenilaian::with(['profile', 'laporanUnitKerja.unitKerja'])
-            ->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
-            ->get();
+            $imutPenilaians = ImutPenilaian::with(['profile', 'laporanUnitKerja.unitKerja'])
+                ->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
+                ->get();
 
-        $indikatorAktif = $this->getAktifIndikatorWithProfiles(collect([$laporanId]));
-        $profileIds = $this->getLatestProfileIds($indikatorAktif);
+            $indikatorAktif = $this->getAktifIndikatorWithProfiles(collect([$laporanId]));
+            $profileIds = $this->getLatestProfileIds($indikatorAktif);
 
-        $penilaianByProfile = ImutPenilaian::with('profile', 'laporanUnitKerja')
-            ->whereIn('imut_profil_id', $profileIds)
-            ->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
-            ->get()
-            ->groupBy('imut_profil_id');
+            $penilaianByProfile = ImutPenilaian::with('profile', 'laporanUnitKerja')
+                ->whereIn('imut_profil_id', $profileIds)
+                ->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
+                ->get()
+                ->groupBy('imut_profil_id');
 
-        return [
-            'totalIndikator' => $indikatorAktif->count(),
-            'tercapai' => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporanId),
-            'unitMelapor' => $imutPenilaians->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
-            'totalUnit' => $laporan->unitKerjas()->count(),
-            'belumDinilai' => $imutPenilaians->filter(
-                fn ($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
-            )->count(),
-        ];
+            return [
+                'totalIndikator' => $indikatorAktif->count(),
+                'tercapai' => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporanId),
+                'unitMelapor' => $imutPenilaians->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
+                'totalUnit' => $laporan->unitKerjas()->count(),
+                'belumDinilai' => $imutPenilaians->filter(
+                    fn ($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
+                )->count(),
+            ];
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengambil current laporan data: '.$e->getMessage());
+
+            return null;
+        }
     }
 
+    /**
+     * Ambil penilaian per profil untuk satu laporan.
+     */
     public function getPenilaianGroupedByProfile(int $laporanId): Collection
     {
         return ImutPenilaian::select([
@@ -93,20 +130,23 @@ class LaporanImutService
             ->groupBy('imut_profil_id');
     }
 
+    /**
+     * Ambil daftar laporan dengan filter dan limit opsional.
+     */
     public function getLaporanList(array $filters = [], ?int $limit = null): Collection
     {
         $query = LaporanImut::with('unitKerjas')
             ->orderByDesc('assessment_period_start');
 
-        if ($filters['status'] ?? false) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if ($filters['start_date'] ?? false) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('assessment_period_start', '>=', $filters['start_date']);
         }
 
-        if ($filters['end_date'] ?? false) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('assessment_period_end', '<=', $filters['end_date']);
         }
 

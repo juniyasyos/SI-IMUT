@@ -121,46 +121,24 @@ class UserPolicy
     }
 
     /**
-     * Determine whether the user can view activity logs of another user.
+     * Determine whether the user can bulk restore.
      *
      * @param  \App\Models\User  $user
      * @return bool
      */
-    public function viewActivities(User $user): bool
+    public function replicate(User $user): bool
     {
-        return $user->can('view_activities_user');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
-     * Determine whether the user can assign roles to another user.
+     * Determine whether the user can reorder.
      *
      * @param  \App\Models\User  $user
      * @return bool
      */
-    public function setRole(User $user): bool
+    public function reorder(User $user): bool
     {
-        return $user->can('set_role_user');
-    }
-
-    /**
-     * Determine whether the user can impersonate another user.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
-    public function impersonate(User $user): bool
-    {
-        return $user->can('impersonate_user');
-    }
-
-    /**
-     * Determine whether the user can export users data.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
-    public function export(User $user): bool
-    {
-        return $user->can('export_user');
+        return $user->can('{{ Reorder }}');
     }
 }
