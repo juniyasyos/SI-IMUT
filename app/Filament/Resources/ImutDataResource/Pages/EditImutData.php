@@ -5,10 +5,12 @@ namespace App\Filament\Resources\ImutDataResource\Pages;
 use App\Filament\Resources\ImutDataResource;
 use App\Models\ImutData;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\CanNotify;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Guava\FilamentModalRelationManagers\Actions\Action\RelationManagerAction;
 use Illuminate\Support\Facades\Gate;
 
 class EditImutData extends EditRecord
@@ -20,11 +22,20 @@ class EditImutData extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('lihat_grafik')
-                ->label('Lihat Grafik')
-                ->icon('heroicon-s-chart-bar')
-                ->color('info')
-                ->url(fn ($record) => \App\Filament\Resources\ImutDataResource\Pages\SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
+            ActionGroup::make([
+                Action::make('lihat_grafik')
+                    ->label('📊 IMUT DATA')
+                    ->color('primary')
+                    ->url(fn ($record) => \App\Filament\Resources\ImutDataResource\Pages\SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
+
+                RelationManagerAction::make('unit-kerja-relation')
+                    ->slideOver()
+                    ->label('🏢 Unit Kerja')
+                    ->record($this->getRecord())
+                    ->color('primary')
+                    ->relationManager(\App\Filament\Resources\ImutDataResource\RelationManagers\UnitKerjaRelationManager::make()),
+
+            ])->button()->label('Lihat Grafik')->icon('heroicon-s-chart-bar'),
 
             $this->getDeleteAction(),
         ];

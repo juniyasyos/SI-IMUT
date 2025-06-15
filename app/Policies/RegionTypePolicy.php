@@ -89,20 +89,4 @@ class RegionTypePolicy
     {
         return $user->can('restore_any_region::type::bencmarking');
     }
-
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, RegionType $regionType): bool
-    {
-        return $user->can('{{ Replicate }}');
-    }
-
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('{{ Reorder }}');
-    }
 }

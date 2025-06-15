@@ -114,7 +114,7 @@ class ImutDataSeeder extends Seeder
                 'assessment_period_start' => $assessmentStart,
                 'assessment_period_end' => $end,
                 'status' => LaporanImut::STATUS_COMPLETE,
-                'created_by' => $this->adminUserId,
+                'created_by' => $this->adminUserId ?? 1,
             ]);
 
             foreach ($this->unitKerjaIds as $unitKerjaId) {
@@ -136,7 +136,7 @@ class ImutDataSeeder extends Seeder
                 'imut_kategori_id' => $category->id,
                 'description' => $indicator['description'],
                 'status' => true,
-                'created_by' => $this->adminUserId,
+                'created_by' => $this->adminUserId ?? 1,
             ]);
 
             $profile = $indicator['profile'];
@@ -229,7 +229,7 @@ class ImutDataSeeder extends Seeder
             foreach ($this->unitKerjaIds as $unitId) {
                 $imutData->unitKerja()->syncWithoutDetaching([
                     $unitId => [
-                        'assigned_by' => $this->adminUserId,
+                        'assigned_by' => $this->adminUserId ?? 1,
                         'assigned_at' => now(),
                     ],
                 ]);

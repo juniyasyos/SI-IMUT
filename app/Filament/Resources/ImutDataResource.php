@@ -434,7 +434,6 @@ class ImutDataResource extends Resource implements HasShieldPermissions
             ]);
     }
 
-    // ✅ Ini cara resmi di Filament v3
     public static function getTableQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = static::getModel()::query();

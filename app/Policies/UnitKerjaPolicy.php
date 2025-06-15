@@ -21,7 +21,7 @@ class UnitKerjaPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, UnitKerja $unitKerja): bool
+    public function view(User $user): bool
     {
         return $user->can('view_unit::kerja');
     }
@@ -37,7 +37,7 @@ class UnitKerjaPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, UnitKerja $unitKerja): bool
+    public function update(User $user): bool
     {
         return $user->can('update_unit::kerja');
     }
@@ -45,7 +45,7 @@ class UnitKerjaPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, UnitKerja $unitKerja): bool
+    public function delete(User $user): bool
     {
         return $user->can('delete_unit::kerja');
     }
@@ -61,7 +61,7 @@ class UnitKerjaPolicy
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, UnitKerja $unitKerja): bool
+    public function forceDelete(User $user): bool
     {
         return $user->can('force_delete_unit::kerja');
     }
@@ -77,7 +77,7 @@ class UnitKerjaPolicy
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, UnitKerja $unitKerja): bool
+    public function restore(User $user): bool
     {
         return $user->can('restore_unit::kerja');
     }
@@ -90,19 +90,13 @@ class UnitKerjaPolicy
         return $user->can('restore_any_unit::kerja');
     }
 
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, UnitKerja $unitKerja): bool
+    public function attachUser(User $user): bool
     {
-        return $user->can('{{ Replicate }}');
+        return $user->can('attach_user_to_unit_kerja_unit::kerja');
     }
 
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
+    public function AttachImutData(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return $user->can('attach_imut_data_to_unit_kerja_unit::kerja');
     }
 }
