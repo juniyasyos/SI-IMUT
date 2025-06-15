@@ -8,7 +8,13 @@ use App\Models\LaporanImut;
 use App\Models\RegionType;
 use App\Support\CacheKey;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
@@ -21,12 +27,15 @@ class ImutDataLineChart extends ApexChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected static MaxWidth|string $filterFormWidth = MaxWidth::ExtraLarge;
+
+    protected static bool $isLazy = false;
+
     public ImutData $imutData;
 
     protected function getFormSchema(): array
     {
-        $years = LaporanImut::query()
-            ->selectRaw('YEAR(assessment_period_start) as year')
+        $years = LaporanImut::selectRaw('YEAR(assessment_period_start) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year', 'year')
@@ -35,34 +44,86 @@ class ImutDataLineChart extends ApexChartWidget
         $regionTypes = RegionType::pluck('type', 'id')->toArray();
 
         return [
-            Select::make('year')
-                ->label('Tahun')
-                ->options($years)
-                ->required()
-                ->default(now()->year)
-                ->reactive(),
+            Section::make('Filter Data')
+                ->schema([
+                    Select::make('year')->label('Tahun')->options($years)->default(now()->year)->reactive(),
+                    Select::make('region_type_id')->label('Benchmarking Region')->options($regionTypes)->multiple()->searchable()->reactive(),
+                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(true)->reactive(),
+                ])
+                ->columns(2),
 
-            Select::make('region_type_id')
-                ->label('Benchmarking Region')
-                ->options($regionTypes)
-                ->multiple()
-                ->default(null)
-                ->searchable()
-                ->reactive(),
+            Section::make('Konfigurasi Chart Utama')
+                ->schema([
+                    Group::make([
+                        Select::make('nilai_type')
+                            ->label('Tipe Nilai IMUT')
+                            ->options(['line' => 'Line', 'column' => 'Column'])
+                            ->default('column')
+                            ->reactive(),
 
-            Checkbox::make('show_benchmarking')
-                ->label('Tampilkan Benchmarking')
-                ->default(true)
-                ->reactive(),
+                        ColorPicker::make('color_nilai')
+                            ->label('Warna Nilai IMUT')
+                            ->default('#3b82f6')
+                            ->reactive(),
+                    ])->columns(2),
+
+                    Group::make([
+                        Select::make('target_type')
+                            ->label('Tipe Target')
+                            ->options(['line' => 'Line', 'column' => 'Column'])
+                            ->default('line')
+                            ->reactive(),
+
+                        ColorPicker::make('color_target')
+                            ->label('Warna Target')
+                            ->default('#f59e0b')
+                            ->reactive(),
+                    ])->columns(2),
+                ])
+                ->columns(1),
+
+            Section::make('Benchmarking Series')
+                ->schema(
+                    collect($regionTypes)->map(function ($name, $id) {
+                        return Fieldset::make($name)
+                            ->schema([
+                                Grid::make()
+                                    ->schema([
+                                        Select::make("benchmark_types.$id")
+                                            ->label('Tipe')
+                                            ->options(['line' => 'Line', 'column' => 'Column'])
+                                            ->default('column')
+                                            ->reactive(),
+
+                                        ColorPicker::make("benchmark_colors.$id")
+                                            ->label('Warna')
+                                            ->default('#'.substr(md5($name), 0, 6))
+                                            ->reactive(),
+                                    ])
+                                    ->columns(2),
+                            ]);
+                    })->values()->toArray()
+                )
+                ->columns(2)
+                ->collapsed(),
         ];
     }
 
     protected function getOptions(): array
     {
+        $chartType = $this->filterFormData['chart_type'] ?? 'mixed';
+        $colorNilai = $this->filterFormData['color_nilai'] ?? '#3b82f6';
+        $colorTarget = $this->filterFormData['color_target'] ?? '#f59e0b';
+
+        $benchmarkColors = ['#10b981', '#ef4444', '#6366f1', '#14b8a6'];
+
+        $seriesData = $this->getChartSeries($chartType);
+
         return [
             'chart' => [
-                'type' => 'line',
+                'type' => $chartType === 'mixed' ? 'line' : $chartType,
                 'height' => 450,
+                'stacked' => false,
                 'toolbar' => [
                     'show' => true,
                     'tools' => [
@@ -75,30 +136,86 @@ class ImutDataLineChart extends ApexChartWidget
                     ],
                 ],
                 'zoom' => ['enabled' => true],
+                'fontFamily' => 'inherit',
+            ],
+            'plotOptions' => [
+                'bar' => [
+                    'columnWidth' => '25%',
+                    'borderRadius' => 4,
+                ],
             ],
             'stroke' => [
-                'width' => [8, 4, 2, 2, 2],
-                'dashArray' => [0, 5, 8, 3, 6],
+                'width' => [4, 4, 3, 3],
+                'curve' => 'smooth',
             ],
-            'markers' => ['size' => 3],
-            'colors' => ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#6366f1', '#14b8a6'], // Add more if needed
-            'series' => $this->getChartSeries(),
+            'markers' => [
+                'size' => 5,
+                'hover' => [
+                    'sizeOffset' => 3,
+                ],
+            ],
+            'colors' => array_merge([$colorNilai, $colorTarget], $benchmarkColors),
+            'series' => $seriesData,
             'xaxis' => [
                 'categories' => $this->getMonthLabels(),
                 'title' => ['text' => 'Periode'],
-                'labels' => ['style' => ['fontFamily' => 'inherit']],
+                'labels' => [
+                    'rotate' => -45,
+                    'style' => [
+                        'fontSize' => '12px',
+                        'fontWeight' => 500,
+                    ],
+                ],
+                'axisBorder' => [
+                    'show' => true,
+                ],
+                'axisTicks' => [
+                    'show' => true,
+                ],
             ],
             'yaxis' => [
                 'min' => 0,
                 'max' => 100,
-                'title' => ['text' => 'Nilai (%)'],
+                'title' => [
+                    'text' => 'Nilai (%)',
+                    'style' => [
+                        'fontWeight' => 600,
+                    ],
+                ],
+                'labels' => [
+                    'style' => [
+                        'fontSize' => '12px',
+                    ],
+                ],
+            ],
+            'tooltip' => [
+                'shared' => true,
+                'intersect' => false,
+                'x' => [
+                    'show' => true,
+                ],
             ],
             'legend' => [
                 'position' => 'bottom',
-                'horizontalAlign' => 'left',
+                'horizontalAlign' => 'center',
+                'fontSize' => '13px',
+                'markers' => [
+                    'radius' => 12,
+                ],
+            ],
+            'grid' => [
+                'strokeDashArray' => 4,
+                'borderColor' => '#e5e7eb',
             ],
             'responsive' => [
-                ['breakpoint' => 768, 'options' => ['chart' => ['height' => 350]]],
+                [
+                    'breakpoint' => 768,
+                    'options' => [
+                        'chart' => ['height' => 320],
+                        'xaxis' => ['labels' => ['rotate' => -30]],
+                        'legend' => ['fontSize' => '11px'],
+                    ],
+                ],
             ],
         ];
     }
@@ -116,37 +233,28 @@ class ImutDataLineChart extends ApexChartWidget
             ->toArray();
     }
 
-    protected function getChartSeries(): array
+    protected function getChartSeries(string $chartType = 'mixed'): array
     {
         $year = $this->filterFormData['year'] ?? now()->year;
         $regionTypeId = $this->filterFormData['region_type_id'] ?? null;
         $imutDataId = $this->imutData->id;
         $showBenchmarking = $this->filterFormData['show_benchmarking'] ?? true;
 
-        $imutDataId = $this->imutData->id;
-
         $penilaianData = Cache::remember(
             CacheKey::imutPenilaian($imutDataId, $year),
             now()->addMinutes(30),
-            function () use ($imutDataId, $year) {
-                return DB::table('imut_penilaians')
-                    ->join('laporan_unit_kerjas', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-                    ->join('laporan_imuts', 'laporan_imuts.id', '=', 'laporan_unit_kerjas.laporan_imut_id')
-                    ->join('imut_profil', 'imut_profil.id', '=', 'imut_penilaians.imut_profil_id')
-                    ->join('imut_data', 'imut_data.id', '=', 'imut_profil.imut_data_id')
-                    ->where('imut_data.id', $imutDataId)
-                    ->whereYear('laporan_imuts.assessment_period_start', $year)
-                    ->whereNull('laporan_imuts.deleted_at')
-                    ->selectRaw("
-                DATE_FORMAT(laporan_imuts.assessment_period_start, '%Y-%m') as periode,
-                SUM(imut_penilaians.numerator_value) as total_num,
-                SUM(imut_penilaians.denominator_value) as total_denum,
-                AVG(imut_profil.target_value) as target
-            ")
-                    ->groupBy('periode')
-                    ->orderBy('periode')
-                    ->get();
-            }
+            fn () => DB::table('imut_penilaians')
+                ->join('laporan_unit_kerjas', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
+                ->join('laporan_imuts', 'laporan_imuts.id', '=', 'laporan_unit_kerjas.laporan_imut_id')
+                ->join('imut_profil', 'imut_profil.id', '=', 'imut_penilaians.imut_profil_id')
+                ->join('imut_data', 'imut_data.id', '=', 'imut_profil.imut_data_id')
+                ->where('imut_data.id', $imutDataId)
+                ->whereYear('laporan_imuts.assessment_period_start', $year)
+                ->whereNull('laporan_imuts.deleted_at')
+                ->selectRaw("DATE_FORMAT(laporan_imuts.assessment_period_start, '%Y-%m') as periode, SUM(imut_penilaians.numerator_value) as total_num, SUM(imut_penilaians.denominator_value) as total_denum, AVG(imut_profil.target_value) as target")
+                ->groupBy('periode')
+                ->orderBy('periode')
+                ->get()
         );
 
         $dataNilai = [];
@@ -154,7 +262,7 @@ class ImutDataLineChart extends ApexChartWidget
 
         foreach ($penilaianData as $row) {
             $label = \Carbon\Carbon::parse($row->periode.'-01')->translatedFormat('F Y');
-            $nilai = ($row->total_denum > 0) ? round(($row->total_num / $row->total_denum) * 100, 2) : 0;
+            $nilai = $row->total_denum > 0 ? round(($row->total_num / $row->total_denum) * 100, 2) : 0;
             $target = round($row->target, 2);
 
             $dataNilai[$label] = $nilai;
@@ -163,52 +271,59 @@ class ImutDataLineChart extends ApexChartWidget
 
         $labels = array_keys($dataNilai);
 
+        $tipeNilai = $this->filterFormData['nilai_type'] ?? ($chartType === 'bar' || $chartType === 'mixed' ? 'column' : 'line');
+        $tipeTarget = $this->filterFormData['target_type'] ?? 'line';
+
         $series = [
             [
                 'name' => 'Nilai IMUT',
+                'type' => $tipeNilai,
                 'data' => array_map(fn ($l) => $dataNilai[$l] ?? 0, $labels),
+                'color' => $this->filterFormData['color_nilai'] ?? '#3b82f6',
             ],
             [
                 'name' => 'Target Standar',
+                'type' => $tipeTarget,
                 'data' => array_map(fn ($l) => $dataTarget[$l] ?? 0, $labels),
+                'color' => $this->filterFormData['color_target'] ?? '#f59e0b',
             ],
         ];
 
-        // === BENCHMARKING (cached) ===
         if ($showBenchmarking) {
             $benchmarkKey = CacheKey::imutBenchmarking($year, $regionTypeId);
             $benchmarking = Cache::remember(
                 $benchmarkKey,
                 now()->addMinutes(30),
-                function () use ($year, $regionTypeId) {
-                    return ImutBenchmarking::query()
-                        ->with('regionType:id,type')
-                        ->select('year', 'month', 'benchmark_value', 'region_type_id')
-                        ->where('year', $year)
-                        ->when($regionTypeId, fn ($q) => $q->where('region_type_id', $regionTypeId))
-                        ->get();
-                }
+                fn () => ImutBenchmarking::query()
+                    ->with('regionType:id,type')
+                    ->select('year', 'month', 'benchmark_value', 'region_type_id')
+                    ->where('year', $year)
+                    ->when($regionTypeId, fn ($q) => $q->whereIn('region_type_id', (array) $regionTypeId))
+                    ->get()
             );
 
             $benchmarkGrouped = $benchmarking->groupBy(fn ($item) => sprintf('%04d-%02d', $item->year, $item->month));
-
             $regionSeries = [];
 
             foreach ($benchmarkGrouped as $periodeKey => $items) {
                 $label = \Carbon\Carbon::createFromFormat('Y-m', $periodeKey)->translatedFormat('F Y');
 
                 foreach ($items as $item) {
-                    $type = $item->regionType->type ?? 'Unknown';
-                    $regionSeries[$type][$label] = round($item->benchmark_value, 2);
+                    $typeName = $item->regionType->type ?? 'Unknown';
+                    $regionSeries[$item->region_type_id][$typeName][$label] = round($item->benchmark_value, 2);
                 }
             }
 
-            foreach ($regionSeries as $type => $data) {
-                if (collect($labels)->contains(fn ($l) => isset($data[$l]))) {
-                    $series[] = [
-                        'name' => $type,
-                        'data' => array_map(fn ($l) => $data[$l] ?? null, $labels),
-                    ];
+            foreach ($regionSeries as $regionId => $seriesGroup) {
+                foreach ($seriesGroup as $name => $data) {
+                    if (collect($labels)->contains(fn ($l) => isset($data[$l]))) {
+                        $series[] = [
+                            'name' => $name,
+                            'type' => $this->filterFormData['benchmark_types'][$regionId] ?? 'column',
+                            'data' => array_map(fn ($l) => $data[$l] ?? null, $labels),
+                            'color' => $this->filterFormData['benchmark_colors'][$regionId] ?? '#'.substr(md5($name), 0, 6),
+                        ];
+                    }
                 }
             }
         }
