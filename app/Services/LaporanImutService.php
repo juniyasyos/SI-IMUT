@@ -210,6 +210,7 @@ class LaporanImutService
     private function getGroupedPenilaian(array $laporanIds, ?array $profileIds = null, string $groupBy = 'laporan_unit_kerjas.laporan_imut_id'): Collection
     {
         $query = ImutPenilaian::query()
+            ->with('laporanUnitKerja')
             ->select('imut_penilaians.*', 'laporan_unit_kerjas.laporan_imut_id')
             ->join('laporan_unit_kerjas', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->whereIn('laporan_unit_kerjas.laporan_imut_id', $laporanIds);
@@ -223,8 +224,15 @@ class LaporanImutService
 
     private function getLatestProfileIds(Collection $indikatorAktif): Collection
     {
-        return $indikatorAktif
-            ->map(fn ($indikator) => $indikator->profiles->first()?->id)
+        $imutDataIds = $indikatorAktif->pluck('id');
+
+        $allProfiles = ImutProfile::whereIn('imut_data_id', $imutDataIds)
+            ->orderByDesc('version')
+            ->get()
+            ->groupBy('imut_data_id');
+
+        return $imutDataIds
+            ->map(fn ($dataId) => $allProfiles[$dataId]->first()?->id)
             ->filter()
             ->unique()
             ->values();
