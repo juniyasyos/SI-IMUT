@@ -29,9 +29,9 @@ class CacheKey
         return 'laporan:latest';
     }
 
-    public static function dashboardSiimutChartData(int $laporanId): string
+    public static function dashboardSiimutChartData(): string
     {
-        return "dashboard:siimut:chart_data:{$laporanId}";
+        return "dashboard:siimut:chart_data_dashboard";
     }
 
     public static function imutPenilaian(int $imutDataId, int $year): string

@@ -45,7 +45,7 @@ class DashboardImutService
 
         $cacheKey = CacheKey::dashboardSiimutAllData($latestLaporanId);
 
-        return Cache::remember($cacheKey, now()->addDays(7), function () use ($latestLaporanId) {
+        // return Cache::remember($cacheKey, now()->addDays(7), function () use ($latestLaporanId) {
             $laporan = LaporanImut::find($latestLaporanId);
 
             if (! $laporan) {
@@ -64,7 +64,7 @@ class DashboardImutService
 
                 return $this->getEmptyDashboardData();
             }
-        });
+        // });
     }
 
     /**
