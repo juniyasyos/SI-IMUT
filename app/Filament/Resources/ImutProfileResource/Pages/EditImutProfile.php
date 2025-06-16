@@ -49,12 +49,10 @@ class EditImutProfile extends EditRecord
         ];
     }
 
-    protected function handleRecordUpdate(Model $record, array $data): Model
-    {
-        dd($data); // Ini akan menampilkan semua data dari form SEBELUM disimpan
-
-        return parent::handleRecordUpdate($record, $data);
-    }
+    // protected function handleRecordUpdate(Model $record, array $data): Model
+    // {
+    //     return parent::handleRecordUpdate($record, $data);
+    // }
 
     protected function getHeaderActions(): array
     {

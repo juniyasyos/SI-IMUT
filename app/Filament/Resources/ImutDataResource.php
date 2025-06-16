@@ -321,7 +321,7 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     return ImutData::query()
                         ->whereHas('unitKerja', function ($query) use ($unitKerjaIds) {
                             $query->whereIn('unit_kerja.id', $unitKerjaIds);
-                        });
+                        })->orWhere('created_by', $user->id);
                 }
 
                 return ImutData::query()->whereRaw('1 = 0');
