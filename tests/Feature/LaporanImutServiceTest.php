@@ -1,8 +1,7 @@
 <?php
 
+use App\Facades\LaporanImut as LaporanImutFacade;
 use App\Models\LaporanImut;
-use App\Services\LaporanImutService;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -36,11 +35,9 @@ function benchmark(string $functionName, callable $callback): void
     $result = $callback();
     $duration = microtime(true) - $start;
 
-    $queryCount = count(DB::getQueryLog());
-
     dump([
         'function' => $functionName,
-        'query_count' => $queryCount,
+        'query_count' => count(DB::getQueryLog()),
         'total_model_count' => $totalModelCount,
         'model_types' => $modelTypes,
         'execution_time' => round($duration, 4).'s',
@@ -76,13 +73,13 @@ test('benchmark getCurrentLaporanData with real data', function () {
     }
 
     benchmark('getCurrentLaporanData', function () use ($laporan) {
-        return (new LaporanImutService)->getCurrentLaporanData($laporan);
+        return LaporanImutFacade::getCurrentLaporanData($laporan);
     });
 });
 
 test('benchmark getChartDataForLastLaporan with real data', function () {
     benchmark('getChartDataForLastLaporan', function () {
-        return (new LaporanImutService)->getChartDataForLastLaporan(6);
+        return LaporanImutFacade::getChartDataForLastLaporan(6);
     });
 });
 
@@ -94,12 +91,12 @@ test('benchmark getPenilaianGroupedByProfile with real data', function () {
     }
 
     benchmark('getPenilaianGroupedByProfile', function () use ($laporan) {
-        return (new LaporanImutService)->getPenilaianGroupedByProfile($laporan->id);
+        return LaporanImutFacade::getPenilaianGroupedByProfile($laporan->id);
     });
 });
 
 test('benchmark getLaporanList with real data', function () {
     benchmark('getLaporanList', function () {
-        return (new LaporanImutService)->getLaporanList();
+        return LaporanImutFacade::getLaporanList();
     });
 });

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
+use App\Facades\LaporanImut as LaporanImutFacade;
 use App\Models\ImutData;
-use App\Services\LaporanImutService;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,38 +15,18 @@ use Illuminate\Support\Facades\Auth;
  */
 class ImutTercapai extends BaseWidget
 {
-    /**
-     * Urutan tampilan widget di dashboard.
-     */
     protected static ?int $sort = 6;
 
-    /**
-     * Lebar widget dalam grid layout.
-     */
     protected int|string|array $columnSpan = 2;
 
-    /**
-     * Mengecek apakah pengguna saat ini memiliki izin untuk melihat widget.
-     */
     public static function canView(): bool
     {
         return Auth::user()?->can('widget_ImutTercapai') ?? false;
     }
 
-    /**
-     * Mengambil instance dari layanan LaporanImutService.
-     */
-    protected function getLaporanService(): LaporanImutService
-    {
-        return app(LaporanImutService::class);
-    }
-
-    /**
-     * Query utama untuk mengambil data indikator mutu yang aktif dan relevan dengan laporan terbaru.
-     */
     protected function query(): Builder
     {
-        $laporan = $this->getLaporanService()->getLatestLaporan();
+        $laporan = LaporanImutFacade::getLatestLaporan();
 
         if (! $laporan) {
             return ImutData::query()->whereRaw('1 = 0');
@@ -69,12 +49,9 @@ class ImutTercapai extends BaseWidget
             ]);
     }
 
-    /**
-     * Mendefinisikan struktur dan isi tabel pada widget.
-     */
     public function table(Tables\Table $table): Tables\Table
     {
-        $laporan = $this->getLaporanService()->getLatestLaporan();
+        $laporan = LaporanImutFacade::getLatestLaporan();
 
         if (! $laporan) {
             return $table
@@ -111,11 +88,6 @@ class ImutTercapai extends BaseWidget
             ]);
     }
 
-    /**
-     * Mengembalikan string representasi jumlah unit yang melapor.
-     *
-     * @param  mixed  $profile
-     */
     protected function formatUnitMelapor($profile, int $totalUnit): string
     {
         if (! $profile || $totalUnit === 0) {
@@ -130,11 +102,6 @@ class ImutTercapai extends BaseWidget
         return "$filled/$totalUnit";
     }
 
-    /**
-     * Mengembalikan string jumlah unit yang mencapai target.
-     *
-     * @param  mixed  $profile
-     */
     protected function formatTercapai($profile): string
     {
         $grouped = $this->getGroupedPenilaian($profile);
@@ -148,11 +115,6 @@ class ImutTercapai extends BaseWidget
         return "$tercapai dari {$grouped->count()} Unit";
     }
 
-    /**
-     * Menentukan warna badge berdasarkan persentase ketercapaian.
-     *
-     * @param  mixed  $profile
-     */
     protected function getBadgeColor($profile): string
     {
         $grouped = $this->getGroupedPenilaian($profile);
@@ -171,11 +133,6 @@ class ImutTercapai extends BaseWidget
         };
     }
 
-    /**
-     * Mengelompokkan data penilaian berdasarkan ID laporan unit kerja.
-     *
-     * @param  mixed  $profile
-     */
     protected function getGroupedPenilaian($profile): Collection
     {
         return ! $profile
@@ -186,24 +143,11 @@ class ImutTercapai extends BaseWidget
                 ->groupBy('laporan_unit_kerja_id');
     }
 
-    /**
-     * Menghitung jumlah unit kerja yang mencapai target.
-     *
-     * @param  mixed  $profile
-     */
     protected function countTercapai(Collection $grouped, $profile): int
     {
-        return $grouped->filter(fn (Collection $penilaians) => $penilaians->contains(fn ($p) => $p->denominator_value != 0 && $this->isTercapai($p, $profile)
-        )
-        )->count();
+        return $grouped->filter(fn (Collection $penilaians) => $penilaians->contains(fn ($p) => $p->denominator_value != 0 && $this->isTercapai($p, $profile)))->count();
     }
 
-    /**
-     * Menentukan apakah nilai penilaian mencapai target berdasarkan operator dan nilai target.
-     *
-     * @param  mixed  $penilaian
-     * @param  mixed  $profile
-     */
     protected function isTercapai($penilaian, $profile): bool
     {
         if ($penilaian->denominator_value == 0) {
