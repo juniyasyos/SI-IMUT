@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\LaporanImut;
 use App\Support\CacheKey;
 use Illuminate\Support\Facades\Cache;
+use App\Facades\LaporanImut as LaporanImutFacade;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -12,20 +13,13 @@ use Illuminate\Support\Facades\Log;
  */
 class DashboardImutService
 {
-    protected LaporanImutService $laporanService;
-
-    public function __construct(LaporanImutService $laporanService)
-    {
-        $this->laporanService = $laporanService;
-    }
-
     /**
      * Mengambil ID laporan terbaru, menggunakan cache jika tersedia.
      */
     public function getLatestLaporanId(): int
     {
         try {
-            return $this->laporanService->getLatestLaporanId();
+            return LaporanImutFacade::getLatestLaporanId();
         } catch (\Throwable $e) {
             Log::error('Gagal mendapatkan latest laporan ID.', ['exception' => $e]);
 
@@ -55,8 +49,8 @@ class DashboardImutService
             }
 
             try {
-                $currentPeriodData = $this->laporanService->getCurrentLaporanData($laporan);
-                $chartData = $this->laporanService->getChartDataForLastLaporan(6);
+                $currentPeriodData = LaporanImutFacade::getCurrentLaporanData($laporan);
+                $chartData = LaporanImutFacade::getChartDataForLastLaporan(6);
 
                 return array_merge($currentPeriodData, ['chart' => $chartData]);
             } catch (\Throwable $e) {
