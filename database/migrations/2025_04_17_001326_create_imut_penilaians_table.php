@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             // relationship
             $table->foreignId('imut_profil_id')->constrained('imut_profil')->onDelete('cascade');
+            $table->index('imut_profil_id');
 
             // fields imut penilaian
             $table->text('analysis')->nullable();

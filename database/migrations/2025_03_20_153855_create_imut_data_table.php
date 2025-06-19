@@ -38,6 +38,7 @@ return new class extends Migration {
         Schema::create('imut_profil', function (Blueprint $table) {
             $table->id();
             $table->foreignId('imut_data_id')->constrained('imut_data')->cascadeOnDelete()->nullable();
+            $table->index('imut_data_id');
             $table->string('slug', 255)->nullable()->unique();
             $table->string('version', 50)->default('version 1');
             $table->text('rationale')->nullable();
