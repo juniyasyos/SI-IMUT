@@ -9,6 +9,7 @@ use App\Models\LaporanImut;
 use App\Support\CacheKey;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LaporanImutService
@@ -224,23 +225,20 @@ class LaporanImutService
 
     private function getGroupedPenilaian(array $laporanIds, ?array $profileIds = null, string $groupBy = 'laporan_unit_kerjas.laporan_imut_id'): Collection
     {
-        $query = ImutPenilaian::query()
-            ->select('imut_penilaians.*', 'laporan_unit_kerjas.laporan_imut_id as laporan_id')
-            ->with('laporanUnitKerja')
+        return DB::table('imut_penilaians')
             ->join('laporan_unit_kerjas', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-            ->whereIn('laporan_unit_kerjas.laporan_imut_id', $laporanIds);
-
-        if ($profileIds) {
-            $query->whereIn('imut_penilaians.imut_profil_id', $profileIds);
-        }
-
-        $data = $query->get();
-
-        return $data->groupBy(match ($groupBy) {
-            'laporan_unit_kerjas.laporan_imut_id' => 'laporan_id',
-            'imut_penilaians.imut_profil_id' => 'imut_profil_id',
-            default => $groupBy,
-        });
+            ->whereIn('laporan_unit_kerjas.laporan_imut_id', $laporanIds)
+            ->when($profileIds, fn ($q) => $q->whereIn('imut_penilaians.imut_profil_id', $profileIds))
+            ->select(
+                'imut_penilaians.id',
+                'imut_penilaians.imut_profil_id',
+                'imut_penilaians.laporan_unit_kerja_id',
+                'imut_penilaians.numerator_value',
+                'imut_penilaians.denominator_value',
+                'laporan_unit_kerjas.laporan_imut_id as laporan_id'
+            )
+            ->get()
+            ->groupBy($groupBy);
     }
 
     private function getLatestProfileIds(Collection $indikatorAktif): Collection
