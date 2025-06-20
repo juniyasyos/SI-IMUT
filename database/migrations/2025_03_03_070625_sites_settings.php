@@ -11,7 +11,7 @@ class SitesSettings extends SettingsMigration
         $this->migrator->add('sites.site_keywords', 'SIIMUT, mutu layanan, KARS, SNARS, rumah sakit');
         $this->migrator->add('sites.site_profile', 'Sistem Indikator Mutu (SIIMUT)');
         $this->migrator->add('sites.site_logo', '');
-        $this->migrator->add('sites.site_author', 'SIIMUT‑Optimize');
+        $this->migrator->add('sites.site_author', 'Rumah Sakit Citra Husada');
         $this->migrator->add('sites.site_address', 'Indonesia');
         $this->migrator->add('sites.site_email', 'support@siimutoptimize.id');
         $this->migrator->add('sites.site_phone', '+62-xxx-xxxx-xxx');

@@ -12,6 +12,30 @@
     };
 
     $quotesByTime = [
+        'dini' => [
+            'Malam masih panjang. Tidur sebentar bukan lemah, itu bijak.',
+            'Kalau kamu masih kerja jam segini, semoga karena passion — bukan tekanan.',
+            'Tubuh juga butuh istirahat. Jangan paksakan kalau mata sudah berat.',
+            'Kejar mimpi itu bagus. Tapi jangan lupakan tidur — itu bagian dari mimpi juga.',
+            'Jam segini bukan tentang siapa paling kuat, tapi siapa paling sadar diri.',
+            'Ketenangan malam seharusnya jadi pelukan, bukan tekanan.',
+            'Semua yang kamu kejar masih akan ada besok. Tapi kesehatanmu tidak menunggu.',
+            'Diamnya malam bukan alasan untuk terus menyiksa diri.',
+            'Subuh masih lama — gunakan sisa waktu ini untuk pulih, bukan menambah beban.',
+            'Jika dunia sedang tidur, mungkin kamu juga perlu mengikutinya.',
+        ],
+
+        'malam' => [
+            'Selamat malam! Evaluasi hari ini, rancang esok hari.',
+            'Waktunya tenang sejenak, recharge sebelum perang esok.',
+            'Hari ini mungkin melelahkan, tapi kamu luar biasa.',
+            'Senyum sebelum tidur, besok mulai lagi dengan lebih kuat.',
+            'Tidur itu juga bagian dari produktivitas.',
+            'Istirahat yang baik = esok yang hebat.',
+            'Kalahkan penyesalan hari ini dengan perencanaan malam ini.',
+            'Lupakan stres, ingat progres.',
+            'Hargai dirimu — kamu sudah berjuang hari ini.',
+        ],
         'pagi' => [
             'Selamat pagi! Saatnya buka semangat dengan secangkir produktivitas.',
             'Hari baru, peluang baru. Ayo mulai dengan senyum!',
@@ -45,24 +69,42 @@
             'Sore yang produktif = malam yang damai.',
             'Fokus terakhir sebelum layar dimatikan!',
         ],
-        'malam' => [
-            'Selamat malam! Evaluasi hari ini, rancang esok hari.',
-            'Waktunya tenang sejenak, recharge sebelum perang esok.',
-            'Hari ini mungkin melelahkan, tapi kamu luar biasa.',
-            'Senyum sebelum tidur, besok mulai lagi dengan lebih kuat.',
-            'Tidur itu juga bagian dari produktivitas.',
-            'Istirahat yang baik = esok yang hebat.',
-            'Kalahkan penyesalan hari ini dengan perencanaan malam ini.',
-            'Lupakan stres, ingat progres.',
-            'Hargai dirimu — kamu sudah berjuang hari ini.',
+        'larut' => [
+            'Sudah lebih dari jam 10 malam, istirahatlah sejenak. Besok masih ada hari.',
+            'Tidur sekarang lebih baik daripada menyesal besok pagi.',
+            'Produktif itu baik, tapi istirahat itu penting.',
+            'Jangan korbankan kesehatan demi menyelesaikan sesuatu yang bisa ditunda.',
+            'Tubuhmu butuh istirahat, bukan ambisi tanpa henti.',
+            'Kalau kamu masih kerja, pastikan alasannya bukan karena pelarian.',
+            'Jam 10 malam ke atas itu bukan waktu kerja, tapi waktu untuk pulih.',
+            'Besok akan lebih ringan jika malam ini kamu tidur cukup.',
+            'Kelelahan bukan lambang perjuangan, tapi tanda tubuh minta perhatian.',
+            'Batas waktu itu penting — bukan hanya untuk tugas, tapi juga untuk dirimu sendiri.',
+            'Pekerjaan tidak akan selesai lebih cepat dengan badan yang makin lemah.',
+            'Hasil terbaik datang dari pikiran yang cukup tidur.',
+            'Kalau semua orang sudah tidur, mungkin kamu juga perlu.',
+            'Kerja lembur terus-menerus bukan pencapaian, itu kebiasaan yang harus dikaji ulang.',
+            'Istirahat bukan buang waktu. Itu investasi untuk hari esok.',
+            'Kadang produktif itu berarti tahu kapan harus berhenti.',
+            'Jangan menukar tidurmu malam ini dengan penyesalan esok hari.',
+            'Kalau sudah lebih dari jam 11 malam dan kamu masih bekerja, tanyakan: “Perlu atau hanya terbiasa?”',
+            'Tidur itu bagian dari kerja — kerja merawat dirimu sendiri.',
+            'Kamu bisa menyelesaikannya besok dengan kepala yang lebih segar.',
+            'Jika kamu ingin konsisten, jangan abaikan istirahatmu.',
+            'Malam itu untuk merenung, bukan untuk membakar diri sendiri.',
+            'Waktu larut bukan bonus waktu kerja, tapi sinyal alami untuk berhenti.',
+            'Badan lelah itu panggilan alam — dengarkan sebelum terlambat.',
+            'Jangan biasakan menunda tidur untuk sesuatu yang tak mendesak.',
         ],
     ];
 
     $timeKey = match (true) {
+        $hour >= 0 && $hour < 4 => 'dini',
         $hour < 11 => 'pagi',
         $hour < 15 => 'siang',
         $hour < 18 => 'sore',
-        default => 'malam',
+        $hour < 22 => 'malam',
+        default => 'larut',
     };
 
     $quotes = $quotesByTime[$timeKey];

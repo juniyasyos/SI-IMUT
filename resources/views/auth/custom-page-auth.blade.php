@@ -1,8 +1,7 @@
 <div>
     {{-- Background Image --}}
     <div class="absolute inset-0">
-        <img src="{{ asset('storage/bg-login/133884796741265059.jpg') }}" alt="Background"
-            class="object-cover w-full h-full">
+        <img src="{{ asset('images/assets/133884796741265059.jpg') }}" alt="Background" class="object-cover w-full h-full">
     </div>
 
     <div class="relative items-center justify-center flex-1 hidden h-screen bg-gray-900 lg:flex">
@@ -22,7 +21,7 @@
                 </p>
                 <div class="flex items-center -space-x-2 overflow-hidden">
                     <p class="italic font-medium text-white text-md">
-                        {{ setting('site_name') }}
+                        {{ setting('site_author') }}
                     </p>
                 </div>
             </div>
