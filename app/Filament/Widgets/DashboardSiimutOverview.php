@@ -11,6 +11,8 @@ class DashboardSiimutOverview extends BaseWidget
 {
     protected static ?int $sort = 2;
 
+    protected int|string|array $columnSpan = 'full';
+
     public static function canView(): bool
     {
         return Auth::user()?->can('widget_DashboardSiimutOverview');

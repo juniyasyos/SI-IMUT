@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Facades\LaporanImut as LaporanImutFacade;
 use App\Models\LaporanImut;
 use App\Support\CacheKey;
 use Illuminate\Support\Facades\Cache;
-use App\Facades\LaporanImut as LaporanImutFacade;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -40,24 +40,24 @@ class DashboardImutService
         $cacheKey = CacheKey::dashboardSiimutAllData($latestLaporanId);
 
         // return Cache::remember($cacheKey, now()->addDays(7), function () use ($latestLaporanId) {
-            $laporan = LaporanImut::find($latestLaporanId);
+        $laporan = LaporanImut::find($latestLaporanId);
 
-            if (! $laporan) {
-                Log::info('LaporanImut dengan ID tidak ditemukan.', ['id' => $latestLaporanId]);
+        if (! $laporan) {
+            Log::info('LaporanImut dengan ID tidak ditemukan.', ['id' => $latestLaporanId]);
 
-                return $this->getEmptyDashboardData();
-            }
+            return $this->getEmptyDashboardData();
+        }
 
-            try {
-                $currentPeriodData = LaporanImutFacade::getCurrentLaporanData($laporan);
-                $chartData = LaporanImutFacade::getChartDataForLastLaporan(6);
+        try {
+            $currentPeriodData = LaporanImutFacade::getCurrentLaporanData($laporan);
+            $chartData = LaporanImutFacade::getChartDataForLastLaporan(6);
 
-                return array_merge($currentPeriodData, ['chart' => $chartData]);
-            } catch (\Throwable $e) {
-                Log::error('Gagal mengambil data dashboard.', ['exception' => $e]);
+            return array_merge($currentPeriodData, ['chart' => $chartData]);
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengambil data dashboard.', ['exception' => $e]);
 
-                return $this->getEmptyDashboardData();
-            }
+            return $this->getEmptyDashboardData();
+        }
         // });
     }
 
@@ -66,31 +66,43 @@ class DashboardImutService
      */
     public function getStatsConfig(array $data): array
     {
+        $payload = $data;
+
         return [
             [
                 'key' => 'tercapai',
                 'label' => 'Indikator Tercapai',
-                'description' => $this->generateTrendDescription($data['chart']['tercapai'] ?? [], 'indikator'),
+                'description' => $this->generateTrendDescription(
+                    array_column($payload['chart'] ?? [], 'tercapai'),
+                    'indikator'
+                ),
                 'descriptionIcon' => 'heroicon-o-arrow-trending-up',
-                'icon' => $this->resolveIcon($data['tercapai'] ?? 0, $data['totalIndikator'] ?? 1),
+                'icon' => $this->resolveIcon($payload['tercapai'] ?? 0, $payload['totalIndikator'] ?? 1),
                 'color' => fn ($d) => $this->resolvePercentageColor($d['tercapai'] ?? 0, $d['totalIndikator'] ?? 1),
                 'chart' => 'tercapai',
-                'format' => fn ($v) => "$v / ".($data['totalIndikator'] ?? 1),
+                'format' => fn ($v) => "$v / ".($payload['totalIndikator'] ?? 1),
             ],
             [
                 'key' => 'unitMelapor',
                 'label' => 'Unit Aktif Melapor',
-                'description' => $this->generateTrendDescription($data['chart']['unitMelapor'] ?? [], 'unit'),
+                'description' => $this->generateTrendDescription(
+                    array_column($payload['chart'] ?? [], 'unitMelapor'),
+                    'unit'
+                ),
                 'descriptionIcon' => 'heroicon-o-user-plus',
                 'icon' => 'heroicon-o-user-group',
                 'color' => fn ($d) => $this->resolvePercentageColor($d['unitMelapor'] ?? 0, $d['totalUnit'] ?? 1),
                 'chart' => 'unitMelapor',
-                'format' => fn ($v) => "$v / ".($data['totalUnit'] ?? 1).' Unit',
+                'format' => fn ($v) => "$v / ".($payload['totalUnit'] ?? 1).' Unit',
             ],
             [
                 'key' => 'belumDinilai',
                 'label' => 'Indikator Belum Dinilai',
-                'description' => $this->generateTrendDescription($data['chart']['belumDinilai'] ?? [], 'indikator belum dinilai', true),
+                'description' => $this->generateTrendDescription(
+                    array_column($payload['chart'] ?? [], 'belumDinilai'),
+                    'indikator belum dinilai',
+                    true
+                ),
                 'descriptionIcon' => 'heroicon-o-pencil-square',
                 'icon' => 'heroicon-o-clock',
                 'color' => fn ($d) => ($d['belumDinilai'] ?? 0) > 5 ? 'danger' : 'warning',
@@ -100,36 +112,51 @@ class DashboardImutService
     }
 
     /**
-     * Menghasilkan deskripsi tren sederhana dari chart.
+     * Menghasilkan deskripsi tren informatif dari data chart.
      */
     protected function generateTrendDescription(array $chart, string $unit = '', bool $inverse = false): string
     {
-        if (count($chart) < 2) {
-            return 'Data belum cukup untuk analisis.';
+        $count = count($chart);
+
+        if ($count < 2) {
+            return 'Data belum cukup untuk menganalisis tren.';
         }
 
-        $diff = $chart[count($chart) - 1] - $chart[count($chart) - 2];
+        $latest = $chart[$count - 1];
+        $previous = $chart[$count - 2];
+        $diff = $latest - $previous;
         $abs = abs($diff);
 
         if ($diff === 0) {
             return match ($unit) {
-                'indikator' => 'Capaian indikator stabil.',
-                'unit' => 'Jumlah unit tetap.',
-                'indikator belum dinilai' => 'Belum ada perubahan penilaian.',
-                default => ucfirst($unit).' stabil.',
+                'indikator' => 'Capaian indikator stabil dalam dua periode terakhir.',
+                'unit' => 'Jumlah unit pelapor tidak berubah.',
+                'indikator belum dinilai' => 'Tidak ada perubahan pada indikator yang belum dinilai.',
+                default => ucfirst($unit).' stabil tanpa perubahan.',
             };
         }
 
+        // Interpretasi terbalik (semakin kecil semakin baik)
         if ($inverse) {
             return $diff > 0
-                ? ucfirst($unit)." naik $abs — tren negatif."
-                : ucfirst($unit)." turun $abs — tren positif.";
+                ? ucfirst($unit)." meningkat sebesar $abs dibandingkan periode sebelumnya — arah negatif."
+                : ucfirst($unit)." menurun sebesar $abs — ini pertanda positif.";
         }
 
+        // Interpretasi normal (semakin besar semakin baik)
         return match ($unit) {
-            'indikator' => $diff > 0 ? "Indikator tercapai naik $abs." : "Indikator tercapai turun $abs.",
-            'unit' => $diff > 0 ? "$abs unit mulai melapor." : "$abs unit berhenti melapor.",
-            default => ucfirst($unit).($diff > 0 ? " naik $abs." : " turun $abs."),
+            'indikator' => $diff > 0
+                ? "Jumlah indikator tercapai meningkat $abs dibandingkan periode sebelumnya."
+                : "Jumlah indikator tercapai menurun $abs dari periode sebelumnya.",
+            'unit' => $diff > 0
+                ? "$abs unit baru mulai melapor dibandingkan sebelumnya."
+                : "$abs unit tidak melapor dibandingkan periode sebelumnya.",
+            'indikator belum dinilai' => $diff > 0
+                ? "$abs indikator tambahan belum dinilai — perlu perhatian."
+                : "$abs indikator telah dinilai sejak periode sebelumnya — perkembangan positif.",
+            default => ucfirst($unit).($diff > 0
+                ? " naik sebesar $abs dibanding sebelumnya."
+                : " turun sebesar $abs dari sebelumnya."),
         };
     }
 
