@@ -113,7 +113,7 @@ class ImutDataSeeder extends Seeder
             ], [
                 'assessment_period_start' => $assessmentStart,
                 'assessment_period_end' => $end,
-                'status' => LaporanImut::STATUS_COMPLETE,
+                'status' => LaporanImut::STATUS_PROCESS,
                 'created_by' => $this->adminUserId ?? 1,
             ]);
 
