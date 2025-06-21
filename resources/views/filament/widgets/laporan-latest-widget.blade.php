@@ -32,9 +32,16 @@
                 <span
                     class="inline-flex items-center gap-1 text-sm font-medium px-4 py-1.5 rounded-full ring-1
                     {{ $statusColors[$laporan->status] ?? 'bg-gray-100 text-gray-800 ring-gray-300' }}">
-                    <x-heroicon-o-information-circle class="w-4 h-4" />
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                    </svg>
+
                     Status: {{ ucfirst($laporan->status) }}
                 </span>
+
             </div>
         @endif
     </x-filament::section>
