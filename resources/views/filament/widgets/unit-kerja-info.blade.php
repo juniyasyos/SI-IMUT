@@ -56,10 +56,6 @@
                         href="#">
                         Lihat Laporan
                     </x-filament::button>
-
-                    <x-filament::button icon="heroicon-m-user-plus" color="gray" size="sm" href="#">
-                        Tambah Penanggung Jawab
-                    </x-filament::button>
                 </div>
             </div>
         @else

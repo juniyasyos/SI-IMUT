@@ -1,11 +1,11 @@
-<section class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10"
+<section class="bg-white shadow-sm fi-section rounded-xl ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10"
     style="margin-bottom: -4%; margin-top: -1%;">
     <div class="fi-section-content-ctn">
-        <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-4 p-6">
+        <div class="grid items-center grid-cols-1 gap-4 p-6 md:grid-cols-2">
             <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Periode Penilaian</p>
+                <p class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">Periode Penilaian</p>
                 <p
-                    class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 dark:text-white tracking-wide leading-snug">
+                    class="text-lg font-semibold leading-snug tracking-wide text-gray-900 sm:text-xl md:text-2xl dark:text-white">
                     {{ $periode }}
                 </p>
             </div>
