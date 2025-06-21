@@ -84,23 +84,23 @@ class LaporanImutPolicy
     }
 
     // ImutPenilaian (child) permissions
-    public function viewPenilaian(User $user, ImutPenilaian $penilaian): bool
-    {
-        return $user->can('view_imut_penilaian_laporan::imut') && $this->userCanAccessPenilaian($user, $penilaian);
-    }
+    // public function viewPenilaian(User $user, ImutPenilaian $penilaian): bool
+    // {
+    //     return $user->can('view_imut_penilaian_imut::penilaian') && $this->userCanAccessPenilaian($user, $penilaian);
+    // }
 
-    public function updateNumeratorDenominator(User $user, ImutPenilaian $penilaian): bool
-    {
-        return $user->can('update_numerator_denominator_laporan::imut') && $this->userCanAccessPenilaian($user, $penilaian);
-    }
+    // public function updateNumeratorDenominator(User $user, ImutPenilaian $penilaian): bool
+    // {
+    //     return $user->can('update_numerator_denominator_imut::penilaian') && $this->userCanAccessPenilaian($user, $penilaian);
+    // }
 
-    public function updateProfile(User $user, ImutPenilaian $penilaian): bool
-    {
-        return $user->can('update_profile_penilaian_laporan::imut') && $this->userCanAccessPenilaian($user, $penilaian);
-    }
+    // public function updateProfile(User $user, ImutPenilaian $penilaian): bool
+    // {
+    //     return $user->can('update_profile_penilaian_imut::penilaian') && $this->userCanAccessPenilaian($user, $penilaian);
+    // }
 
-    public function createRecommendation(User $user, ImutPenilaian $penilaian): bool
-    {
-        return $user->can('create_recommendation_penilaian_laporan::imut') && $this->userCanAccessPenilaian($user, $penilaian);
-    }
+    // public function createRecommendation(User $user, ImutPenilaian $penilaian): bool
+    // {
+    //     return $user->can('create_recommendation_penilaian_imut::penilaian') && $this->userCanAccessPenilaian($user, $penilaian);
+    // }
 }

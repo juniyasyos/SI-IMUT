@@ -51,7 +51,7 @@ return [
         'view_unit_kerja_report_detail_laporan::imut',
         'view_imut_data_report_laporan::imut',
         'view_imut_data_report_detail_laporan::imut',
-        'view_imut_penilaian_laporan::imut',
-        'update_numerator_denominator_laporan::imut',
+        'view_imut_penilaian_imut::penilaian',
+        'update_numerator_denominator_imut::penilaian',
     ],
 ];

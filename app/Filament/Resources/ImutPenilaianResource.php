@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ImutPenilaianResource\Pages;
 use App\Models\ImutPenilaian;
 use App\Models\ImutProfile;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -20,13 +21,23 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 
-class ImutPenilaianResource extends Resource
+class ImutPenilaianResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = ImutPenilaian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static bool $shouldRegisterNavigation = false;
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'update_numerator_denominator',
+            'update_profile_penilaian',
+            'create_recommendation_penilaian',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -65,7 +76,7 @@ class ImutPenilaianResource extends Resource
     {
         return [
             Section::make('Informasi Profil')
-                ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_laporan::imut'))
+                ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
                 ->description('Pilih profil dan standar IMUT yang sesuai.')
                 ->schema([
                     // Hidden field for imut_data_id
@@ -362,7 +373,7 @@ class ImutPenilaianResource extends Resource
                         ->numeric()
                         ->placeholder('0.00')
                         ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
-                            || ! Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
                         )
                         ->required()
                         ->reactive()
@@ -375,7 +386,7 @@ class ImutPenilaianResource extends Resource
                     TextInput::make('denominator_value')
                         ->label('Denominator')
                         ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
-                            || ! Auth::user()?->can('update_numerator_denominator_laporan::imut')
+                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
                         )
                         ->numeric()
                         ->placeholder('0.00')
@@ -413,7 +424,7 @@ class ImutPenilaianResource extends Resource
                         ->previewable(true)
                         ->columnSpanFull()
                         ->disabled(fn ($livewire) => $livewire->isLaporanPeriodClosed()
-                            || ! Auth::user()?->can('update_numerator_denominator_laporan::imut'))
+                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian'))
                         ->acceptedFileTypes([
                             'application/pdf',
                             'image/*',
@@ -435,7 +446,7 @@ class ImutPenilaianResource extends Resource
 
                     Textarea::make('recommendations')
                         ->label('Rekomendasi')
-                        ->disabled(fn () => ! Auth::user()?->can('create_recommendation_penilaian_laporan::imut'))
+                        ->disabled(fn () => ! Auth::user()?->can('create_recommendation_penilaian_imut::penilaian'))
                         ->rows(4)
                         ->placeholder('Berikan saran atau rekomendasi...')
                         ->columnSpanFull(),

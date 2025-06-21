@@ -98,9 +98,9 @@ return [
         'view_imut_data_report_detail_laporan::imut',
 
         // Penilaian
-        'view_imut_penilaian_laporan::imut',
-        'update_profile_penilaian_laporan::imut',
-        'create_recommendation_penilaian_laporan::imut',
+        'view_imut_penilaian_imut::penilaian',
+        'update_profile_penilaian_imut::penilaian',
+        'create_recommendation_penilaian_imut::penilaian',
 
         // Folder
         'view_any_folder::custom',

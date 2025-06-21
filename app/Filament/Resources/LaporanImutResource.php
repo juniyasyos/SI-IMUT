@@ -78,12 +78,6 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             'view_unit_kerja_report_detail',
             'view_imut_data_report',
             'view_imut_data_report_detail',
-
-            // custom penilaian actions
-            'view_imut_penilaian',
-            'update_numerator_denominator',
-            'update_profile_penilaian',
-            'create_recommendation_penilaian',
         ]);
     }
 

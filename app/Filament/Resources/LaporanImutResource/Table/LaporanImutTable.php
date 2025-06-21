@@ -160,8 +160,8 @@ class LaporanImutTable
             ->visible(
                 fn () => Gate::check('view_unit_kerja_report_laporan::imut') &&
                     Gate::check('view_imut_data_report_laporan::imut') &&
-                    Gate::check('update_profile_penilaian_laporan::imut') &&
-                    Gate::check('create_recommendation_penilaian_laporan::imut')
+                    Gate::check('update_profile_penilaian_imut::penilaian') &&
+                    Gate::check('create_recommendation_penilaian_imut::penilaian')
             )
             ->getStateUsing(fn ($record) => self::calculateUnitKerjaTerisi($record))
             ->tooltip(fn ($record) => self::tooltipUnitKerjaTerisi($record));
@@ -193,7 +193,7 @@ class LaporanImutTable
             : null;
     }
 
-        protected static function formatAssessmentPeriod($record): string
+    protected static function formatAssessmentPeriod($record): string
     {
         $start = \Carbon\Carbon::parse($record->assessment_period_start)->translatedFormat('d M');
         $end = \Carbon\Carbon::parse($record->assessment_period_end)->translatedFormat('d M Y');
@@ -294,5 +294,4 @@ class LaporanImutTable
 
         return "{$filledCount} dari {$totalUnitKerja} unit kerja sudah mengisi";
     }
-
 }

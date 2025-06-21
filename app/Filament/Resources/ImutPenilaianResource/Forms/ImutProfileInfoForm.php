@@ -19,7 +19,7 @@ class ImutProfileInfoForm
     {
         return [
             Section::make('Informasi Profil')
-                ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_laporan::imut'))
+                ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
                 ->description('Pilih profil dan standar IMUT yang sesuai.')
                 ->schema([
                     // Hidden field for imut_data_id
