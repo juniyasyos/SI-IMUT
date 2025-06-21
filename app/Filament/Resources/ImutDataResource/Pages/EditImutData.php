@@ -11,6 +11,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Guava\FilamentModalRelationManagers\Actions\Action\RelationManagerAction;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class EditImutData extends EditRecord
@@ -38,6 +40,30 @@ class EditImutData extends EditRecord
             ])->button()->label('Lihat Grafik')->icon('heroicon-s-chart-bar'),
 
             $this->getDeleteAction(),
+        ];
+    }
+
+    public static function canEditProfilIndikator(?Model $record = null): bool
+    {
+        $user = Auth::user();
+
+        return $record?->created_by === $user?->id;
+    }
+
+    protected function getFormActions(): array
+    {
+        $user = Auth::user();
+        $record = $this->getRecord();
+
+        $isCreator = $record?->created_by === $user?->id;
+
+        if (! $isCreator) {
+            return [];
+        }
+
+        return [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
         ];
     }
 

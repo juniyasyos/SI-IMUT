@@ -147,4 +147,9 @@ class ImutData extends Model
     {
         return $this->hasOne(ImutProfile::class)->where('id', $profileId);
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
