@@ -25,7 +25,7 @@
                 {{-- Dokumentasi --}}
                 <x-filament::link color="gray" href="https://github.com/juniyasyos" icon="heroicon-m-book-open"
                     rel="noopener noreferrer" target="_blank">
-                    Dokumentasi Filament
+                    Panduan Penggunaan
                 </x-filament::link>
             </div>
         </div>

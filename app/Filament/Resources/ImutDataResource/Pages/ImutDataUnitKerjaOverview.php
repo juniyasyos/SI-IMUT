@@ -7,6 +7,7 @@ use App\Filament\Resources\ImutDataResource\Widgets\ImutDataUnitKerjaGrafikOverv
 use App\Models\ImutData;
 use App\Models\UnitKerja;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 
 class ImutDataUnitKerjaOverview extends Page
 {
@@ -20,46 +21,65 @@ class ImutDataUnitKerjaOverview extends Page
 
     public ?UnitKerja $unitKerja = null;
 
+    /**
+     * @param  array<string, mixed>  $parameters
+     */
+    public static function canAccess(array $parameters = []): bool
+    {
+        $user = Auth::user();
+
+        // Jika punya akses penuh, langsung izinkan
+        if ($user->can('view_all_data_imut::data')) {
+            return true;
+        }
+
+        // Jika punya akses terbatas berdasarkan unit kerja
+        if ($user->can('view_by_unit_kerja_imut::data')) {
+            $unitKerjaId = $parameters['record_unit_kerja'] ?? null;
+
+            // Tidak ada unit kerja dalam parameter, tolak
+            if (! $unitKerjaId) {
+                return false;
+            }
+
+            // Cek apakah unit kerja tersebut milik user
+            return $user->unitKerjas()->where('unit_kerja_id', $unitKerjaId)->exists();
+        }
+
+        return false;
+    }
+
     public function mount(): void
     {
         $imutDataId = request()->query('record_imut_data');
         $unitKerjaId = request()->query('record_unit_kerja');
 
-        // Validasi dan load IMUT Data
-        if (! $imutDataId) {
-            abort(404, 'Slug Data IMUT tidak ditemukan.');
+        if (! $imutDataId || ! $unitKerjaId) {
+            abort(404, 'Data atau unit kerja tidak ditemukan.');
         }
 
-        $imutData = ImutData::with(['profiles', 'categories'])->whereId($imutDataId)->first();
+        $this->imutData = ImutData::with(['profiles', 'categories'])->findOrFail($imutDataId);
+        $this->unitKerja = UnitKerja::findOrFail($unitKerjaId);
 
-        if (! $imutData) {
-            abort(404, 'Data IMUT tidak valid.');
+        // Cek akses ulang di sini agar tidak bisa bypass mount() meskipun bisa akses URL
+        $user = Auth::user();
+
+        if (
+            ! $user->can('view_all_data_imut::data') &&
+            ! ($user->can('view_by_unit_kerja_imut::data') &&
+                $user->unitKerjas()->where('unit_kerja_id', $unitKerjaId)->exists())
+        ) {
+            abort(403, 'Anda tidak memiliki izin untuk mengakses unit kerja ini.');
         }
 
-        // Validasi dan load Unit Kerja
-        if (! $unitKerjaId) {
-            abort(404, 'Slug Unit Kerja tidak ditemukan.');
-        }
-
-        $unitKerja = UnitKerja::whereId($unitKerjaId)->first();
-
-        if (! $unitKerja) {
-            abort(404, 'Unit Kerja tidak valid.');
-        }
-
-        // Simpan ke properti
-        $this->imutData = $imutData;
-        $this->unitKerja = $unitKerja;
-
-        // Siapkan data untuk form/view
         $this->data = [
-            'imutDataId' => $imutData->id,
-            'title' => $imutData->title,
-            'status' => $imutData->status,
-            'kategori' => $imutData->categories?->name ?? '-',
-            'jumlah_profil' => $imutData->profiles->count(),
-            'unitKerjaId' => $unitKerja->id,
-            'unitKerja' => $unitKerja->unit_name,
+            'imutDataId' => $this->imutData->id,
+            'title' => $this->imutData->title,
+            'status' => $this->imutData->status,
+            'kategori' => $this->imutData->categories?->name ?? '-',
+            'jumlah_profil' => $this->imutData->profiles->count(),
+            'unitKerjaId' => $this->unitKerja->id,
+            'unitKerja' => $this->unitKerja->unit_name,
         ];
     }
 
@@ -86,7 +106,10 @@ class ImutDataUnitKerjaOverview extends Page
     public function getHeaderWidgets(): array
     {
         return [
-            ImutDataUnitKerjaGrafikOverview::make(['imutData' => $this->imutData, 'unitKerja' => $this->unitKerja]),
+            ImutDataUnitKerjaGrafikOverview::make([
+                'imutData' => $this->imutData,
+                'unitKerja' => $this->unitKerja,
+            ]),
         ];
     }
 }
