@@ -17,7 +17,7 @@ class ImutTercapai extends BaseWidget
 {
     protected static ?int $sort = 6;
 
-    protected int|string|array $columnSpan = 2;
+    protected int|string|array $columnSpan = 'full';
 
     public static function canView(): bool
     {

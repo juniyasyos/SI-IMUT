@@ -153,18 +153,18 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                             : ! $record->trashed()
                     ),
 
-                RelationManagerAction::make('imutData-relation-manager')
-                    ->slideOver()
-                    ->label('Imut Data Attach')
-                    ->icon('heroicon-o-chart-bar')
-                    ->relationManager(ImutDataRelationManager::make())
-                    ->visible(
-                        fn($record) =>
-                        Gate::any(['attach_imut_data_to_unit_kerja_unit::kerja'], $record)
-                            && method_exists($record, 'trashed') === false
-                            ? true
-                            : ! $record->trashed()
-                    ),
+                // RelationManagerAction::make('imutData-relation-manager')
+                //     ->slideOver()
+                //     ->label('Imut Data Attach')
+                //     ->icon('heroicon-o-chart-bar')
+                //     ->relationManager(ImutDataRelationManager::make())
+                //     ->visible(
+                //         fn($record) =>
+                //         Gate::any(['attach_imut_data_to_unit_kerja_unit::kerja'], $record)
+                //             && method_exists($record, 'trashed') === false
+                //             ? true
+                //             : ! $record->trashed()
+                //     ),
 
                 ActionGroup::make([
                     ViewAction::make(),

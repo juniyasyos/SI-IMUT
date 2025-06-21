@@ -7,35 +7,58 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Model untuk mengelola laporan unit kerja.
+ */
 class LaporanUnitKerja extends Model
 {
     protected $guarded = ['id'];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
+    /**
+     * Relasi ke model LaporanImut.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function laporanImut()
     {
         return $this->belongsTo(LaporanImut::class);
     }
 
+    /**
+     * Relasi ke model UnitKerja.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function unitKerja()
     {
         return $this->belongsTo(UnitKerja::class);
     }
 
-    // LaporanUnitKerja.php
+    /**
+     * Relasi ke model ImutPenilaian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function imutPenilaians()
     {
         return $this->hasMany(ImutPenilaian::class, 'laporan_unit_kerja_id');
     }
 
+    /**
+     * Hook model saat disimpan atau dihapus untuk menghapus cache terkait.
+     */
     protected static function booted()
     {
         static::saved(fn ($laporan) => $laporan->clearCache());
         static::deleted(fn ($laporan) => $laporan->clearCache());
     }
 
-    public function clearCache()
+    /**
+     * Menghapus cache yang berkaitan dengan laporan ini.
+     */
+    public function clearCache(): void
     {
         $laporanId = $this->laporan_imut_id;
         $unitKerjaId = $this->unit_kerja_id;
@@ -44,6 +67,11 @@ class LaporanUnitKerja extends Model
         Cache::forget(CacheKey::dashboardSiimutAllData($laporanId));
     }
 
+    /**
+     * Mengambil laporan berdasarkan unit kerja dengan total nilai dan persentase.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public static function getReportByUnitKerja(int $laporanId)
     {
         return self::query()
@@ -75,6 +103,11 @@ class LaporanUnitKerja extends Model
             );
     }
 
+    /**
+     * Mengambil laporan berdasarkan data IMUT dengan total nilai dan persentase.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public static function getReportByImutData(int $laporanId)
     {
         return self::query()
@@ -89,14 +122,14 @@ class LaporanUnitKerja extends Model
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
                 DB::raw('
-                ROUND(
-                    CASE
-                        WHEN SUM(imut_penilaians.denominator_value) > 0
-                        THEN SUM(imut_penilaians.numerator_value) * 100.0 / NULLIF(SUM(imut_penilaians.denominator_value), 0)
-                        ELSE 0
-                    END, 2
-                ) as percentage
-            ')
+                    ROUND(
+                        CASE
+                            WHEN SUM(imut_penilaians.denominator_value) > 0
+                            THEN SUM(imut_penilaians.numerator_value) * 100.0 / NULLIF(SUM(imut_penilaians.denominator_value), 0)
+                            ELSE 0
+                        END, 2
+                    ) as percentage
+                ')
             )
             ->groupBy(
                 'imut_data.id',
@@ -106,9 +139,14 @@ class LaporanUnitKerja extends Model
             ->orderBy('imut_data.title');
     }
 
+    /**
+     * Mengambil detail laporan berdasarkan unit kerja tertentu.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public static function getReportByUnitKerjaDetails(int $laporanId, int $unitKerjaId)
     {
-        $query = self::query()
+        return self::query()
             ->join('unit_kerja', 'laporan_unit_kerjas.unit_kerja_id', '=', 'unit_kerja.id')
             ->join('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->join('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
@@ -144,13 +182,16 @@ class LaporanUnitKerja extends Model
                     ) as percentage
                 ')
             );
-
-        return $query;
     }
 
+    /**
+     * Mengambil detail laporan berdasarkan data IMUT tertentu.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public static function getReportByImutDataDetails(int $laporanId = 1, int $imutDataId = 1)
     {
-        $query = self::query()
+        return self::query()
             ->join('unit_kerja', 'laporan_unit_kerjas.unit_kerja_id', '=', 'unit_kerja.id')
             ->join('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->join('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
@@ -177,17 +218,14 @@ class LaporanUnitKerja extends Model
                 'imut_penilaians.recommendations',
                 'imut_penilaians.analysis',
                 DB::raw('
-                ROUND(
-                    CASE
-                        WHEN imut_penilaians.denominator_value > 0 THEN
-                            imut_penilaians.numerator_value * 100.0 / NULLIF(imut_penilaians.denominator_value, 0)
-                        ELSE 0
-                    END, 2
-                ) as percentage
-            ')
+                    ROUND(
+                        CASE
+                            WHEN imut_penilaians.denominator_value > 0 THEN
+                                imut_penilaians.numerator_value * 100.0 / NULLIF(imut_penilaians.denominator_value, 0)
+                            ELSE 0
+                        END, 2
+                    ) as percentage
+                ')
             );
-
-        // dd($query->get());
-        return $query;
     }
 }

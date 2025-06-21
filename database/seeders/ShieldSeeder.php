@@ -17,23 +17,28 @@ class ShieldSeeder extends Seeder
                 "name" => "Unit Kerja",
                 "guard_name" => "web",
                 "permissions" => [
+                    // Pages
                     "page_MyProfilePage",
+
+                    // Widget
+                    "widget_UnitKerjaInfo",
+                    "widget_StatsForUnitKerja",
+                    "widget_LaporanLatestWidget",
 
                     // IMUT Data
                     "view_imut::data",
                     "view_any_imut::data",
                     "create_imut::data",
                     "update_imut::data",
+                    "view_by_unit_kerja_imut::data",
+
+                    // IMUT Category
+                    "view_any_imut",
+                    "view_imut::category",
 
                     // Laporan
-                    "view_laporan::imut",
                     "view_any_laporan::imut",
-                    "create_laporan::imut",
-                    "update_laporan::imut",
                     "restore_laporan::imut",
-                    "delete_laporan::imut",
-                    "replicate_laporan::imut",
-                    "reorder_laporan::imut",
 
                     // Report
                     "view_unit_kerja_report_laporan::imut",

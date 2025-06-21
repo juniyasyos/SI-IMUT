@@ -37,7 +37,7 @@ class CreateLaporanImut extends CreateRecord
             ->status('info')
             ->send();
 
-        dispatch(new \App\Jobs\ProsesPenilaianImut($this->record));
+        dispatch(new \App\Jobs\ProsesPenilaianImut($this->record->id));
     }
 
     public function getBreadcrumbs(): array

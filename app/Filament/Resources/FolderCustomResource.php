@@ -27,6 +27,11 @@ class FolderCustomResource extends BaseFolderResource implements HasShieldPermis
         ];
     }
 
+    public static function canAccess(): bool
+    {
+        return static::canViewAny();
+    }
+
     /**
      * Override slug resource secara statik.
      */

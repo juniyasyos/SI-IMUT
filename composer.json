@@ -51,6 +51,7 @@
         "barryvdh/laravel-debugbar": "^3.14",
         "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.23",
+        "filament/upgrade": "^4.0",
         "laravel-shift/blueprint": "^2.10",
         "laravel/dusk": "^8.3",
         "laravel/pail": "^1.1",
@@ -131,6 +132,6 @@
             "wikimedia/composer-merge-plugin": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }
