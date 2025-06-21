@@ -1,7 +1,9 @@
 @php
     use Carbon\Carbon;
+    use Illuminate\Support\Str;
 
     $user = filament()->auth()->user();
+    $displayName = Str::limit(filament()->getUserName($user), 20);
     $hour = now()->format('H');
 
     $greeting = match (true) {
@@ -118,7 +120,7 @@
 
             <div class="flex-1">
                 <h2 class="text-base font-semibold leading-6 text-gray-950 dark:text-white">
-                    {{ $greeting }}, {{ filament()->getUserName($user) }} 👋
+                    {{ $greeting }}, {{ $displayName }} 👋
                 </h2>
 
                 <p class="text-sm text-gray-600 dark:text-gray-400">

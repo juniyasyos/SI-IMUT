@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Position;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
@@ -23,46 +23,60 @@ class UserSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => Hash::make('adminpassword'),
             'status' => 'active',
-            'position_id' => Position::first()->id,
+            'position_id' => Position::first()?->id,
         ]);
 
-        // Path ke file JSON
         $filePath = database_path('data/user.json');
 
-        // Mengecek apakah file ada
-        if (!File::exists($filePath)) {
+        if (! File::exists($filePath)) {
             Log::warning('File "user.json" tidak ditemukan di folder database/data.');
+
             return;
         }
 
-        // Membaca data dari file JSON
         $data = json_decode(File::get($filePath), true);
 
-        // Mengecek apakah data berhasil di-decode
         if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::error('Gagal mendecode file JSON: ' . json_last_error_msg());
+            Log::error('Gagal mendecode file JSON: '.json_last_error_msg());
+
             return;
         }
 
-        // Mendapatkan semua posisi yang ada di database
         $allPositions = Position::all();
-
-        // Mengecek jika tidak ada posisi dalam database
         if ($allPositions->isEmpty()) {
             Log::warning('Tidak ada data posisi ditemukan di database.');
+
             return;
         }
 
+        $usersToInsert = [];
+
         foreach ($data as $userData) {
+            $rawName = $userData['nama'];
+
+            // Hilangkan gelar akademik
+            $cleanName = preg_replace('/,\s*(S\.Kep\.?|Ners|Amd\.? Kep|SKM|S\.?\.?T\.?|\w+\.)+/i', '', $rawName);
+            $cleanName = trim($cleanName);
+
+            // Generate email: nama tanpa spasi, lowercase
+            $baseEmail = Str::lower(Str::slug($cleanName, '')).'@example.com';
+
+            // Pastikan email unik
+            $email = $baseEmail;
+            $suffix = 1;
+            while (User::where('email', $email)->exists()) {
+                $email = Str::lower(Str::slug($cleanName, '')).$suffix++.'@example.com';
+            }
+
             $usersToInsert[] = [
                 'nik' => $userData['id'],
-                'name' => $userData['nama'],
+                'name' => $cleanName,
                 'place_of_birth' => $userData['tempat_lahir'],
                 'date_of_birth' => $userData['tanggal_lahir'],
                 'gender' => $userData['jenis_kelamin'],
                 'address_ktp' => $userData['alamat'],
                 'phone_number' => null,
-                'email' => Str::lower(Str::replace(' ', '', $userData['nama'])) . '@example.com',
+                'email' => $email,
                 'password' => Hash::make('Rsch123'),
                 'status' => 'active',
                 'position_id' => $allPositions->random()->id,
@@ -71,12 +85,11 @@ class UserSeeder extends Seeder
             ];
         }
 
-        // Melakukan batch insert
         if (count($usersToInsert) > 0) {
             User::insert($usersToInsert);
-            Log::info('Data pengguna berhasil disematkan ke dalam database.');
+            Log::info('Data pengguna berhasil dimasukkan ke dalam database.');
         } else {
-            Log::warning('Tidak ada data pengguna untuk disematkan.');
+            Log::warning('Tidak ada data pengguna untuk dimasukkan.');
         }
     }
 }
