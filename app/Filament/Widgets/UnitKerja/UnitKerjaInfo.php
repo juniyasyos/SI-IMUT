@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Widgets\UnitKerja;
 
 use Filament\Widgets\Widget;
 
@@ -14,13 +14,15 @@ class UnitKerjaInfo extends Widget
 
     public static function canView(): bool
     {
-        return auth()->check() && auth()->user()->unitKerjas()->exists();
+        return auth()->check()
+        && auth()->user()->unitKerjas()->exists()
+        && auth()->user()?->can('widget_UnitKerjaInfo');
     }
 
     protected function getViewData(): array
     {
         $user = auth()->user();
-        $unitKerja = $user->unitKerjas()->first(); // Ambil unit kerja pertama
+        $unitKerja = $user->unitKerjas()->first();
 
         return compact('unitKerja');
     }

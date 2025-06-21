@@ -17,7 +17,9 @@ class StatsForUnitKerja extends BaseWidget
     {
         $user = Auth::user();
 
-        return $user && $user->unitKerjas()->exists();
+        return $user
+        && $user->unitKerjas()->exists()
+        && $user?->can('widget_StatsForUnitKerja');
     }
 
     protected function getStats(): array
