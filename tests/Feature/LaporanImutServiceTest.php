@@ -77,26 +77,26 @@ test('benchmark getCurrentLaporanData with real data', function () {
     });
 });
 
-// test('benchmark getChartDataForLastLaporan with real data', function () {
-//     benchmark('getChartDataForLastLaporan', function () {
-//         return LaporanImutFacade::getChartDataForLastLaporan(6);
-//     });
-// });
+test('benchmark getChartDataForLastLaporan with real data', function () {
+    benchmark('getChartDataForLastLaporan', function () {
+        return LaporanImutFacade::getChartDataForLastLaporan(6);
+    });
+});
 
-// test('benchmark getPenilaianGroupedByProfile with real data', function () {
-//     $laporan = LaporanImut::first();
+test('benchmark getPenilaianGroupedByProfile with real data', function () {
+    $laporan = LaporanImut::first();
 
-//     if (! $laporan) {
-//         $this->markTestSkipped('Tidak ada laporan di database.');
-//     }
+    if (! $laporan) {
+        $this->markTestSkipped('Tidak ada laporan di database.');
+    }
 
-//     benchmark('getPenilaianGroupedByProfile', function () use ($laporan) {
-//         return LaporanImutFacade::getPenilaianGroupedByProfile($laporan->id);
-//     });
-// });
+    benchmark('getPenilaianGroupedByProfile', function () use ($laporan) {
+        return LaporanImutFacade::getPenilaianGroupedByProfile($laporan->id);
+    });
+});
 
-// test('benchmark getLaporanList with real data', function () {
-//     benchmark('getLaporanList', function () {
-//         return LaporanImutFacade::getLaporanList();
-//     });
-// });
+test('benchmark getLaporanList with real data', function () {
+    benchmark('getLaporanList', function () {
+        return LaporanImutFacade::getLaporanList();
+    });
+});
