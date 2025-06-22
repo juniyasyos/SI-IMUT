@@ -419,10 +419,10 @@ class UserResource extends Resource implements HasShieldPermissions
                     Select::make('role')
                         ->label(__('filament-forms::users.fields.roles'))
                         ->relationship('roles', 'name')
-                        // ->multiple()
+                        ->multiple()
                         ->searchable()
                         ->preload()
-                        // ->optionsLimit(10)
+                        ->optionsLimit(10)
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name),
                 ])
                 ->visible(fn () => Gate::allows('setRole', User::class)),

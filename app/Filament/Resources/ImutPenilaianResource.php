@@ -33,6 +33,10 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
     {
         return [
             'view',
+            'view_any',
+            'update',
+            'delete',
+            //
             'update_numerator_denominator',
             'update_profile_penilaian',
             'create_recommendation_penilaian',
@@ -76,7 +80,6 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
     {
         return [
             Section::make('Informasi Profil')
-                ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
                 ->description('Pilih profil dan standar IMUT yang sesuai.')
                 ->schema([
                     // Hidden field for imut_data_id
@@ -99,6 +102,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
 
                             return [];
                         })
+                        ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
                         ->searchable()
                         ->preload()
                         ->reactive()
@@ -441,6 +445,9 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                     Textarea::make('analysis')
                         ->label('Analisis')
                         ->rows(4)
+                        ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
+                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
+                        )
                         ->placeholder('Tuliskan hasil analisis...')
                         ->columnSpanFull(),
 

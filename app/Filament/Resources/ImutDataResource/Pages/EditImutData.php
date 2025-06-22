@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\ImutDataResource\Pages;
 
 use App\Filament\Resources\ImutDataResource;
-use App\Models\ImutData;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\CanNotify;
@@ -13,7 +12,6 @@ use Filament\Resources\Pages\EditRecord;
 use Guava\FilamentModalRelationManagers\Actions\Action\RelationManagerAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class EditImutData extends EditRecord
 {
@@ -37,7 +35,35 @@ class EditImutData extends EditRecord
                     ->color('primary')
                     ->relationManager(\App\Filament\Resources\ImutDataResource\RelationManagers\UnitKerjaRelationManager::make()),
 
-            ])->button()->label('Lihat Grafik')->icon('heroicon-s-chart-bar'),
+            ])
+                ->button()
+                ->label('Lihat Grafik')
+                ->icon('heroicon-s-chart-bar')
+                ->visible(fn () => Auth::user()?->can('view_all_data_imut::data')),
+
+            Action::make('lihat_berdasarkan_unit_kerja')
+                ->label('🏢 Lihat Grafik')
+                ->color('success')
+                ->visible(function () {
+                    $user = Auth::user();
+
+                    return $user->can('view_by_unit_kerja_imut::data') &&
+                           ! $user->can('view_all_data_imut::data') &&
+                           $user->unitKerjas->isNotEmpty();
+                })
+                ->url(function ($record) {
+                    $user = Auth::user();
+                    $unitKerja = $user->unitKerjas->first();
+
+                    if (! $unitKerja) {
+                        return '#';
+                    }
+
+                    return ImutDataUnitKerjaOverview::getUrl([
+                        'record_imut_data' => $record->id,
+                        'record_unit_kerja' => $unitKerja->id,
+                    ]);
+                }),
 
             $this->getDeleteAction(),
         ];
@@ -96,7 +122,7 @@ class EditImutData extends EditRecord
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
-            ->visible(fn () => Gate::allows('delete_imut::data', ImutData::class))
+            ->visible(fn ($record) => Auth::user()?->can('delete_imut::data') && $record->creator === Auth::user()->id)
             ->modalHeading(__('filament-forms::imut-data.actions.delete.modal_heading'))
             ->modalDescription(__('filament-forms::imut-data.actions.delete.modal_description'))
             ->modalIcon('heroicon-o-exclamation-triangle')

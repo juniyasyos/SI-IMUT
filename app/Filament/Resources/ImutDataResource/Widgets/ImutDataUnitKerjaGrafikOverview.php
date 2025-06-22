@@ -284,12 +284,18 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
         $dataTarget = [];
 
         foreach ($penilaianData as $row) {
-            $label = \Carbon\Carbon::parse($row->periode.'-01')->translatedFormat('F Y');
+            // $label = \Carbon\Carbon::parse($row->periode.'-01')->translatedFormat('F Y');
             $nilai = ($row->total_denum > 0) ? round(($row->total_num / $row->total_denum) * 100, 2) : 0;
             $target = round($row->target, 2);
 
-            $dataNilai[$label] = $nilai;
-            $dataTarget[$label] = $target;
+            // $dataNilai[$label] = $nilai;
+            // $dataTarget[$label] = $target;
+
+            $labelKey = \Carbon\Carbon::parse($row->periode.'-01')->format('Y-m');
+            $labelDisplay = \Carbon\Carbon::parse($row->periode.'-01')->translatedFormat('F Y');
+            $labels[$labelKey] = $labelDisplay;
+            $dataNilai[$labelKey] = $nilai;
+            $dataTarget[$labelKey] = $target;
         }
 
         $labels = array_keys($dataNilai);
@@ -313,15 +319,16 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
         ];
 
         if ($showBenchmarking) {
-            $benchmarkKey = SupportCacheKey::imutBenchmarking($year, $regionTypeId);
+            $benchmarkKey = SupportCacheKey::imutBenchmarking($year, $regionTypeId, $imutDataId);
             $benchmarking = Cache::remember(
                 $benchmarkKey,
                 now()->addMinutes(30),
-                function () use ($year, $regionTypeId) {
+                function () use ($year, $regionTypeId, $imutDataId) {
                     return ImutBenchmarking::query()
                         ->with('regionType:id,type')
-                        ->select('year', 'month', 'benchmark_value', 'region_type_id')
+                        ->select('year', 'month', 'benchmark_value', 'region_type_id', 'imut_data_id')
                         ->where('year', $year)
+                        ->where('imut_data_id', $imutDataId)
                         ->when($regionTypeId, fn ($q) => $q->whereIn('region_type_id', $regionTypeId))
                         ->get();
                 }
@@ -329,30 +336,32 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
 
             $benchmarkGrouped = $benchmarking->groupBy(fn ($item) => sprintf('%04d-%02d', $item->year, $item->month));
             $regionSeries = [];
+            $labelMap = [];
 
             foreach ($benchmarkGrouped as $periodeKey => $items) {
-                $label = \Carbon\Carbon::createFromFormat('Y-m', $periodeKey)->translatedFormat('F Y');
+                $labelKey = \Carbon\Carbon::createFromFormat('Y-m', $periodeKey)->format('Y-m');
+                $labelDisplay = \Carbon\Carbon::createFromFormat('Y-m', $periodeKey)->translatedFormat('F Y');
+                $labelMap[$labelKey] = $labelDisplay;
 
                 foreach ($items as $item) {
                     $type = $item->regionType->type ?? 'Unknown';
-                    $regionSeries[$type][$label] = round($item->benchmark_value, 2);
+                    $regionSeries[$type][$labelKey] = round($item->benchmark_value, 2);
                 }
             }
 
-             foreach ($regionSeries as $regionId => $seriesGroup) {
-                foreach ($seriesGroup as $name => $data) {
-                    if (collect($labels)->contains(fn ($l) => isset($data[$l]))) {
-                        $series[] = [
-                            'name' => $name,
-                            'type' => $this->filterFormData['benchmark_types'][$regionId] ?? 'column',
-                            'data' => array_map(fn ($l) => $data[$l] ?? null, $labels),
-                            'color' => $this->filterFormData['benchmark_colors'][$regionId] ?? '#'.substr(md5($name), 0, 6),
-                        ];
-                    }
+            foreach ($regionSeries as $regionId => $seriesGroup) {
+                if (collect($labels)->contains(fn ($l) => isset($seriesGroup[$l]))) {
+                    $series[] = [
+                        'name' => $regionId,
+                        'type' => $this->filterFormData['benchmark_types'][$regionId] ?? 'column',
+                        'data' => array_map(fn ($l) => $seriesGroup[$l] ?? null, $labels),
+                        'color' => $this->filterFormData['benchmark_colors'][$regionId] ?? '#'.substr(md5($regionId), 0, 6),
+                    ];
                 }
             }
+
         }
-
+        
         return $series;
     }
 }
