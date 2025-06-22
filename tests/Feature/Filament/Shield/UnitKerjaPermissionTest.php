@@ -10,18 +10,18 @@ uses(RefreshDatabase::class);
 
 // Setup sebelum setiap test
 beforeEach(function () {
-    // Membuat permission lengkap untuk unit_kerja
+    // Membuat permission lengkap untuk unit::kerja
     $permissions = [
-        'view_unit_kerja',
-        'view_any_unit_kerja',
-        'create_unit_kerja',
-        'update_unit_kerja',
-        'delete_unit_kerja',
-        'delete_any_unit_kerja',
-        'restore_unit_kerja',
-        'restore_any_unit_kerja',
-        'force_delete_unit_kerja',
-        'force_delete_any_unit_kerja',
+        'view_unit::kerja',
+        'view_any_unit::kerja',
+        'create_unit::kerja',
+        'update_unit::kerja',
+        'delete_unit::kerja',
+        'delete_any_unit::kerja',
+        'restore_unit::kerja',
+        'restore_any_unit::kerja',
+        'force_delete_unit::kerja',
+        'force_delete_any_unit::kerja',
     ];
 
     foreach ($permissions as $perm) {
@@ -46,16 +46,16 @@ beforeEach(function () {
 describe('Unit Kerja Permissions (Direct)', function () {
     it('grants all permissions to user with role', function () {
         $permissions = [
-            'view_unit_kerja',
-            'view_any_unit_kerja',
-            'create_unit_kerja',
-            'update_unit_kerja',
-            'delete_unit_kerja',
-            'delete_any_unit_kerja',
-            'restore_unit_kerja',
-            'restore_any_unit_kerja',
-            'force_delete_unit_kerja',
-            'force_delete_any_unit_kerja',
+            'view_unit::kerja',
+            'view_any_unit::kerja',
+            'create_unit::kerja',
+            'update_unit::kerja',
+            'delete_unit::kerja',
+            'delete_any_unit::kerja',
+            'restore_unit::kerja',
+            'restore_any_unit::kerja',
+            'force_delete_unit::kerja',
+            'force_delete_any_unit::kerja',
         ];
 
         foreach ($permissions as $permission) {
@@ -67,16 +67,16 @@ describe('Unit Kerja Permissions (Direct)', function () {
 
     it('denies all permissions to user without role', function () {
         $permissions = [
-            'view_unit_kerja',
-            'view_any_unit_kerja',
-            'create_unit_kerja',
-            'update_unit_kerja',
-            'delete_unit_kerja',
-            'delete_any_unit_kerja',
-            'restore_unit_kerja',
-            'restore_any_unit_kerja',
-            'force_delete_unit_kerja',
-            'force_delete_any_unit_kerja',
+            'view_unit::kerja',
+            'view_any_unit::kerja',
+            'create_unit::kerja',
+            'update_unit::kerja',
+            'delete_unit::kerja',
+            'delete_any_unit::kerja',
+            'restore_unit::kerja',
+            'restore_any_unit::kerja',
+            'force_delete_unit::kerja',
+            'force_delete_any_unit::kerja',
         ];
 
         foreach ($permissions as $permission) {

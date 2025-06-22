@@ -104,14 +104,4 @@ class UnitKerja extends Model
             ->withPivot(['assigned_by', 'assigned_at'])
             ->withTimestamps();
     }
-
-    /**
-     * Get related laporan imut.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function laporanImut()
-    {
-        return $this->belongsTo(LaporanImut::class, 'laporan_imut_id');
-    }
 }

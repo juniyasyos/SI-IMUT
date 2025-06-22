@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ImutDataUnitKerja extends Pivot
 {
-
     protected $table = 'imut_data_unit_kerja';
 
     /**
@@ -15,7 +15,6 @@ class ImutDataUnitKerja extends Pivot
      *
      * @var array<int, string>
      */
-
     protected $fillable = [
         'unit_kerja_id',
         'imut_data_id',
@@ -36,7 +35,6 @@ class ImutDataUnitKerja extends Pivot
      * @var array<int, string>
      */
     protected $hidden = ['created_at', 'updated_at'];
-
 
     /**
      * user relation table

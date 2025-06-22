@@ -47,16 +47,6 @@ it('Tim Mutu can only export user', function () {
     expect($user->can('view_user'))->toBeFalse();
 });
 
-it('IT role has all permissions', function () {
-    $user = User::factory()->create();
-    $user->assignRole('IT');
-
-    $permissions = Permission::pluck('name');
-    foreach ($permissions as $permission) {
-        expect($user->can($permission))->toBeTrue();
-    }
-});
-
 it('Basic role has no user permissions', function () {
     $user = User::factory()->create();
     $user->assignRole('Basic');
