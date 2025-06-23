@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\CacheKey;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +13,11 @@ use Illuminate\Support\Facades\DB;
  */
 class LaporanUnitKerja extends Model
 {
+    use HasFactory;
+
     protected $guarded = ['id'];
 
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     /**
      * Relasi ke model LaporanImut.

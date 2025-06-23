@@ -39,12 +39,24 @@ return [
         'restore_imut::data',
         'restore_any_imut::data',
 
+
+        // IMUT Profile
+        'view_imut::profile',
+        'view_any_imut::profile',
+
         // IMUT Category
         'view_any_imut::category',
         'view_imut::category',
 
         // Laporan
         'view_any_laporan::imut',
+
+        // Penilaian
+        'view_any_imut::penilaian',
+        'view_imut::penilaian',
+        'update_imut::penilaian',
+        'view_imut_penilaian_imut::penilaian',
+        'update_numerator_denominator_imut::penilaian',
 
         // Report
         'view_unit_kerja_report_laporan::imut',

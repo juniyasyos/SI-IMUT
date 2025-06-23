@@ -20,7 +20,8 @@ class ImutDataFactory extends Factory
     {
         return [
             'title' => $this->faker->unique()->sentence(3),
-            'created_by' => User::where('name', 'admin')->value('id')
+            'imut_kategori_id' => ImutCategory::factory(),
+            'created_by' => User::where('name', 'admin')->value('id') ?? User::factory()
         ];
     }
 }

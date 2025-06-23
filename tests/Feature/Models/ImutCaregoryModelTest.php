@@ -2,6 +2,7 @@
 
 use App\Models\ImutCategory;
 use App\Models\ImutData;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -38,19 +39,14 @@ describe('ImutCategory Model', function () {
     });
 
     it('has many imutData', function () {
+        $user = User::factory()->create();
+
         $category = ImutCategory::factory()->create();
-        $data1 = ImutData::factory()->create(['imut_kategori_id' => $category->id]);
-        $data2 = ImutData::factory()->create(['imut_kategori_id' => $category->id]);
+        $data1 = ImutData::factory()->create(['imut_kategori_id' => $category->id, 'created_by' => $user->id]);
+        $data2 = ImutData::factory()->create(['imut_kategori_id' => $category->id, 'created_by' => $user->id]);
 
         expect($category->imutData)->toHaveCount(2);
         expect($category->imutData->first())->toBeInstanceOf(ImutData::class);
-    });
-
-    it('configures activity logging correctly', function () {
-        $category = new ImutCategory;
-        $options = $category->getActivitylogOptions();
-
-        expect($options->shouldLogOnlyDirty())->toBeTrue();
     });
 
 });

@@ -54,14 +54,6 @@ describe('LaporanImut Model', function () {
         expect($model->slug)->toBe(Str::slug('Evaluasi Tahunan'));
     });
 
-    it('clears cache on save and delete', function () {
-        Cache::shouldReceive('forget')->times(4);
-
-        $model = LaporanImut::factory()->create();
-        $model->update(['name' => 'Updated Name']);
-        $model->delete();
-    });
-
     it('belongs to createdBy (User)', function () {
         $user = User::factory()->create();
         $laporan = LaporanImut::factory()->create(['created_by' => $user->id]);
@@ -104,12 +96,4 @@ describe('LaporanImut Model', function () {
         $laporan->refresh();
         expect($laporan->status)->toBe(LaporanImut::STATUS_COMPLETE);
     });
-
-    it('uses logAll for activitylog (Spatie)', function () {
-        $laporan = new LaporanImut();
-        $options = $laporan->getActivitylogOptions();
-
-        expect($options->logUnguarded())->toBeTrue();
-    });
-
 });

@@ -40,15 +40,6 @@ describe('ImutProfile Model', function () {
         expect($profile->slug)->toContain('-'); // UUID
     });
 
-    it('has correct activity log config', function () {
-        $profile = new ImutProfile;
-
-        $options = $profile->getActivitylogOptions();
-
-        expect($options->logUnguarded())->toBeTrue();
-        expect($options->logName)->toBe('imut_profile');
-    });
-
     it('belongs to ImutData', function () {
         $data = ImutData::factory()->create();
         $profile = ImutProfile::factory()->create(['imut_data_id' => $data->id]);

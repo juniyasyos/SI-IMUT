@@ -20,8 +20,8 @@ class ImutPenilaianFactory extends Factory
     public function definition(): array
     {
         return [
-            'imut_profil_id' => ImutProfile::random()->id,
-            'laporan_unit_kerja_id' => LaporanUnitKerja::random()->id,
+            'imut_profil_id' => ImutProfile::factory(),
+            'laporan_unit_kerja_id' => LaporanUnitKerja::factory(),
             'analysis' => $this->faker->paragraph,
             'recommendations' => $this->faker->sentence,
             'numerator_value' => $this->faker->randomFloat(2, 0, 100),
