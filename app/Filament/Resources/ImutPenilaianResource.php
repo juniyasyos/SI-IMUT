@@ -94,7 +94,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                             if ($imutDataId) {
                                 return ImutProfile::where('imut_data_id', $imutDataId)
                                     ->get()
-                                    ->mapWithKeys(fn ($profile) => [
+                                    ->mapWithKeys(fn($profile) => [
                                         $profile->id => "{$profile->version}",
                                     ])
                                     ->toArray();
@@ -102,7 +102,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
 
                             return [];
                         })
-                        ->disabled(fn () => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
+                        ->disabled(fn() => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
                         ->searchable()
                         ->preload()
                         ->reactive()
@@ -376,30 +376,30 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->label('Numerator')
                         ->numeric()
                         ->placeholder('0.00')
-                        ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
-                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
-                        )
                         ->required()
                         ->reactive()
-                        ->afterStateUpdated(function (callable $set, $state, callable $get) {
-                            $denominator = $get('denominator_value') ?? 0;
-                            $result = ($denominator == 0) ? 0 : round(($state / $denominator) * 100, 2);
-                            $set('result_operation', $result);
+                        ->readOnly(
+                            fn($livewire) =>
+                            $livewire->isLaporanPeriodClosed() ||
+                                !Auth::user()?->can('update_numerator_denominator_imut::penilaian')
+                        )
+                        ->afterStateUpdated(function (callable $set, callable $get) {
+                            static::updateResult($set, $get);
                         }),
 
                     TextInput::make('denominator_value')
                         ->label('Denominator')
-                        ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
-                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
-                        )
                         ->numeric()
                         ->placeholder('0.00')
                         ->required()
                         ->reactive()
-                        ->afterStateUpdated(function (callable $set, $state, callable $get) {
-                            $numerator = $get('numerator_value') ?? 0;
-                            $result = ($state == 0) ? 0 : round(($numerator / $state) * 100, 2);
-                            $set('result_operation', $result);
+                        ->readOnly(
+                            fn($livewire) =>
+                            $livewire->isLaporanPeriodClosed() ||
+                                !Auth::user()?->can('update_numerator_denominator_imut::penilaian')
+                        )
+                        ->afterStateUpdated(function (callable $set, callable $get) {
+                            static::updateResult($set, $get);
                         }),
 
                     TextInput::make('result_operation')
@@ -408,26 +408,20 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->placeholder('0.00')
                         ->readOnly()
                         ->dehydrated(false)
-                        ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                            $numerator = $get('numerator_value') ?? 0;
-                            $denominator = $get('denominator_value') ?? 0;
-
-                            $result = ($denominator == 0) ? 0 : round(($numerator / $denominator) * 100, 2);
-
-                            $set('result_operation', $result);
+                        ->afterStateHydrated(function (callable $set, callable $get) {
+                            static::updateResult($set, $get);
                         }),
-
                     SpatieMediaLibraryFileUpload::make('document_upload')
                         ->label('Unggah Dokumen Pendukung')
-                        ->collection(fn (callable $get) => $get('selected_collection') ?? 'default')
-                        ->directory(fn (callable $get) => 'uploads/imut-documents/'.($get('selected_collection') ?? 'default'))
+                        ->collection(fn(callable $get) => $get('selected_collection') ?? 'default')
+                        ->directory(fn(callable $get) => 'uploads/imut-documents/' . ($get('selected_collection') ?? 'default'))
                         ->openable()
                         ->downloadable()
                         ->maxSize(20480)
                         ->preserveFilenames()
                         ->previewable(true)
                         ->columnSpanFull()
-                        ->disabled(fn ($livewire) => $livewire->isLaporanPeriodClosed()
+                        ->disabled(fn($livewire) => $livewire->isLaporanPeriodClosed()
                             || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian'))
                         ->acceptedFileTypes([
                             'application/pdf',
@@ -445,19 +439,32 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                     Textarea::make('analysis')
                         ->label('Analisis')
                         ->rows(4)
-                        ->readOnly(fn ($livewire) => $livewire->isLaporanPeriodClosed()
-                            || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
+                        ->readOnly(
+                            fn($livewire) => $livewire->isLaporanPeriodClosed()
+                                || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
                         )
                         ->placeholder('Tuliskan hasil analisis...')
                         ->columnSpanFull(),
 
                     Textarea::make('recommendations')
                         ->label('Rekomendasi')
-                        ->disabled(fn () => ! Auth::user()?->can('create_recommendation_penilaian_imut::penilaian'))
+                        ->disabled(fn() => ! Auth::user()?->can('create_recommendation_penilaian_imut::penilaian'))
                         ->rows(4)
                         ->placeholder('Berikan saran atau rekomendasi...')
                         ->columnSpanFull(),
                 ]),
         ];
+    }
+
+    protected static function updateResult(callable $set, callable $get): void
+    {
+        $numerator = floatval($get('numerator_value') ?? 0);
+        $denominator = floatval($get('denominator_value') ?? 0);
+
+        $result = $denominator > 0
+            ? round(($numerator / $denominator) * 100, 2)
+            : 0;
+
+        $set('result_operation', $result);
     }
 }
