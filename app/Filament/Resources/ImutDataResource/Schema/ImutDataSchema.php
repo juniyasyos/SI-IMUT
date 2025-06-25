@@ -24,14 +24,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ImutDataSchema
 {
-    public static function canEditProfilIndikator(?Model $record = null): bool
-    {
-        $user = Auth::user();
-        $isCreator = $record->created_by === $user->id;
-
-        return $isCreator;
-    }
-
     public static function make(): array
     {
         return [
@@ -47,7 +39,7 @@ class ImutDataSchema
                                     ->helperText(__('filament-forms::imut-data.form.main.helper_text'))
                                     ->prefixIcon('heroicon-o-pencil-square')
                                     ->required()
-                                    ->readOnly(fn ($record) => ! self::canEditProfilIndikator($record))
+                                    ->readOnly(fn (?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->columnSpan(2)
                                     ->maxLength(255),
 
@@ -70,7 +62,7 @@ class ImutDataSchema
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->disabled(fn ($record) => ! self::canEditProfilIndikator($record))
+                                    ->disabled(fn (?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->hint(__('filament-forms::imut-data.form.main.category_hint')),
 
                                 Toggle::make('status')
@@ -79,7 +71,7 @@ class ImutDataSchema
                                     ->inline(true)
                                     ->columnSpan(2)
                                     ->onColor('success')
-                                    ->disabled(fn ($record) => ! self::canEditProfilIndikator($record))
+                                    ->disabled(fn (?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->required()
                                     ->default(true)
                                     ->columnSpan(1),
@@ -88,7 +80,7 @@ class ImutDataSchema
                                     ->label(__('filament-forms::imut-data.fields.description'))
                                     ->placeholder(__('filament-forms::imut-data.form.main.description_placeholder'))
                                     ->helperText(__('filament-forms::imut-data.form.main.description_helper'))
-                                    ->disabled(fn ($record) => ! self::canEditProfilIndikator($record))
+                                    ->disabled(fn (?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->columnSpan(2)
                                     ->maxLength(255),
 
@@ -170,17 +162,13 @@ class ImutDataSchema
                                                     ->headers($headers)
                                                     ->schema($schema)
                                                     ->defaultItems(1)
-                                                    ->addable(fn (Get $get) =>
-                                                        $get('created_by') === auth()->id()
+                                                    ->addable(fn (Get $get) => $get('created_by') === auth()->id()
                                                     )
-                                                    ->deletable(fn (Get $get) =>
-                                                        $get('created_by') === auth()->id()
+                                                    ->deletable(fn (Get $get) => $get('created_by') === auth()->id()
                                                     )
-                                                    ->cloneable(fn (Get $get) =>
-                                                        $get('created_by') === auth()->id()
+                                                    ->cloneable(fn (Get $get) => $get('created_by') === auth()->id()
                                                     )
-                                                    ->reorderable(fn (Get $get) =>
-                                                        $get('created_by') === auth()->id()
+                                                    ->reorderable(fn (Get $get) => $get('created_by') === auth()->id()
                                                     )
                                                     ->columnSpan('full'),
                                                 // ->extraActions([
