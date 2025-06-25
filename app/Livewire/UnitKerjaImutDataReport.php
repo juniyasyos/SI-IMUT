@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Filament\Exports\SummaryUnitKerjaReportDetailExport;
 use App\Models\ImutCategory;
 use App\Models\LaporanUnitKerja;
+use Filament\Actions\ExportAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
@@ -42,11 +44,11 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => LaporanUnitKerja::getReportByUnitKerjaDetails($this->laporanId, $this->unitKerjaId))
+            ->query(fn() => LaporanUnitKerja::getReportByUnitKerjaDetails($this->laporanId, $this->unitKerjaId))
             ->columns([
                 TextColumn::make('imut_data')
                     ->label('Imut Data')
-                    ->searchable(query: fn (EloquentBuilder $query, string $search) => $query->where('imut_data.title', 'like', "%{$search}%")),
+                    ->searchable(query: fn(EloquentBuilder $query, string $search) => $query->where('imut_data.title', 'like', "%{$search}%")),
 
                 TextColumn::make('imut_kategori')
                     ->label('Imut Kategori')
@@ -62,22 +64,22 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
                     ->label('N')
                     ->alignCenter()
                     ->toggleable()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total N')
-                            ->using(fn (Builder $query) => number_format($query->sum('numerator_value'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('numerator_value'), 2))
                     ),
 
                 TextColumn::make('denominator_value')
                     ->label('D')
                     ->alignCenter()
                     ->toggleable()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total D')
-                            ->using(fn (Builder $query) => number_format($query->sum('denominator_value'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('denominator_value'), 2))
                     ),
 
                 TextColumn::make('percentage')
@@ -85,8 +87,8 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
                     ->alignCenter()
                     ->toggleable()
                     ->suffix('%')
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
-                    ->color(fn ($record) => match (true) {
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->color(fn($record) => match (true) {
                         ! is_numeric($record->percentage) || ! is_numeric($record->imut_standard) => null,
 
                         match ($record->imut_standard_type_operator) {
@@ -141,13 +143,16 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
                 SelectFilter::make('imut_kategori')
                     ->label('Imut Kategori')
                     ->options(
-                        fn () => ImutCategory::query()
+                        fn() => ImutCategory::query()
                             ->pluck('short_name', 'id')
                             ->toArray()
                     )
                     ->attribute('imut_kategori_id')
                     ->multiple()
                     ->placeholder('Semua Kategori'),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(SummaryUnitKerjaReportDetailExport::class)
             ])
             ->actions([
                 Action::make('edit_penilaian')
@@ -180,7 +185,7 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
             ->label($label)
             ->toggleable()
             ->searchable(
-                query: fn (EloquentBuilder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
+                query: fn(EloquentBuilder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
             );
     }
 

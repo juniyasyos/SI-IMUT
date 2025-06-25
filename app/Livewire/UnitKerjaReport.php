@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Filament\Exports\SummaryUnitKerjaReportExport;
 use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaImutDataReport;
 use App\Models\LaporanUnitKerja;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -84,6 +86,9 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                             })
                             ->suffix('%')
                     ),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(SummaryUnitKerjaReportExport::class)
             ])
             ->filters([
                 // ...

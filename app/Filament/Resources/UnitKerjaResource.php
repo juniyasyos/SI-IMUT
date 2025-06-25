@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\UnitKerjaExporter;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -36,6 +37,7 @@ use Filament\Forms\Components\{TextInput, Textarea, Select, Grid};
 use Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction;
 use App\Filament\Resources\UnitKerjaResource\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\UnitKerjaResource\RelationManagers\ImutDataRelationManager;
+use Filament\Tables\Actions\ExportAction;
 
 class UnitKerjaResource extends Resource implements HasShieldPermissions
 {
@@ -138,6 +140,9 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
             ])
             ->filters([
                 TrashedFilter::make(),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(UnitKerjaExporter::class)
             ])
             ->actions([
                 RelationManagerAction::make('user-relation-manager')

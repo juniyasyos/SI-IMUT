@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ImutDataExporter;
 use App\Filament\Resources\ImutDataResource\Pages;
 use App\Filament\Resources\ImutDataResource\Pages\ImutDataUnitKerjaOverview;
 use App\Filament\Resources\ImutDataResource\Pages\SummaryImutDataDiagram;
@@ -14,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\SelectFilter;
@@ -98,6 +100,9 @@ class ImutDataResource extends Resource implements HasShieldPermissions
         return $table
             ->query(fn () => ImutDataTable::query())
             ->columns(ImutDataTable::columns())
+            ->headerActions([
+                ExportAction::make()->exporter(ImutDataExporter::class)
+            ])
             ->filters([
                 TrashedFilter::make(),
                 SelectFilter::make('imut_kategori_id')
