@@ -118,6 +118,6 @@ class EditImutPenilaian extends EditRecord
 
     public function isLaporanPeriodClosed(): bool
     {
-        return $this->laporan?->assessment_period_end < now();
+        return $this->laporan?->status === LaporanImut::STATUS_COMPLETE;
     }
 }
