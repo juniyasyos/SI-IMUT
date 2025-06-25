@@ -39,8 +39,9 @@ class ImutDataSchema
                                     ->helperText(__('filament-forms::imut-data.form.main.helper_text'))
                                     ->prefixIcon('heroicon-o-pencil-square')
                                     ->required()
-                                    ->readOnly(fn (?Model $record) => $record && $record->created_by !== Auth::id())
+                                    ->readOnly(fn(?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->columnSpan(2)
+                                    ->unique('imut_data', 'title', ignoreRecord: true)
                                     ->maxLength(255),
 
                                 TextInput::make('slug')
@@ -62,7 +63,7 @@ class ImutDataSchema
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->disabled(fn (?Model $record) => $record && $record->created_by !== Auth::id())
+                                    ->disabled(fn(?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->hint(__('filament-forms::imut-data.form.main.category_hint')),
 
                                 Toggle::make('status')
@@ -71,7 +72,7 @@ class ImutDataSchema
                                     ->inline(true)
                                     ->columnSpan(2)
                                     ->onColor('success')
-                                    ->disabled(fn (?Model $record) => $record && $record->created_by !== Auth::id())
+                                    ->disabled(fn(?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->required()
                                     ->default(true)
                                     ->columnSpan(1),
@@ -80,13 +81,13 @@ class ImutDataSchema
                                     ->label(__('filament-forms::imut-data.fields.description'))
                                     ->placeholder(__('filament-forms::imut-data.form.main.description_placeholder'))
                                     ->helperText(__('filament-forms::imut-data.form.main.description_helper'))
-                                    ->disabled(fn (?Model $record) => $record && $record->created_by !== Auth::id())
+                                    ->disabled(fn(?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->columnSpan(2)
                                     ->maxLength(255),
 
                                 Select::make('created_by')
                                     ->label('Dibuat oleh')
-                                    ->options(fn () => User::pluck('name', 'id'))
+                                    ->options(fn() => User::pluck('name', 'id'))
                                     ->default(function (?Model $record) {
                                         return $record?->created_by ?? Auth::id();
                                     })
@@ -95,7 +96,7 @@ class ImutDataSchema
                                     ->dehydrated(false),
 
                                 Hidden::make('created_by')
-                                    ->default(fn () => Auth::id()),
+                                    ->default(fn() => Auth::id()),
                             ]),
                         ]),
 
@@ -158,17 +159,21 @@ class ImutDataSchema
                                                 TableRepeater::make("{$regionType->type}_benchmarkings")
                                                     ->label('')
                                                     ->streamlined()
-                                                    ->relationship('benchmarkings', fn ($query) => $query->where('region_type_id', $regionType->id))
+                                                    ->relationship('benchmarkings', fn($query) => $query->where('region_type_id', $regionType->id))
                                                     ->headers($headers)
                                                     ->schema($schema)
                                                     ->defaultItems(1)
-                                                    ->addable(fn (Get $get) => $get('created_by') === auth()->id()
+                                                    ->addable(
+                                                        fn(Get $get) => $get('created_by') === auth()->id()
                                                     )
-                                                    ->deletable(fn (Get $get) => $get('created_by') === auth()->id()
+                                                    ->deletable(
+                                                        fn(Get $get) => $get('created_by') === auth()->id()
                                                     )
-                                                    ->cloneable(fn (Get $get) => $get('created_by') === auth()->id()
+                                                    ->cloneable(
+                                                        fn(Get $get) => $get('created_by') === auth()->id()
                                                     )
-                                                    ->reorderable(fn (Get $get) => $get('created_by') === auth()->id()
+                                                    ->reorderable(
+                                                        fn(Get $get) => $get('created_by') === auth()->id()
                                                     )
                                                     ->columnSpan('full'),
                                                 // ->extraActions([
@@ -212,7 +217,7 @@ class ImutDataSchema
                                                 Action::make('goto_region_type_list')
                                                     ->icon('heroicon-m-list-bullet')
                                                     ->tooltip('Lihat daftar semua Region Type')
-                                                    ->url(fn () => ImutDataResource::getUrl('bencmarking-region-type'))
+                                                    ->url(fn() => ImutDataResource::getUrl('bencmarking-region-type'))
                                                     ->openUrlInNewTab(),
                                             ])
                                                 ->label('Aksi'),
@@ -223,7 +228,7 @@ class ImutDataSchema
                                 ),
 
                         ])
-                        ->visible(fn (?Model $record) => $record !== null
+                        ->visible(fn(?Model $record) => $record !== null
                             && $record->categories->is_benchmark_category === 1),
 
                 ]),
