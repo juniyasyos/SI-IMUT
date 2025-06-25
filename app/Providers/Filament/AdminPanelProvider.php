@@ -128,16 +128,16 @@ class AdminPanelProvider extends PanelProvider
                     shouldRegisterUserMenu: true,
                     shouldRegisterNavigation: false,
                     navigationGroup: 'System & Configuration',
-                    hasAvatars: true,
+                    hasAvatars: false,
                     slug: 'my-profile'
                 )
-                ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
-                ->enableBrowserSessions(condition: true)
-                ->avatarUploadComponent(
-                    fn () => FileUpload::make('avatar_url')
-                        ->image()
-                        ->disk('public')
-                )
+                // ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
+                // ->enableBrowserSessions(condition: true)
+                // ->avatarUploadComponent(
+                //     fn () => FileUpload::make('avatar_url')
+                //         ->image()
+                //         ->disk('public')
+                // )
                 ->enableTwoFactorAuthentication(),
         ];
 

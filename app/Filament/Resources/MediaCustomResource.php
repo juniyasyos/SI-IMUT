@@ -19,7 +19,7 @@ class MediaCustomResource extends BaseMediaResource implements HasShieldPermissi
             'create',
             'update',
             'delete',
-            'create_sub_folder'
+            // 'create_sub_folder'
         ];
     }
 
