@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 
 class ImutDataRelationManager extends RelationManager
@@ -51,9 +52,10 @@ class ImutDataRelationManager extends RelationManager
                             ->helperText(__('filament-forms::imut-data-relationship-user.form.select_imut.helper'))
                             ->options(
                                 ImutData::with('categories')
+                                    ->where('status', true)
                                     ->whereNotIn('id', $relatedIds)
                                     ->get()
-                                    ->mapWithKeys(fn ($imut) => [
+                                    ->mapWithKeys(fn($imut) => [
                                         $imut->id => "({$imut->categories->short_name}) - {$imut->title}",
                                     ])
                                     ->toArray()
@@ -62,7 +64,7 @@ class ImutDataRelationManager extends RelationManager
                             ->preload()
                             ->required();
                     })
-                    ->visible(fn () => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.modal.heading'))
                     ->modalSubmitActionLabel(__('filament-forms::imut-data-relationship-user.modal.submit_label'))
                     ->preloadRecordSelect()
@@ -72,7 +74,7 @@ class ImutDataRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make()
                     ->requiresConfirmation()
-                    ->visible(fn () => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
+                    ->visible(fn() => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
                     ->label(__('filament-forms::imut-data-relationship-user.actions.detach.label'))
                     ->modalHeading(__('filament-forms::imut-data-relationship-user.actions.detach.heading'))
                     ->modalDescription(__('filament-forms::imut-data-relationship-user.actions.detach.description')),
