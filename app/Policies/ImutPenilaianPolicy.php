@@ -9,7 +9,6 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class ImutPenilaianPolicy
 {
     use HandlesAuthorization;
-
     /**
      * Determine whether the user can view any models.
      */
@@ -85,7 +84,7 @@ class ImutPenilaianPolicy
     public function updateProfile(User $user, ImutPenilaian $penilaian): bool
     {
         return $user->can('update_profile_penilaian_imut::penilaian')
-        && $this->userCanAccessPenilaian($user, $penilaian);
+            && $this->userCanAccessPenilaian($user, $penilaian);
     }
 
     /**
@@ -95,5 +94,13 @@ class ImutPenilaianPolicy
     {
         return $user->can('create_recommendation_penilaian_imut::penilaian')
             && $this->userCanAccessPenilaian($user, $penilaian);
+    }
+
+    /**
+     * Hak akses edit paksa
+     */
+    public function forceEditable(User $user, ImutPenilaian $penilaian): bool
+    {
+        return $user->can('force_editable_imut::penilaian');
     }
 }

@@ -7,6 +7,7 @@ use App\Models\ImutPenilaian;
 use App\Models\ImutProfile;
 use App\Models\LaporanImut;
 use App\Support\CacheKey;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -20,23 +21,32 @@ class LaporanImutService
 
     public function getLatestLaporan(): ?LaporanImut
     {
+        $today = Carbon::today();
+
         // return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
         try {
-            return LaporanImut::select(['id', 'assessment_period_start', 'status'])
+            $laporan = LaporanImut::select(['id', 'assessment_period_start', 'status'])
                 ->where('status', LaporanImut::STATUS_PROCESS)
+                ->whereDate('assessment_period_start', '<=', $today)
+                ->whereDate('assessment_period_end', '>=', $today)
+                ->orderByDesc('assessment_period_start')
+                ->first();
+
+            if ($laporan) {
+                return $laporan;
+            }
+
+            // fallback jika tidak ada laporan dengan status PROCESS di periode aktif
+            return LaporanImut::select(['id', 'assessment_period_start', 'status'])
                 ->latest('assessment_period_start')
-                ->first()
-                ?? LaporanImut::select(['id', 'assessment_period_start', 'status'])
-                    ->latest('assessment_period_start')
-                    ->first();
-
+                ->first();
         } catch (\Throwable $e) {
-            Log::error('Gagal mengambil laporan terbaru: '.$e->getMessage());
-
+            Log::error('Gagal mengambil laporan terbaru: ' . $e->getMessage());
             return null;
         }
         // });
     }
+
 
     public function getChartDataForLastLaporan(int $limit = 6): array
     {
@@ -108,7 +118,8 @@ class LaporanImutService
                     ->unique()
                     ->count();
 
-                $belumDinilai = $allPenilaian->filter(fn ($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
+                $belumDinilai = $allPenilaian->filter(
+                    fn($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
                 )->count();
 
                 // Load total unit kerja
@@ -123,7 +134,7 @@ class LaporanImutService
                 ];
             });
         } catch (\Throwable $e) {
-            Log::error('Gagal mengambil current laporan data: '.$e->getMessage());
+            Log::error('Gagal mengambil current laporan data: ' . $e->getMessage());
 
             return null;
         }
@@ -132,10 +143,13 @@ class LaporanImutService
     public function getPenilaianGroupedByProfile(int $laporanId): Collection
     {
         return ImutPenilaian::select([
-            'id', 'imut_profil_id', 'laporan_unit_kerja_id',
-            'numerator_value', 'denominator_value',
+            'id',
+            'imut_profil_id',
+            'laporan_unit_kerja_id',
+            'numerator_value',
+            'denominator_value',
         ])
-            ->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
+            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
             ->whereNotNull('numerator_value')
             ->whereNotNull('denominator_value')
             ->get()
@@ -206,7 +220,7 @@ class LaporanImutService
     private function getAktifIndikatorWithProfiles(Collection $laporanIds): Collection
     {
         $imutDataIds = ImutData::where('status', true)
-            ->whereHas('profiles.penilaian.laporanUnitKerja', fn ($q) => $q->whereIn('laporan_imut_id', $laporanIds))
+            ->whereHas('profiles.penilaian.laporanUnitKerja', fn($q) => $q->whereIn('laporan_imut_id', $laporanIds))
             ->pluck('id');
 
         $latestProfiles = ImutProfile::whereIn('imut_data_id', $imutDataIds)
@@ -214,10 +228,10 @@ class LaporanImutService
             ->orderByDesc('version')
             ->get()
             ->groupBy('imut_data_id')
-            ->map(fn ($profiles) => $profiles->first());
+            ->map(fn($profiles) => $profiles->first());
 
         $indikatorAktif = ImutData::whereIn('id', $imutDataIds)->get();
-        $indikatorAktif->each(fn ($indikator) => $indikator->setRelation('profile', $latestProfiles->get($indikator->id)));
+        $indikatorAktif->each(fn($indikator) => $indikator->setRelation('profile', $latestProfiles->get($indikator->id)));
 
         return $indikatorAktif;
     }
@@ -253,7 +267,7 @@ class LaporanImutService
             ->groupBy('imut_data_id');
 
         return $imutDataIds
-            ->map(fn ($dataId) => $allProfiles[$dataId]->first()?->id)
+            ->map(fn($dataId) => $allProfiles[$dataId]->first()?->id)
             ->filter()
             ->unique()
             ->values();
@@ -270,9 +284,9 @@ class LaporanImutService
             }
 
             $penilaians = $penilaianByProfile->get($profile->id, collect())
-                ->filter(fn ($p) => $p->laporanUnitKerja->laporan_imut_id === $laporanId);
+                ->filter(fn($p) => $p->laporanUnitKerja->laporan_imut_id === $laporanId);
 
-            $tercapai = $penilaians->filter(fn ($p) => $this->isTercapai($p, $profile))->count();
+            $tercapai = $penilaians->filter(fn($p) => $this->isTercapai($p, $profile))->count();
 
             return ($penilaians->count() > 0 && $tercapai / $penilaians->count() >= 1) ? $carry + 1 : $carry;
         }, 0);
@@ -280,9 +294,10 @@ class LaporanImutService
 
     private function countBelumDinilai(Collection $penilaians): int
     {
-        return $penilaians->filter(fn ($p) => ! is_null($p->numerator_value) &&
-            ! is_null($p->denominator_value) &&
-            is_null($p->recommendations)
+        return $penilaians->filter(
+            fn($p) => ! is_null($p->numerator_value) &&
+                ! is_null($p->denominator_value) &&
+                is_null($p->recommendations)
         )->count();
     }
 }

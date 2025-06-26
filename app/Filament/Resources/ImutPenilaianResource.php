@@ -40,6 +40,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
             'update_numerator_denominator',
             'update_profile_penilaian',
             'create_recommendation_penilaian',
+            'force_editable'
         ];
     }
 
@@ -102,7 +103,12 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
 
                             return [];
                         })
-                        ->disabled(fn() => ! Auth::user()?->can('update_profile_penilaian_imut::penilaian'))
+                        ->disabled(
+                            fn($livewire) =>
+                            $livewire->isLaporanPeriodClosed()
+                                && ! Auth::user()?->can('update_profile_penilaian_imut::penilaian')
+                                && ! Auth::user()?->can('force_editable_imut::penilaian')
+                        )
                         ->searchable()
                         ->preload()
                         ->reactive()
@@ -380,8 +386,9 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->reactive()
                         ->readOnly(
                             fn($livewire) =>
-                            $livewire->isLaporanPeriodClosed() ||
-                                !Auth::user()?->can('update_numerator_denominator_imut::penilaian')
+                            $livewire->isLaporanPeriodClosed()
+                                && !Auth::user()?->can('force_editable_imut::penilaian')
+                                || !Auth::user()?->can('update_numerator_denominator_imut::penilaian')
                         )
                         ->afterStateUpdated(function (callable $set, callable $get) {
                             static::updateResult($set, $get);
@@ -395,8 +402,9 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->reactive()
                         ->readOnly(
                             fn($livewire) =>
-                            $livewire->isLaporanPeriodClosed() ||
-                                !Auth::user()?->can('update_numerator_denominator_imut::penilaian')
+                            $livewire->isLaporanPeriodClosed()
+                                && !Auth::user()?->can('force_editable_imut::penilaian')
+                                || !Auth::user()?->can('update_numerator_denominator_imut::penilaian')
                         )
                         ->afterStateUpdated(function (callable $set, callable $get) {
                             static::updateResult($set, $get);
@@ -422,6 +430,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->previewable(true)
                         ->columnSpanFull()
                         ->disabled(fn($livewire) => $livewire->isLaporanPeriodClosed()
+                            && !Auth::user()?->can('force_editable_imut::penilaian')
                             || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian'))
                         ->acceptedFileTypes([
                             'application/pdf',
@@ -441,6 +450,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->rows(4)
                         ->readOnly(
                             fn($livewire) => $livewire->isLaporanPeriodClosed()
+                                && !Auth::user()?->can('force_editable_imut::penilaian')
                                 || ! Auth::user()?->can('update_numerator_denominator_imut::penilaian')
                         )
                         ->placeholder('Tuliskan hasil analisis...')
@@ -448,7 +458,11 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
 
                     Textarea::make('recommendations')
                         ->label('Rekomendasi')
-                        ->disabled(fn() => ! Auth::user()?->can('create_recommendation_penilaian_imut::penilaian'))
+                        ->disabled(
+                            fn() =>
+                            ! Auth::user()?->can('create_recommendation_penilaian_imut::penilaian')
+                                && ! Auth::user()?->can('force_editable_imut::penilaian')
+                        )
                         ->rows(4)
                         ->placeholder('Berikan saran atau rekomendasi...')
                         ->columnSpanFull(),
