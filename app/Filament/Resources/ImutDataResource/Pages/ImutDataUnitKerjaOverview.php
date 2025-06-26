@@ -21,28 +21,23 @@ class ImutDataUnitKerjaOverview extends Page
 
     public ?UnitKerja $unitKerja = null;
 
-    /**
-     * @param  array<string, mixed>  $parameters
-     */
     public static function canAccess(array $parameters = []): bool
     {
         $user = Auth::user();
 
-        // Jika punya akses penuh, langsung izinkan
+        $unitKerjaId = $parameters['record_unit_kerja'] ?? request('record_unit_kerja');
+
+        if (! $unitKerjaId) {
+            return false;
+        }
+
+        // Izin global
         if ($user->can('view_all_data_imut::data')) {
             return true;
         }
 
-        // Jika punya akses terbatas berdasarkan unit kerja
+        // Izin terbatas berdasarkan unit kerja
         if ($user->can('view_by_unit_kerja_imut::data')) {
-            $unitKerjaId = $parameters['record_unit_kerja'] ?? null;
-
-            // Tidak ada unit kerja dalam parameter, tolak
-            if (! $unitKerjaId) {
-                return false;
-            }
-
-            // Cek apakah unit kerja tersebut milik user
             return $user->unitKerjas()->where('unit_kerja_id', $unitKerjaId)->exists();
         }
 
@@ -54,23 +49,8 @@ class ImutDataUnitKerjaOverview extends Page
         $imutDataId = request()->query('record_imut_data');
         $unitKerjaId = request()->query('record_unit_kerja');
 
-        if (! $imutDataId || ! $unitKerjaId) {
-            abort(404, 'Data atau unit kerja tidak ditemukan.');
-        }
-
         $this->imutData = ImutData::with(['profiles', 'categories'])->findOrFail($imutDataId);
         $this->unitKerja = UnitKerja::findOrFail($unitKerjaId);
-
-        // Cek akses ulang di sini agar tidak bisa bypass mount() meskipun bisa akses URL
-        $user = Auth::user();
-
-        if (
-            ! $user->can('view_all_data_imut::data') &&
-            ! ($user->can('view_by_unit_kerja_imut::data') &&
-                $user->unitKerjas()->where('unit_kerja_id', $unitKerjaId)->exists())
-        ) {
-            abort(403, 'Anda tidak memiliki izin untuk mengakses unit kerja ini.');
-        }
 
         $this->data = [
             'imutDataId' => $this->imutData->id,

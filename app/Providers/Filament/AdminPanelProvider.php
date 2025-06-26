@@ -32,6 +32,7 @@ use Juniyasyos\DashStackTheme\DashStackThemePlugin;
 use Juniyasyos\FilamentLaravelBackup\FilamentLaravelBackupPlugin;
 use Juniyasyos\FilamentMediaManager\FilamentMediaManagerPlugin;
 use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
+use Juniyasyos\FilamentSettingsHub\FilamentSettingsHubPlugin;
 use Laravel\Socialite\Contracts\User as SocialiteUserContract;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Rmsramos\Activitylog\ActivitylogPlugin;
@@ -109,6 +110,7 @@ class AdminPanelProvider extends PanelProvider
             DashStackThemePlugin::make(),
             FilamentShieldPlugin::make(),
             FilamentPWAPlugin::make(),
+            FilamentSettingsHubPlugin::make(),
             FilamentLaravelBackupPlugin::make(),
             FilamentMediaManagerPlugin::make()->allowUserAccess()->allowSubFolders(),
             ActivitylogPlugin::make()
@@ -126,42 +128,42 @@ class AdminPanelProvider extends PanelProvider
                     shouldRegisterUserMenu: true,
                     shouldRegisterNavigation: false,
                     navigationGroup: 'System & Configuration',
-                    hasAvatars: true,
+                    hasAvatars: false,
                     slug: 'my-profile'
                 )
-                ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
-                ->enableBrowserSessions(condition: true)
-                ->avatarUploadComponent(
-                    fn () => FileUpload::make('avatar_url')
-                        ->image()
-                        ->disk('public')
-                )
+                // ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
+                // ->enableBrowserSessions(condition: true)
+                // ->avatarUploadComponent(
+                //     fn () => FileUpload::make('avatar_url')
+                //         ->image()
+                //         ->disk('public')
+                // )
                 ->enableTwoFactorAuthentication(),
         ];
 
-        if ($this->settings->sso_enabled ?? true) {
-            $plugins[] =
-                FilamentSocialitePlugin::make()
-                    ->providers([
-                        Provider::make('google')
-                            ->label('Google')
-                            ->icon('fab-google')
-                            ->color(Color::hex('#2f2a6b'))
-                            ->outlined(true)
-                            ->stateless(false),
-                    ])->registration(true)
-                    ->createUserUsing(function (string $provider, SocialiteUserContract $oauthUser, FilamentSocialitePlugin $plugin) {
-                        $user = User::firstOrNew([
-                            'email' => $oauthUser->getEmail(),
-                        ]);
-                        $user->name = $oauthUser->getName();
-                        $user->email = $oauthUser->getEmail();
-                        $user->email_verified_at = now();
-                        $user->save();
+        // if ($this->settings->sso_enabled ?? true) {
+        //     $plugins[] =
+        //         FilamentSocialitePlugin::make()
+        //             ->providers([
+        //                 Provider::make('google')
+        //                     ->label('Google')
+        //                     ->icon('fab-google')
+        //                     ->color(Color::hex('#2f2a6b'))
+        //                     ->outlined(true)
+        //                     ->stateless(false),
+        //             ])->registration(true)
+        //             ->createUserUsing(function (string $provider, SocialiteUserContract $oauthUser, FilamentSocialitePlugin $plugin) {
+        //                 $user = User::firstOrNew([
+        //                     'email' => $oauthUser->getEmail(),
+        //                 ]);
+        //                 $user->name = $oauthUser->getName();
+        //                 $user->email = $oauthUser->getEmail();
+        //                 $user->email_verified_at = now();
+        //                 $user->save();
 
-                        return $user;
-                    });
-        }
+        //                 return $user;
+        //             });
+        // }
 
         return $plugins;
     }

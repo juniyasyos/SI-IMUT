@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Filament\Exports\SummaryImutDataReportExport;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataUnitKerjaReport;
 use App\Models\LaporanUnitKerja;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -36,7 +38,7 @@ class ImutDataReport extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => LaporanUnitKerja::getReportByImutData($this->laporanId))
+            ->query(fn() => LaporanUnitKerja::getReportByImutData($this->laporanId))
             ->columns([
                 TextColumn::make('imut_data_title')
                     ->label('IMUT Data')
@@ -48,28 +50,28 @@ class ImutDataReport extends Component implements HasForms, HasTable
                 TextColumn::make('total_numerator')
                     ->label('N')
                     ->alignCenter()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total N')
-                            ->using(fn (Builder $query) => number_format($query->sum('total_numerator'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('total_numerator'), 2))
                     ),
 
                 TextColumn::make('total_denominator')
                     ->label('D')
                     ->alignCenter()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total D')
-                            ->using(fn (Builder $query) => number_format($query->sum('total_denominator'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('total_denominator'), 2))
                     ),
 
                 TextColumn::make('percentage')
                     ->label('Persentase (%)')
                     ->alignCenter()
                     ->suffix('%')
-                    ->color(fn ($record) => match (true) {
+                    ->color(fn($record) => match (true) {
                         ! is_numeric($record->percentage) || ! is_numeric($record->avg_standard) => null,
                         $record->percentage >= $record->avg_standard => 'success',
                         $record->percentage >= $record->avg_standard * 0.8 => 'warning',
@@ -87,7 +89,9 @@ class ImutDataReport extends Component implements HasForms, HasTable
                             ->suffix('%')
                     ),
             ])
-
+            ->headerActions([
+                ExportAction::make()->exporter(SummaryImutDataReportExport::class)
+            ])
             ->filters([
                 // ...
             ])
@@ -96,13 +100,13 @@ class ImutDataReport extends Component implements HasForms, HasTable
                     ->label('Lihat Detail')
                     ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->url(fn ($record) => ImutDataUnitKerjaReport::getUrl([
+                    ->url(fn($record) => ImutDataUnitKerjaReport::getUrl([
                         'laporan_id' => $record->laporan_imut_id,
                         'imut_data_id' => $record->id,
                     ])),
                 // ->openUrlInNewTab()
             ])
-            ->recordUrl(fn ($record) => ImutDataUnitKerjaReport::getUrl([
+            ->recordUrl(fn($record) => ImutDataUnitKerjaReport::getUrl([
                 'laporan_id' => $record->laporan_imut_id,
                 'imut_data_id' => $record->id,
             ]))

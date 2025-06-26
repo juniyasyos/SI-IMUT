@@ -31,7 +31,7 @@ class CacheKey
 
     public static function dashboardSiimutChartData(): string
     {
-        return "dashboard:siimut:chart_data_dashboard";
+        return 'dashboard:siimut:chart_data_dashboard';
     }
 
     public static function imutPenilaian(int $imutDataId, int $year): string
@@ -39,13 +39,17 @@ class CacheKey
         return "imut:penilaian:{$imutDataId}:{$year}";
     }
 
-    public static function imutBenchmarking(int $year, array|int|null $regionTypeId = null): string
+    public static function imutBenchmarking(int $year, array|int|null $regionTypeId = null, array|int|null $imutDataId = null): string
     {
-        $idPart = is_array($regionTypeId)
+        $regionPart = is_array($regionTypeId)
             ? implode(',', $regionTypeId)
             : ($regionTypeId ?? 'all');
 
-        return "imut:benchmarking:{$year}:{$idPart}";
+        $imutPart = is_array($imutDataId)
+            ? implode(',', $imutDataId)
+            : ($imutDataId ?? 'all');
+
+        return "imut:benchmarking:{$year}:region:{$regionPart}:imut:{$imutPart}";
     }
 
     public static function imutPenilaianImutDataUnitKerja($imutDataId, $year, $unitKerjaId = null): string

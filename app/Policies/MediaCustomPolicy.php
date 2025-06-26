@@ -46,8 +46,8 @@ class MediaCustomPolicy
         return $user->can('update_media::custom');
     }
 
-    public function creteSubFolder(User $user): bool
-    {
-        return $user->can('create_sub_folder');
-    }
+    // public function creteSubFolder(User $user): bool
+    // {
+    //     return $user->can('create_sub_folder');
+    // }
 }

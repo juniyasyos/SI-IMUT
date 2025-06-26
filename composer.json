@@ -53,7 +53,6 @@
         "fakerphp/faker": "^1.23",
         "filament/upgrade": "^4.0",
         "laravel-shift/blueprint": "^2.10",
-        "laravel/dusk": "^8.3",
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
@@ -102,10 +101,12 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" --names=server,queue,logs"
         ],
         "setup": [
+            "git clean -f && git reset --hard && git pull",
             "rm -rf ./storage/debugbar/*.json",
             "@php artisan migrate:fresh --seed",
             "@php artisan shield:generate --all --panel=admin",
-            "@php artisan shield:super-admin --user=1"
+            "@php artisan shield:super-admin --user=1",
+            "git clean -f && git reset --hard"
         ],
         "prod-setup": [
             "@php artisan migrate:fresh",

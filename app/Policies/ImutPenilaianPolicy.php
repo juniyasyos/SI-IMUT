@@ -2,14 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\ImutPenilaian;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ImutPenilaianPolicy
 {
     use HandlesAuthorization;
-
     /**
      * Determine whether the user can view any models.
      */
@@ -50,59 +49,58 @@ class ImutPenilaianPolicy
         return $user->can('delete_imut::penilaian');
     }
 
-    /**
-     * Determine whether the user can bulk delete.
-     */
-    public function deleteAny(User $user): bool
+    protected function userCanAccessPenilaian(User $user, ImutPenilaian $penilaian): bool
     {
-        return $user->can('delete_any_imut::penilaian');
+        $unitKerjaId = $penilaian->laporanUnitKerja?->unitKerja?->id;
+
+        if (! $unitKerjaId) {
+            return false;
+        }
+
+        return $user->unitKerjas()->where('unit_kerja.id', $unitKerjaId)->exists();
     }
 
     /**
-     * Determine whether the user can permanently delete.
+     * Hak akses melihat detail penilaian milik unit kerjanya.
      */
-    public function forceDelete(User $user, ImutPenilaian $imutPenilaian): bool
+    public function viewPenilaian(User $user, ImutPenilaian $penilaian): bool
     {
-        return $user->can('force_delete_imut::penilaian');
+        return $user->can('view_imut_penilaian_imut::penilaian')
+            && $this->userCanAccessPenilaian($user, $penilaian);
     }
 
     /**
-     * Determine whether the user can permanently bulk delete.
+     * Hak akses mengedit numerator & denominator untuk penilaian milik unit kerjanya.
      */
-    public function forceDeleteAny(User $user): bool
+    public function updateNumeratorDenominator(User $user, ImutPenilaian $penilaian): bool
     {
-        return $user->can('force_delete_any_imut::penilaian');
+        return $user->can('update_numerator_denominator_imut::penilaian')
+            && $this->userCanAccessPenilaian($user, $penilaian);
     }
 
     /**
-     * Determine whether the user can restore.
+     * Hak akses memperbarui profil penilaian (misal metadata, indikator, dsb).
      */
-    public function restore(User $user, ImutPenilaian $imutPenilaian): bool
+    public function updateProfile(User $user, ImutPenilaian $penilaian): bool
     {
-        return $user->can('restore_imut::penilaian');
+        return $user->can('update_profile_penilaian_imut::penilaian')
+            && $this->userCanAccessPenilaian($user, $penilaian);
     }
 
     /**
-     * Determine whether the user can bulk restore.
+     * Hak akses membuat rekomendasi dari hasil penilaian.
      */
-    public function restoreAny(User $user): bool
+    public function createRecommendation(User $user, ImutPenilaian $penilaian): bool
     {
-        return $user->can('restore_any_imut::penilaian');
+        return $user->can('create_recommendation_penilaian_imut::penilaian')
+            && $this->userCanAccessPenilaian($user, $penilaian);
     }
 
     /**
-     * Determine whether the user can replicate.
+     * Hak akses edit paksa
      */
-    public function replicate(User $user, ImutPenilaian $imutPenilaian): bool
+    public function forceEditable(User $user, ImutPenilaian $penilaian): bool
     {
-        return $user->can('replicate_imut::penilaian');
-    }
-
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_imut::penilaian');
+        return $user->can('force_editable_imut::penilaian');
     }
 }

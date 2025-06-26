@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\{User, UnitKerja, ImutPenilaian, LaporanUnitKerja};
 
 /**
  * Class LaporanImut
@@ -92,12 +93,12 @@ class LaporanImut extends Model
     {
         static::creating(function (self $laporan): void {
             if (empty($laporan->slug)) {
-                $laporan->slug = Str::slug($laporan->name ?? $laporan->id.'-'.now()->timestamp);
+                $laporan->slug = Str::slug($laporan->name ?? $laporan->id . '-' . now()->timestamp);
             }
         });
 
-        static::saved(fn (self $laporan) => $laporan->clearCache());
-        static::deleted(fn (self $laporan) => $laporan->clearCache());
+        static::saved(fn(self $laporan) => $laporan->clearCache());
+        static::deleted(fn(self $laporan) => $laporan->clearCache());
     }
 
     /**
@@ -164,9 +165,12 @@ class LaporanImut extends Model
      */
     public function getStatusAttribute(string $value): string
     {
+        $today = now()->startOfDay();
+        $endDate = $this->assessment_period_end->startOfDay();
+
         if (
             $value === self::STATUS_PROCESS &&
-            $this->assessment_period_end->isPast()
+            $endDate->lt($today)
         ) {
             $this->updateQuietly(['status' => self::STATUS_COMPLETE]);
 

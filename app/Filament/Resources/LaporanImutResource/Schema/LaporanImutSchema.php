@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\LaporanImutResource\Schema;
 
-use App\Facades\LaporanImut;
 use App\Models\UnitKerja;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
@@ -27,9 +27,9 @@ class LaporanImutSchema
                         ->unique('laporan_imuts', 'name', ignoreRecord: true)
                         ->columnSpanFull()
                         ->default(function () {
-                            $count = LaporanImut::count();
+                            $now = Carbon::now();
 
-                            return 'Laporan IMUT Periode '.($count + 1);
+                            return 'Laporan IMUT Periode '.$now->translatedFormat('m/Y');
                         }),
 
                     DatePicker::make('assessment_period_start')
@@ -62,7 +62,7 @@ class LaporanImutSchema
                                 ->label('Unit Kerja yang Bisa Menilai')
                                 ->columns(3)
                                 ->required()
-                                ->disabledOn('edit')
+                                // ->disabledOn('edit')
                                 ->bulkToggleable()
                                 ->default(UnitKerja::pluck('id')->toArray()),
                         ]),

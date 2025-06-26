@@ -4,10 +4,10 @@ namespace App\Filament\Resources\ImutPenilaianResource\Pages;
 
 use App\Filament\Resources\ImutPenilaianResource;
 use App\Models\ImutPenilaian;
-use Illuminate\Support\Str;
 use App\Models\LaporanImut;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
 
 class EditImutPenilaian extends EditRecord
@@ -49,7 +49,6 @@ class EditImutPenilaian extends EditRecord
         $imutData = $profile?->imutData;
         $unitKerja = $penilaian->laporanUnitKerja?->unitKerja;
         $folder = Folder::where('collection', Str::slug($unitKerja->unit_name))->first();
-
 
         return array_merge([
             'penilaian_id' => $penilaian->id,
@@ -119,6 +118,6 @@ class EditImutPenilaian extends EditRecord
 
     public function isLaporanPeriodClosed(): bool
     {
-        return $this->laporan?->assessment_period_end < now();
+        return $this->laporan?->status === LaporanImut::STATUS_COMPLETE;
     }
 }

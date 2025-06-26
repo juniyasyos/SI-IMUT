@@ -28,7 +28,6 @@ class CreateLaporanImut extends CreateRecord
         return $data;
     }
 
-
     protected function afterCreate(): void
     {
         Notification::make()

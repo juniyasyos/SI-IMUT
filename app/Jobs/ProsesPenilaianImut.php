@@ -35,6 +35,10 @@ class ProsesPenilaianImut implements ShouldQueue
                     ]);
 
                     foreach ($unitKerja->imutData as $imutData) {
+                        if (! $imutData->status) {
+                            continue;
+                        }
+
                         $latestProfile = $imutData->latestProfile;
 
                         if (! $latestProfile) {
@@ -80,7 +84,7 @@ class ProsesPenilaianImut implements ShouldQueue
                 ->status('success')
                 ->sendToDatabase($laporan->createdBy);
         } catch (\Throwable $e) {
-            Log::error('Job ProsesPenilaianImut gagal: '.$e->getMessage(), [
+            Log::error('Job ProsesPenilaianImut gagal: ' . $e->getMessage(), [
                 'laporan_id' => $this->laporanId,
                 'exception' => $e,
             ]);

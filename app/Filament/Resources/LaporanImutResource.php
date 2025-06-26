@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\LaporanImutExporter;
 use App\Filament\Resources\LaporanImutResource\Pages;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataReport;
 use App\Filament\Resources\LaporanImutResource\Pages\ImutDataUnitKerjaReport;
@@ -15,6 +16,7 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -78,12 +80,6 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             'view_unit_kerja_report_detail',
             'view_imut_data_report',
             'view_imut_data_report_detail',
-
-            // custom penilaian actions
-            'view_imut_penilaian',
-            'update_numerator_denominator',
-            'update_profile_penilaian',
-            'create_recommendation_penilaian',
         ]);
     }
 
@@ -115,14 +111,17 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
+            ->headerActions([
+                ExportAction::make()->exporter(LaporanImutExporter::class)
+            ])
             ->actions(LaporanImutTable::actions())
             ->bulkActions(
                 [
                     Tables\Actions\BulkActionGroup::make([
                         Tables\Actions\RestoreBulkAction::make()
-                            ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                         Tables\Actions\ForceDeleteBulkAction::make()
-                            ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                     ]),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]
@@ -134,9 +133,9 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         return [
             Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\RestoreBulkAction::make()
-                    ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
                 Tables\Actions\ForceDeleteBulkAction::make()
-                    ->visible(fn (LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
             ]),
             Tables\Actions\DeleteBulkAction::make(),
         ];

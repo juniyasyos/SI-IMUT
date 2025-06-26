@@ -44,19 +44,7 @@ class ImutPenilaian extends Model implements HasMedia
      *
      * @var array<int, string>
      */
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'deleted_at' => 'datetime',
-        ];
-    }
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function registerMediaCollections(): void
     {
@@ -130,23 +118,9 @@ class ImutPenilaian extends Model implements HasMedia
         return $this->belongsTo(LaporanUnitKerja::class);
     }
 
-    /**
-     * Get the unit kerja that owns the ImutPenilaian
-     *
-     * @return void
-     */
-    public function unitKerja(): BelongsTo
-    {
-        return $this->belongsTo(UnitKerja::class, 'unit_kerja_id');
-    }
-
     public function profileById($profileId): HasOne
     {
         return $this->hasOne(ImutProfile::class)->where('id', $profileId);
     }
 
-    public function latestProfile(): HasOne
-    {
-        return $this->hasOne(ImutProfile::class)->latestOfMany();
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\RegionType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
