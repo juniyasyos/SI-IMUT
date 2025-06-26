@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 
 class ImutDataRelationManager extends RelationManager
@@ -31,6 +32,18 @@ class ImutDataRelationManager extends RelationManager
                     ->label(__('filament-forms::imut-data-relationship-user.columns.category'))
                     ->badge()
                     ->color('success'),
+
+                \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('status')
+                    ->label(__('filament-forms::imut-data.fields.status'))
+                    ->translateLabel()
+                    ->alignCenter()
+                    ->size('xl')
+                    ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
+                        'update_imut::data',
+                    ]))
+                    ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
+                    ->sortable(),
+
             ])
             ->filters([
                 SelectFilter::make('imut_kategori_id')
