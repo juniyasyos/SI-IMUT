@@ -85,13 +85,13 @@ class ImutDataTable
     public static function actions(): array
     {
         return [
-            \Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction::make('user-relation-manager')
-                ->slideOver()
-                ->label('Imut Profile')
-                ->color('success')
-                ->icon('heroicon-c-document-plus')
-                ->relationManager(ProfilesRelationManager::make())
-                ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
+            // \Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction::make('user-relation-manager')
+            //     // ->slideOver()
+            //     ->label('Imut Profile')
+            //     ->color('success')
+            //     ->icon('heroicon-c-document-plus')
+            //     ->relationManager(ProfilesRelationManager::make())
+            //     ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
 
             ActionTable::make('lihat_berdasarkan_unit_kerja')
                 ->label('🏢 Lihat Grafik')

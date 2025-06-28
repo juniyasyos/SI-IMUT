@@ -94,7 +94,7 @@ class ImutProfileResource extends Resource implements HasShieldPermissions
                 TrashedFilter::make(),
             ])
             ->actions([
-                ViewAction::make(),
+                // ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),

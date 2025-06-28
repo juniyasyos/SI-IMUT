@@ -59,13 +59,13 @@ class ProfilesRelationManager extends RelationManager
                 TrashedFilter::make(),
             ])
             ->actions([
-                ViewAction::make()
-                    ->slideOver()
-                    ->form([
-                        TextInput::make('version')->disabled(),
-                        TextInput::make('indicator_type')->disabled(),
-                        TextInput::make('responsible_person')->disabled(),
-                    ]),
+                // ViewAction::make()
+                    // ->slideOver()
+                    // ->form([
+                    //     TextInput::make('version')->disabled(),
+                    //     TextInput::make('indicator_type')->disabled(),
+                    //     TextInput::make('responsible_person')->disabled(),
+                    // ]),
                 EditAction::make()
                     ->url(fn($record, $livewire) => ImutDataResource::getUrl('edit-profile', [
                         'imutDataSlug' => $livewire->ownerRecord->slug,
