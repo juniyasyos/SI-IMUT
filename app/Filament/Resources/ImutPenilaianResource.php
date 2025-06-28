@@ -87,7 +87,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                     Hidden::make('imut_data_id'),
 
                     // Select: Versi Profil IMUT
-                    Select::make('imut_profile_id')
+                    Select::make('imut_profil_id')
                         ->label('Versi Profil IMUT')
                         ->options(function ($get) {
                             $imutDataId = $get('imut_data_id');
