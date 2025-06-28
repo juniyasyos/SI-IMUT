@@ -161,7 +161,9 @@ class ImutDataSchema
                                                     ->streamlined()
                                                     ->relationship('benchmarkings', fn($query) => $query->where('region_type_id', $regionType->id))
                                                     ->headers($headers)
+                                                    ->visibleOn('edit')
                                                     ->schema($schema)
+                                                    ->nullable()
                                                     ->defaultItems(1)
                                                     ->addable(
                                                         fn(Get $get) => $get('created_by') === auth()->id()

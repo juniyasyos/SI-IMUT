@@ -12,6 +12,7 @@ use Filament\Resources\Pages\EditRecord;
 use Guava\FilamentModalRelationManagers\Actions\Action\RelationManagerAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Resources\ImutDataResource\Pages\ImutDataUnitKerjaOverview;
 
 class EditImutData extends EditRecord
 {
@@ -122,7 +123,7 @@ class EditImutData extends EditRecord
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
-            ->visible(fn ($record) => Auth::user()?->can('delete_imut::data') && $record->creator === Auth::user()->id)
+            ->visible(fn ($record) => Auth::user()?->can('delete_imut::data') || $record->creator === Auth::user()->id)
             ->modalHeading(__('filament-forms::imut-data.actions.delete.modal_heading'))
             ->modalDescription(__('filament-forms::imut-data.actions.delete.modal_description'))
             ->modalIcon('heroicon-o-exclamation-triangle')

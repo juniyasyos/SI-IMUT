@@ -47,12 +47,6 @@ class ImutProfileForm
 
                     Tab::make('🎯 Analisis')
                         ->schema(self::AnalysisSchema()),
-
-                    // Tab::make('📍 Benchmarking')
-                    //     ->schema(self::benchmarkingSchema())
-                    //     ->visible(fn (?Model $record) => $record !== null
-                    //         && request()->is('imut-datas/*/profile/edit=*')
-                    //         && $record->imutData->categories->is_benchmark_category === 1),
                 ])
                 ->columnSpan(['lg' => 2]),
         ];
@@ -248,7 +242,6 @@ class ImutProfileForm
                     Fieldset::make('🗓️ Periode Analisis')
                         ->columns(2)
                         ->schema([
-
                             Select::make('analysis_period_type')
                                 ->label('Tipe Periode Analisis')
                                 ->options([
@@ -257,6 +250,7 @@ class ImutProfileForm
                                 ])
                                 ->required()
                                 ->reactive()
+                                ->default('bulanan')
                                 ->afterStateUpdated(function ($state, \Filament\Forms\Set $set, \Filament\Forms\Get $get) {
                                     self::calculateEndPeriod($set, $get);
                                 })

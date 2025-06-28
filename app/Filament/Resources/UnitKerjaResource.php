@@ -145,18 +145,18 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                 ExportAction::make()->exporter(UnitKerjaExporter::class)
             ])
             ->actions([
-                RelationManagerAction::make('user-relation-manager')
-                    ->slideOver()
-                    ->label('User Attach')
-                    ->icon('heroicon-o-user')
-                    ->relationManager(UsersRelationManager::make())
-                    ->visible(
-                        fn($record) =>
-                        Gate::any(['attach_user_to_unit_kerja_unit::kerja'], $record)
-                            && method_exists($record, 'trashed') === false
-                            ? true
-                            : ! $record->trashed()
-                    ),
+                // RelationManagerAction::make('user-relation-manager')
+                //     // ->slideOver()
+                //     ->label('User Attach')
+                //     ->icon('heroicon-o-user')
+                //     ->relationManager(UsersRelationManager::make())
+                //     ->visible(
+                //         fn($record) =>
+                //         Gate::any(['attach_user_to_unit_kerja_unit::kerja'], $record)
+                //             && method_exists($record, 'trashed') === false
+                //             ? true
+                //             : ! $record->trashed()
+                //     ),
 
                 // RelationManagerAction::make('imutData-relation-manager')
                 //     ->slideOver()
@@ -172,7 +172,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                 //     ),
 
                 ActionGroup::make([
-                    ViewAction::make(),
+                    // ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make()

@@ -161,17 +161,17 @@ class UserResource extends Resource implements HasShieldPermissions
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => Gate::allows('deleteAny', User::class)),
+                        ->visible(fn() => Gate::allows('deleteAny', User::class)),
 
                     RestoreBulkAction::make()
-                        ->visible(fn () => Gate::allows('restoreAny', User::class)),
+                        ->visible(fn() => Gate::allows('restoreAny', User::class)),
 
                     ForceDeleteBulkAction::make()
-                        ->visible(fn () => Gate::allows('forceDeleteAny', User::class)),
+                        ->visible(fn() => Gate::allows('forceDeleteAny', User::class)),
 
                     ExportBulkAction::make()
                         ->exporter(UserExporter::class)
-                        ->visible(fn () => Gate::allows('export', User::class)),
+                        ->visible(fn() => Gate::allows('export', User::class)),
                 ]),
             ]);
     }
@@ -284,8 +284,8 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->label(__('filament-forms::users.fields.password'))
                             ->placeholder(__('filament-forms::users.form.user.password_placeholder'))
                             ->password()
-                            ->dehydrateStateUsing(fn ($state) => $state ? bcrypt($state) : null)
-                            ->required(fn ($livewire) => $livewire instanceof CreateRecord),
+                            ->dehydrateStateUsing(fn($state) => $state ? bcrypt($state) : null)
+                            ->required(fn($livewire) => $livewire instanceof CreateRecord),
 
                         ToggleButtons::make('status')
                             ->label(__('filament-forms::users.fields.status'))
@@ -314,7 +314,7 @@ class UserResource extends Resource implements HasShieldPermissions
                         ->preload()
                         ->searchable()
                         ->placeholder(__('filament-forms::users.form.position.select_placeholder'))
-                        ->createOptionForm(fn (Form $form) => $form->schema([
+                        ->createOptionForm(fn(Form $form) => $form->schema([
                             TextInput::make('name')
                                 ->required()
                                 ->label(__('filament-forms::users.form.position.create_label')),
@@ -325,7 +325,7 @@ class UserResource extends Resource implements HasShieldPermissions
                         ->suffixActions([
                             FieldAction::make('editPosition')
                                 ->icon('heroicon-o-pencil-square')
-                                ->visible(fn (Get $get) => filled($get('position_id')))
+                                ->visible(fn(Get $get) => filled($get('position_id')))
                                 ->modalHeading(__('filament-forms::users.form.position.edit_modal_title'))
                                 ->mountUsing(function (FieldAction $action, Get $get) {
                                     $position = Position::find($get('position_id'));
@@ -353,7 +353,7 @@ class UserResource extends Resource implements HasShieldPermissions
                                 ->icon('heroicon-o-trash')
                                 ->color('danger')
                                 ->requiresConfirmation()
-                                ->visible(fn (Get $get) => filled($get('position_id')))
+                                ->visible(fn(Get $get) => filled($get('position_id')))
                                 ->action(function (Get $get, Set $set) {
                                     $position = Position::find($get('position_id'));
                                     if ($position) {
@@ -374,7 +374,7 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->circular()
                     ->grow(false)
-                    ->getStateUsing(fn ($record) => $record->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($record->name)),
+                    ->getStateUsing(fn($record) => $record->avatar_url ?: 'https://ui-avatars.com/api/?name=' . urlencode($record->name)),
                 Stack::make([
                     TextColumn::make('name')
                         ->label(__('filament-forms::users.fields.name'))
@@ -411,7 +411,7 @@ class UserResource extends Resource implements HasShieldPermissions
     {
         return [
             ActivityLogTimelineTableAction::make(__('filament-forms::users.actions.activities'))
-                ->visible(fn () => Gate::allows('viewActivities', User::class)),
+                ->visible(fn() => Gate::allows('viewActivities', User::class)),
 
             Action::make(__('filament-forms::users.actions.set_role'))
                 ->icon('heroicon-m-adjustments-vertical')
@@ -423,13 +423,13 @@ class UserResource extends Resource implements HasShieldPermissions
                         ->searchable()
                         ->preload()
                         ->optionsLimit(10)
-                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name),
+                        ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
                 ])
-                ->visible(fn () => Gate::allows('setRole', User::class)),
+                ->visible(fn() => Gate::allows('setRole', User::class)),
 
             Impersonate::make()
                 ->label(__('filament-forms::users.actions.impersonate'))
-                ->visible(fn () => Gate::allows('impersonate', User::class)),
+                ->visible(fn() => Gate::allows('impersonate', User::class)),
 
             ActionGroup::make([
                 ViewAction::make(),
@@ -437,14 +437,14 @@ class UserResource extends Resource implements HasShieldPermissions
                 DeleteAction::make(),
                 RestoreAction::make()
                     ->visible(
-                        fn ($record) => Gate::allows('restore', $record) &&
+                        fn($record) => Gate::allows('restore', $record) &&
                             method_exists($record, 'trashed') &&
                             $record->trashed()
                     ),
 
                 ForceDeleteAction::make()
                     ->visible(
-                        fn ($record) => Gate::allows('forceDelete', $record) &&
+                        fn($record) => Gate::allows('forceDelete', $record) &&
                             method_exists($record, 'trashed') &&
                             $record->trashed()
                     ),
@@ -465,7 +465,7 @@ class UserResource extends Resource implements HasShieldPermissions
                         ->circular()
                         ->size(120)
                         ->grow(false)
-                        ->getStateUsing(fn ($record) => $record->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($record->name))
+                        ->getStateUsing(fn($record) => $record->avatar_url ?: 'https://ui-avatars.com/api/?name=' . urlencode($record->name))
                         ->columnSpan(1),
 
                     // Kolom kedua: Nama, NIK, Tempat Lahir, Tanggal Lahir
@@ -495,7 +495,7 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->label(__('filament-forms::users.fields.status'))
                             ->icon('heroicon-o-check-circle')
                             ->badge()
-                            ->color(fn ($state) => $state === 'active' ? 'success' : ($state === 'inactive' ? 'danger' : 'gray')),
+                            ->color(fn($state) => $state === 'active' ? 'success' : ($state === 'inactive' ? 'danger' : 'gray')),
                         TextEntry::make('roles.name')
                             ->label(__('filament-forms::users.fields.roles'))
                             ->icon('heroicon-o-shield-check')
@@ -518,7 +518,7 @@ class UserResource extends Resource implements HasShieldPermissions
                         ->label(__('filament-forms::users.fields.address_ktp'))
                         ->icon('heroicon-o-map-pin'),
                 ])
-                ->visible(fn ($record) => filled($record->phone_number) || filled($record->address_ktp)),
+                ->visible(fn($record) => filled($record->phone_number) || filled($record->address_ktp)),
 
             // Section untuk informasi akun dan status pengguna
             InfolistSection::make(__('filament-forms::users.infolist.account_info_title'))

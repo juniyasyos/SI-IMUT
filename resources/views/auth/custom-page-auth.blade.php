@@ -1,7 +1,7 @@
 <div>
     {{-- Background Image --}}
     <div class="absolute inset-0">
-        <img src="{{ asset('images/assets/133884796741265059.jpg') }}" alt="Background"
+        <img src="{{ asset('images/assets/login_image.JPG') }}" alt="Background"
             class="object-cover w-full h-full dark:opacity-40">
     </div>
 
