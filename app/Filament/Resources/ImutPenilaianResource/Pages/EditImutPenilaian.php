@@ -7,6 +7,7 @@ use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
 
@@ -118,6 +119,19 @@ class EditImutPenilaian extends EditRecord
 
     public function isLaporanPeriodClosed(): bool
     {
-        return $this->laporan?->status === LaporanImut::STATUS_COMPLETE;
+        return ! $this->isLaporanEditable();
+    }
+
+    public function isLaporanEditable(): bool
+    {
+        if (! $this->laporan) {
+            return false;
+        }
+
+        $today = Carbon::today();
+        $start = Carbon::parse($this->laporan->assessment_period_start);
+        $end = Carbon::parse($this->laporan->assessment_period_end);
+
+        return $today->betweenIncluded($start, $end);
     }
 }

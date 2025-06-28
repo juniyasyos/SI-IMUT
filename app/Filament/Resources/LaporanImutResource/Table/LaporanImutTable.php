@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
 
 class LaporanImutTable
 {
@@ -38,16 +39,19 @@ class LaporanImutTable
             TextColumn::make('assessment_period')
                 ->label('Periode Asesmen')
                 ->alignCenter()
-                ->getStateUsing(fn ($record) => self::formatAssessmentPeriod($record)),
+                ->getStateUsing(fn($record) => self::formatAssessmentPeriod($record)),
 
             TextColumn::make('status')
                 ->label('Status')
                 ->badge()
                 ->alignCenter()
-                ->color(fn (string $state): string => match ($state) {
+                ->getStateUsing(fn($record) => self::resolveStatus($record))
+                ->color(fn($state) => match ($state) {
                     'canceled' => 'danger',
+                    'coming_soon' => 'gray',
                     'process' => 'primary',
                     'complete' => 'success',
+                    default => 'secondary',
                 }),
 
             self::getProgressColumn(),
@@ -64,28 +68,50 @@ class LaporanImutTable
     {
         return [
             Action::make('isi_penilaian')
-                ->label('Isi Penilaian')
-                ->icon('heroicon-s-clipboard-document-list')
-                ->color('warning')
+                ->label(fn($record) => match (self::resolveStatus($record)) {
+                    'coming_soon' => 'Belum Dibuka',
+                    'complete' => 'Hasil Penilaian',
+                    default => 'Isi Penilaian',
+                })
+                ->icon(fn($record) => match (self::resolveStatus($record)) {
+                    'coming_soon' => 'heroicon-s-clock',
+                    'complete' => 'heroicon-s-document-check',
+                    default => 'heroicon-s-clipboard-document-list',
+                })
+                ->color(fn($record) => match (self::resolveStatus($record)) {
+                    'coming_soon' => 'gray',
+                    'complete' => 'gray',
+                    default => 'warning',
+                })
+                ->disabled(fn($record) => self::resolveStatus($record) === 'coming_soon')
                 ->visible(
-                    fn ($record) => method_exists($record, 'trashed')
-                        && ! $record->trashed()
-                        && self::userHasAccessToLaporan($record)
-                        && \Carbon\Carbon::today()->lte($record->assessment_period_end)
+                    fn($record) =>
+                    method_exists($record, 'trashed') &&
+                        ! $record->trashed() &&
+                        self::userHasAccessToLaporan($record)
                 )
-                ->url(fn ($record) => self::getIsiPenilaianUrl($record)),
+                ->url(function ($record) {
+                    $url = self::getIsiPenilaianUrl($record);
+                    if (! $url) return null;
+
+                    return self::resolveStatus($record) === 'complete'
+                        ? $url . '&readonly=1'
+                        : $url;
+                }),
 
             ActionGroup::make([
                 EditAction::make()
-                    ->visible(fn ($record) => method_exists($record, 'trashed') && ! $record->trashed()),
+                    ->visible(fn($record) => method_exists($record, 'trashed') && ! $record->trashed()),
+
                 DeleteAction::make()
-                    ->visible(fn ($record) => method_exists($record, 'trashed') && ! $record->trashed()),
+                    ->visible(fn($record) => method_exists($record, 'trashed') && ! $record->trashed()),
+
                 Action::make('summary')
                     ->label('Summary')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->color('success')
                     ->visible(
-                        fn ($record) => method_exists($record, 'trashed') &&
+                        fn($record) => method_exists($record, 'trashed') &&
                             ! $record->trashed() &&
                             Gate::any([
                                 'view_unit_kerja_report_laporan::imut',
@@ -127,17 +153,18 @@ class LaporanImutTable
                     }),
             ]),
 
-            // Aksi hanya jika record dalam trash
             RestoreAction::make()
                 ->visible(
-                    fn ($record) => Gate::allows('restore', $record) &&
+                    fn($record) =>
+                    Gate::allows('restore', $record) &&
                         method_exists($record, 'trashed') &&
                         $record->trashed()
                 ),
 
             ForceDeleteAction::make()
                 ->visible(
-                    fn ($record) => Gate::allows('forceDelete', $record) &&
+                    fn($record) =>
+                    Gate::allows('forceDelete', $record) &&
                         method_exists($record, 'trashed') &&
                         $record->trashed()
                 ),
@@ -148,9 +175,9 @@ class LaporanImutTable
     {
         return ProgressColumn::make('progress')
             ->label('Progress')
-            ->visible(fn () => Auth::user()?->unitKerjas()->exists())
-            ->getStateUsing(fn ($record) => self::calculateProgress($record))
-            ->tooltip(fn ($record) => self::progressTooltip($record));
+            ->visible(fn() => Auth::user()?->unitKerjas()->exists())
+            ->getStateUsing(fn($record) => self::calculateProgress($record))
+            ->tooltip(fn($record) => self::progressTooltip($record));
     }
 
     protected static function getUnitKerjaTerisiColumn(): ProgressColumn
@@ -158,13 +185,27 @@ class LaporanImutTable
         return ProgressColumn::make('unit_kerja_terisi')
             ->label('Unit Kerja Terisi')
             ->visible(
-                fn () => Gate::check('view_unit_kerja_report_laporan::imut') &&
+                fn() =>
+                Gate::check('view_unit_kerja_report_laporan::imut') &&
                     Gate::check('view_imut_data_report_laporan::imut') &&
                     Gate::check('update_profile_penilaian_imut::penilaian') &&
                     Gate::check('create_recommendation_penilaian_imut::penilaian')
             )
-            ->getStateUsing(fn ($record) => self::calculateUnitKerjaTerisi($record))
-            ->tooltip(fn ($record) => self::tooltipUnitKerjaTerisi($record));
+            ->getStateUsing(fn($record) => self::calculateUnitKerjaTerisi($record))
+            ->tooltip(fn($record) => self::tooltipUnitKerjaTerisi($record));
+    }
+
+    protected static function resolveStatus($record): string
+    {
+        $today = Carbon::today();
+        $start = Carbon::parse($record->assessment_period_start);
+        $end = Carbon::parse($record->assessment_period_end);
+
+        return match (true) {
+            $today->lt($start) => 'coming_soon',
+            $today->gt($end)   => 'complete',
+            default            => 'process',
+        };
     }
 
     protected static function userHasAccessToLaporan($record): bool
@@ -195,8 +236,8 @@ class LaporanImutTable
 
     protected static function formatAssessmentPeriod($record): string
     {
-        $start = \Carbon\Carbon::parse($record->assessment_period_start)->translatedFormat('d M');
-        $end = \Carbon\Carbon::parse($record->assessment_period_end)->translatedFormat('d M Y');
+        $start = Carbon::parse($record->assessment_period_start)->translatedFormat('d M');
+        $end = Carbon::parse($record->assessment_period_end)->translatedFormat('d M Y');
 
         return "$start - $end";
     }
@@ -234,9 +275,7 @@ class LaporanImutTable
             ->pluck('id')
             ->toArray();
 
-        if (empty($laporanUnitKerjaIds)) {
-            return null;
-        }
+        if (empty($laporanUnitKerjaIds)) return null;
 
         $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
         $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)

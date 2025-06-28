@@ -2052,7 +2052,7 @@
         },
         {
             "name": "filament/actions",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/actions.git",
@@ -2105,7 +2105,7 @@
         },
         {
             "name": "filament/filament",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/panels.git",
@@ -2170,16 +2170,16 @@
         },
         {
             "name": "filament/forms",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/forms.git",
-                "reference": "e25e7ac05848ca5d546649f6fcaa3026f13d8e06"
+                "reference": "26684d9c875e23bf5873c7b696c39ad4dce9c6c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filamentphp/forms/zipball/e25e7ac05848ca5d546649f6fcaa3026f13d8e06",
-                "reference": "e25e7ac05848ca5d546649f6fcaa3026f13d8e06",
+                "url": "https://api.github.com/repos/filamentphp/forms/zipball/26684d9c875e23bf5873c7b696c39ad4dce9c6c6",
+                "reference": "26684d9c875e23bf5873c7b696c39ad4dce9c6c6",
                 "shasum": ""
             },
             "require": {
@@ -2222,11 +2222,11 @@
                 "issues": "https://github.com/filamentphp/filament/issues",
                 "source": "https://github.com/filamentphp/filament"
             },
-            "time": "2025-06-23T10:46:56+00:00"
+            "time": "2025-06-26T12:58:34+00:00"
         },
         {
             "name": "filament/infolists",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/infolists.git",
@@ -2277,7 +2277,7 @@
         },
         {
             "name": "filament/notifications",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/notifications.git",
@@ -2329,7 +2329,7 @@
         },
         {
             "name": "filament/spatie-laravel-media-library-plugin",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/spatie-laravel-media-library-plugin.git",
@@ -2366,7 +2366,7 @@
         },
         {
             "name": "filament/spatie-laravel-settings-plugin",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/spatie-laravel-settings-plugin.git",
@@ -2413,7 +2413,7 @@
         },
         {
             "name": "filament/support",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/support.git",
@@ -2472,16 +2472,16 @@
         },
         {
             "name": "filament/tables",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/tables.git",
-                "reference": "6a19ecf86444ee650afe4cd0457d371e60a24e07"
+                "reference": "675931bce563ef344cc441d71e619d9c1810dff8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filamentphp/tables/zipball/6a19ecf86444ee650afe4cd0457d371e60a24e07",
-                "reference": "6a19ecf86444ee650afe4cd0457d371e60a24e07",
+                "url": "https://api.github.com/repos/filamentphp/tables/zipball/675931bce563ef344cc441d71e619d9c1810dff8",
+                "reference": "675931bce563ef344cc441d71e619d9c1810dff8",
                 "shasum": ""
             },
             "require": {
@@ -2520,11 +2520,11 @@
                 "issues": "https://github.com/filamentphp/filament/issues",
                 "source": "https://github.com/filamentphp/filament"
             },
-            "time": "2025-06-23T10:46:54+00:00"
+            "time": "2025-06-26T12:58:30+00:00"
         },
         {
             "name": "filament/widgets",
-            "version": "v3.3.28",
+            "version": "v3.3.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/widgets.git",
@@ -3753,16 +3753,16 @@
         },
         {
             "name": "juniyasyos/filament-pwa-kaido",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/juniyasyos/filament-pwa-kaido.git",
-                "reference": "c228c173f9e8a544fab8637a1fcd761c86a9d955"
+                "reference": "1b423c99f53836f346a1ad60bcb25da2c2fd8737"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/filament-pwa-kaido/zipball/c228c173f9e8a544fab8637a1fcd761c86a9d955",
-                "reference": "c228c173f9e8a544fab8637a1fcd761c86a9d955",
+                "url": "https://api.github.com/repos/juniyasyos/filament-pwa-kaido/zipball/1b423c99f53836f346a1ad60bcb25da2c2fd8737",
+                "reference": "1b423c99f53836f346a1ad60bcb25da2c2fd8737",
                 "shasum": ""
             },
             "require": {
@@ -3811,7 +3811,7 @@
             ],
             "support": {
                 "issues": "https://github.com/juniyasyos/filament-pwa-kaido/issues",
-                "source": "https://github.com/juniyasyos/filament-pwa-kaido/tree/v2.2.0"
+                "source": "https://github.com/juniyasyos/filament-pwa-kaido/tree/v2.2.1"
             },
             "funding": [
                 {
@@ -3819,7 +3819,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-05-10T16:27:16+00:00"
+            "time": "2025-06-26T09:03:01+00:00"
         },
         {
             "name": "juniyasyos/filament-settings-hub-kaido",
@@ -8763,16 +8763,16 @@
         },
         {
             "name": "spatie/image",
-            "version": "3.8.4",
+            "version": "3.8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/image.git",
-                "reference": "df315a480113081c5c27958bee9bf3f97f36fe76"
+                "reference": "a63f60b7387ebeacab463e79a95deb7ffed75430"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/image/zipball/df315a480113081c5c27958bee9bf3f97f36fe76",
-                "reference": "df315a480113081c5c27958bee9bf3f97f36fe76",
+                "url": "https://api.github.com/repos/spatie/image/zipball/a63f60b7387ebeacab463e79a95deb7ffed75430",
+                "reference": "a63f60b7387ebeacab463e79a95deb7ffed75430",
                 "shasum": ""
             },
             "require": {
@@ -8820,7 +8820,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/image/tree/3.8.4"
+                "source": "https://github.com/spatie/image/tree/3.8.5"
             },
             "funding": [
                 {
@@ -8832,7 +8832,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-04T08:18:18+00:00"
+            "time": "2025-06-27T12:44:55+00:00"
         },
         {
             "name": "spatie/image-optimizer",
@@ -13134,7 +13134,7 @@
         },
         {
             "name": "filament/upgrade",
-            "version": "v4.0.0-beta9",
+            "version": "v4.0.0-beta10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/upgrade.git",
