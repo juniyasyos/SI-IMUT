@@ -45,7 +45,7 @@ class ImutDataTable
         return [
             TextColumn::make('title')
                 ->label(__('filament-forms::imut-data.fields.title'))
-                ->tooltip(fn (ImutData $record): string => $record->description ?? '-')
+                ->tooltip(fn(ImutData $record): string => $record->description ?? '-')
                 ->searchable()
                 ->sortable()
                 ->limit(60),
@@ -67,10 +67,10 @@ class ImutDataTable
                 ->translateLabel()
                 ->alignCenter()
                 ->size('xl')
-                ->disabled(fn () => \Illuminate\Support\Facades\Gate::any([
+                ->disabled(fn() => \Illuminate\Support\Facades\Gate::any([
                     'update_imut::data',
                 ]))
-                ->tooltip(fn (Model $record) => $record->status ? 'Active' : 'Unactive')
+                ->tooltip(fn(Model $record) => $record->status ? 'Active' : 'Unactive')
                 ->sortable(),
 
             TextColumn::make('created_at')
@@ -91,7 +91,7 @@ class ImutDataTable
                 ->color('success')
                 ->icon('heroicon-c-document-plus')
                 ->relationManager(ProfilesRelationManager::make())
-                ->visible(fn () => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
+                ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_any_imut::profile', User::class)),
 
             ActionTable::make('lihat_berdasarkan_unit_kerja')
                 ->label('🏢 Lihat Grafik')
@@ -100,8 +100,8 @@ class ImutDataTable
                     $user = Auth::user();
 
                     return $user->can('view_by_unit_kerja_imut::data') &&
-                           ! $user->can('view_all_data_imut::data') &&
-                           $user->unitKerjas->isNotEmpty();
+                        ! $user->can('view_all_data_imut::data') &&
+                        $user->unitKerjas->isNotEmpty();
                 })
                 ->url(function ($record) {
                     $user = Auth::user();
@@ -117,24 +117,23 @@ class ImutDataTable
                     ]);
                 }),
 
-            ViewAction::make()->slideOver(),
             EditAction::make(),
 
             ActionGroup::make([
                 ActionTable::make('lihat_berdasarkan_imut_data')
                     ->label('📊 IMUT DATA')
                     ->color('primary')
-                    ->visible(fn () => \Illuminate\Support\Facades\Gate::allows('view_all_data_imut::data', User::class))
-                    ->url(fn ($record) => SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
+                    ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_all_data_imut::data', User::class))
+                    ->url(fn($record) => SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
 
                 \Guava\FilamentModalRelationManagers\Actions\Table\RelationManagerAction::make('unit-kerja-relation')
                     ->slideOver()
                     ->label('🏢 Unit Kerja')
                     ->color('primary')
-                    ->visible(fn () => \Illuminate\Support\Facades\Gate::allows('view_all_data_imut::data', User::class))
+                    ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_all_data_imut::data', User::class))
                     ->relationManager(\App\Filament\Resources\ImutDataResource\RelationManagers\UnitKerjaRelationManager::make()),
             ])
-                ->visible(fn () => \Illuminate\Support\Facades\Gate::allows('view_all_data_imut::data', User::class))
+                ->visible(fn() => \Illuminate\Support\Facades\Gate::allows('view_all_data_imut::data', User::class))
                 ->icon('heroicon-s-chart-bar')
                 ->label('Lihat Grafik')
                 ->button(),
@@ -142,14 +141,14 @@ class ImutDataTable
             ActionGroup::make([
                 RestoreAction::make()
                     ->visible(
-                        fn ($record) => \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
+                        fn($record) => \Illuminate\Support\Facades\Gate::allows('restore', $record) &&
                             method_exists($record, 'trashed') &&
                             $record->trashed()
                     ),
 
                 ForceDeleteAction::make()
                     ->visible(
-                        fn ($record) => \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
+                        fn($record) => \Illuminate\Support\Facades\Gate::allows('forceDelete', $record) &&
                             method_exists($record, 'trashed') &&
                             $record->trashed()
                     ),
