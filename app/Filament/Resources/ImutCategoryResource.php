@@ -105,6 +105,7 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                         ->label(__('filament-forms::imut-category.fields.short_name'))
                         ->placeholder(__('filament-forms::imut-category.form.short_placeholder'))
                         ->helperText(__('filament-forms::imut-category.form.short_helper_text'))
+                        ->unique('imut_kategori', 'short_name', ignoreRecord: true)
                         ->required()
                         ->columnSpan(1)
                         ->maxLength(50),
