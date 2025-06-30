@@ -100,7 +100,7 @@ class ImutDataSeeder extends Seeder
 
     private function createLaporanImut(): void
     {
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 36; $i++) {
             $month = $this->now->copy()->subMonths($i)->month;
             $year = $this->now->copy()->subMonths($i)->year;
 
@@ -127,6 +127,7 @@ class ImutDataSeeder extends Seeder
             $this->laporanList[] = $laporan;
         }
     }
+
 
     private function processIndicator(array $indicator, ImutCategory $category): void
     {
@@ -209,9 +210,11 @@ class ImutDataSeeder extends Seeder
 
             // Daftar versi yang tersedia dan peningkatan target value
             $allVersions = [
-                'version 1' => 0,
-                'version 2' => 10,
-                'version 3' => 20,
+                '2022-Q1' => -10,
+                '2022-Q4' => 0,
+                '2023-Q2' => 10,
+                '2024-Q1' => 15,
+                '2025-Q1' => 20,
             ];
 
             // Ambil secara acak maksimal 3 versi
@@ -222,17 +225,16 @@ class ImutDataSeeder extends Seeder
             // Simpan referensi terakhir untuk keperluan penilaian
             $lastImutProfile = null;
 
+            $baseCreatedAt = now()->copy()->subYears(3);
             foreach ($selectedVersions as $index => $versionKey) {
                 $attributes = $baseAttributes;
                 $targetIncrement = $allVersions[$versionKey];
 
-                if ($profile['target_value'] === 100) {
-                    $attributes['target_value'] = $profile['target_value'] + $targetIncrement;
-                } else {
-                    $attributes['target_value'] = $profile['target_value'] - $targetIncrement;
-                }
+                $attributes['target_value'] = $profile['target_value'] === 100
+                    ? $profile['target_value'] + $targetIncrement
+                    : $profile['target_value'] - $targetIncrement;
 
-                $createdAt = now()->copy()->subMonths(3 - $index);
+                $createdAt = $baseCreatedAt->copy()->addMonths($index * 12);
 
                 $lastImutProfile = ImutProfile::firstOrCreate([
                     'imut_data_id' => $imutData->id,
@@ -275,11 +277,11 @@ class ImutDataSeeder extends Seeder
     {
         $regionTypes = RegionType::all();
 
-        for ($i = 0; $i < 3; $i++) {
-            $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
-            $end = $start->copy()->endOfMonth();
+        foreach ($this->laporanList as $laporan) {
+            $start = Carbon::create($laporan->assessment_period_start);
             $month = $start->month;
             $year = $start->year;
+            $createdAt = $start->copy()->addDays(rand(0, 10));
 
             foreach ($regionTypes as $type) {
                 $regionName = match ($type->type) {
@@ -295,12 +297,13 @@ class ImutDataSeeder extends Seeder
                     'region_name' => $regionName,
                     'year' => $year,
                     'month' => $month,
-                    'created_at' => $end->copy()->subDays(rand(0, 2)),
-                    'updated_at' => $end->copy()->subDays(rand(0, 2)),
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
                 ]);
             }
         }
     }
+
 
     private function createPenilaian(ImutProfile $imutProfile): void
     {
