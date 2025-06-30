@@ -38,7 +38,14 @@ class LaporanImutSchema
                         ->placeholder('YYYY-MM-DD')
                         ->required()
                         ->reactive()
-                        ->default(now()->format('Y-m-d')),
+                        ->default(now()->format('Y-m-d'))
+                        ->afterStateUpdated(function (callable $set, $state) {
+                            if ($state > now()->toDateString()) {
+                                $set('status', 'coming_soon');
+                            } else {
+                                $set('status', 'process');
+                            }
+                        }),
 
                     DatePicker::make('assessment_period_end')
                         ->label('Berakhirnya Periode Asesmen')
@@ -71,9 +78,11 @@ class LaporanImutSchema
                             'complete' => 'success',
                             'coming_soon' => 'gray',
                         ])
-                        ->disabled()
                         ->default('process')
                         ->inline()
+                        ->disabled() // user tidak bisa mengubah
+                        ->dehydrated() // tetap ikut terkirim ke server
+                        ->extraAttributes(['readonly' => true]) // HTML readonly agar UI-nya tidak bisa diubah
                         ->helperText('Status laporan ditentukan otomatis berdasarkan tanggal berakhirnya periode asesmen.'),
 
                     Select::make('created_by')

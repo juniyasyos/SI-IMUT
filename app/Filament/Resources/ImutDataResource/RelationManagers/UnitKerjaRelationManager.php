@@ -32,10 +32,9 @@ class UnitKerjaRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('unit_name')
             ->columns([
-                Tables\Columns\TextColumn::make('unit_name')->label('Nama Unit Kerja'),
+                Tables\Columns\TextColumn::make('unit_name')->label('Nama Unit Kerja')->searchable(),
                 Tables\Columns\TextColumn::make('pivot.assignedBy.name')
                     ->label('Ditugaskan Oleh')
-                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pivot.assigned_at')
                     ->label('Tanggal Penugasan')

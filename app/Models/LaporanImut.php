@@ -42,7 +42,7 @@ class LaporanImut extends Model
     public const STATUS_COMPLETE = 'complete';
 
     /** @var string Status dibatalkan */
-    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_COMINGSOON = 'coming_soon';
 
     /**
      * Mass assignable attributes
