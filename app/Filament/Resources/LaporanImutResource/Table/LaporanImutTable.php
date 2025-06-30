@@ -47,7 +47,6 @@ class LaporanImutTable
                 ->alignCenter()
                 ->getStateUsing(fn($record) => self::resolveStatus($record))
                 ->color(fn($state) => match ($state) {
-                    'canceled' => 'danger',
                     'coming_soon' => 'gray',
                     'process' => 'primary',
                     'complete' => 'success',
