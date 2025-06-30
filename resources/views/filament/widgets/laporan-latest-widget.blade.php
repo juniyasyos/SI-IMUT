@@ -6,7 +6,7 @@
             $statusColors = [
                 'process' => 'bg-blue-100 text-blue-800 ring-blue-300',
                 'complete' => 'bg-green-100 text-green-800 ring-green-300',
-                'canceled' => 'bg-red-100 text-red-800 ring-red-300',
+                'coming_soon' => 'bg-gray text-white',
             ];
         @endphp
 

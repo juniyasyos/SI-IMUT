@@ -53,7 +53,7 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
                     ->badge()
                     ->alignCenter()
                     ->color(fn (string $state): string => match ($state) {
-                        'canceled' => 'danger',
+                        'coming_soon' => 'gray',
                         'process' => 'primary',
                         'complete' => 'success',
                     })

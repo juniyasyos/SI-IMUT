@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Session;
 
 uses(RefreshDatabase::class);
 
@@ -106,8 +106,9 @@ test('a user can be authenticated manually', function () {
 
 // 🚪 Logout
 test('user dapat logout', function () {
-    $user = User::factory()->create();
+    $this->withoutMiddleware(VerifyCsrfToken::class);
 
+    $user = User::factory()->create();
     $this->actingAs($user);
 
     $response = $this->post('/logout');
@@ -116,11 +117,12 @@ test('user dapat logout', function () {
     $this->assertGuest();
 });
 
+
 // 🛑 Guest tidak bisa akses halaman dashboard
 test('guest tidak bisa akses dashboard dan diarahkan ke login', function () {
     $response = $this->get('/');
 
-    $response->assertRedirect('/login'); 
+    $response->assertRedirect('/login');
     $this->assertGuest();
 });
 
@@ -360,7 +362,7 @@ test('input dengan script tag tidak dieksekusi (stored XSS)', function () {
     $this->post('/profile', ['bio' => '<script>alert("XSS")</script>']);
 
     $this->get('/profile')
-         ->assertDontSee('<script>alert("XSS")</script>', false);
+        ->assertDontSee('<script>alert("XSS")</script>', false);
 });
 
 // test('session regeneration terjadi setelah login', function () {
