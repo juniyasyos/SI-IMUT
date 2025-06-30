@@ -61,4 +61,19 @@ class CacheKey
     {
         return "laporan.recent_list.limit_{$limit}";
     }
+
+    public static function penilaianGroupedByProfile(int $laporanId)
+    {
+        return 'penilaian_grouped_profile_' . $laporanId;
+    }
+
+    public static function laporanList(array $filters = [], ?int $limit = null): string
+    {
+        $keyData = [
+            'filters' => $filters,
+            'limit' => $limit,
+        ];
+
+        return 'laporan_list_' . md5(json_encode($keyData));
+    }
 }

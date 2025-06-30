@@ -146,40 +146,48 @@ class LaporanImutService
 
     public function getPenilaianGroupedByProfile(int $laporanId): Collection
     {
-        return ImutPenilaian::select([
-            'id',
-            'imut_profil_id',
-            'laporan_unit_kerja_id',
-            'numerator_value',
-            'denominator_value',
-        ])
-            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
-            ->whereNotNull('numerator_value')
-            ->whereNotNull('denominator_value')
-            ->get()
-            ->groupBy('imut_profil_id');
+        $cacheKey = CacheKey::penilaianGroupedByProfile($laporanId);
+
+        return Cache::remember($cacheKey, now()->addHours(12), function () use ($laporanId) {
+            return ImutPenilaian::select([
+                'id',
+                'imut_profil_id',
+                'laporan_unit_kerja_id',
+                'numerator_value',
+                'denominator_value',
+            ])
+                ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+                ->whereNotNull('numerator_value')
+                ->whereNotNull('denominator_value')
+                ->get()
+                ->groupBy('imut_profil_id');
+        });
     }
 
     public function getLaporanList(array $filters = [], ?int $limit = null): Collection
     {
-        $query = LaporanImut::with('unitKerjas')
-            ->orderByDesc('assessment_period_start');
+        $cacheKey = CacheKey::laporanList($filters, $limit);
 
-        if (! empty($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
+        return Cache::remember($cacheKey, now()->addHours(12), function () use ($filters, $limit) {
+            $query = LaporanImut::with('unitKerjas')
+                ->orderByDesc('assessment_period_start');
 
-        if (! empty($filters['start_date'])) {
-            $query->whereDate('assessment_period_start', '>=', $filters['start_date']);
-        }
+            if (! empty($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
 
-        if (! empty($filters['end_date'])) {
-            $query->whereDate('assessment_period_end', '<=', $filters['end_date']);
-        }
+            if (! empty($filters['start_date'])) {
+                $query->whereDate('assessment_period_start', '>=', $filters['start_date']);
+            }
 
-        return $limit
-            ? $query->limit($limit)->get()->sortBy('assessment_period_start')->values()
-            : $query->get()->sortBy('assessment_period_start')->values();
+            if (! empty($filters['end_date'])) {
+                $query->whereDate('assessment_period_end', '<=', $filters['end_date']);
+            }
+
+            return $limit
+                ? $query->limit($limit)->get()->sortBy('assessment_period_start')->values()
+                : $query->get()->sortBy('assessment_period_start')->values();
+        });
     }
 
     /** ================= PRIVATE HELPERS ================= */
