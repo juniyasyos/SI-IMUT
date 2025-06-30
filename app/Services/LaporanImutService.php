@@ -88,7 +88,11 @@ class LaporanImutService
 
                 return [
                     'tercapai' => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporanId),
-                    'unitMelapor' => $penilaian->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
+                    'unitMelapor' => $penilaian
+                        ->filter(fn($p) => is_null($p->numerator_value) && is_null($p->denominator_value))
+                        ->pluck('laporanUnitKerja.unit_kerja_id')
+                        ->unique()
+                        ->count(),
                     'belumDinilai' => $this->countBelumDinilai($penilaian),
                 ];
             })->toArray();
@@ -118,12 +122,13 @@ class LaporanImutService
                 // Hitung unit melapor dan belum dinilai
                 $allPenilaian = $penilaian->flatten();
                 $unitMelapor = $allPenilaian
+                    ->filter(fn($p) => !is_null($p->numerator_value) && !is_null($p->denominator_value))
                     ->pluck('laporanUnitKerja.unit_kerja_id')
                     ->unique()
                     ->count();
 
                 $belumDinilai = $allPenilaian->filter(
-                    fn($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
+                    fn($p) => ! is_null($p->numerator_value) || ! is_null($p->denominator_value)
                 )->count();
 
                 // Load total unit kerja
