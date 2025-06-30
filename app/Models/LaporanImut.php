@@ -110,6 +110,7 @@ class LaporanImut extends Model
         Cache::forget(CacheKey::latestLaporan());
         Cache::forget(CacheKey::dashboardSiimutChartData());
         Cache::forget(CacheKey::dashboardSiimutAllData($this->id));
+        Cache::forget(CacheKey::recentLaporanList());
     }
 
     /**

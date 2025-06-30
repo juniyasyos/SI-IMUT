@@ -5,10 +5,12 @@ use App\Models\LaporanImut;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    Cache::flush(); // Penting agar cache tidak mengganggu test awal
     $this->seed();
 });
 
@@ -17,11 +19,9 @@ function benchmark(string $functionName, callable $callback): void
     DB::flushQueryLog();
     DB::enableQueryLog();
 
-    // Inisialisasi counter model
     $totalModelCount = 0;
     $modelTypes = [];
 
-    // Listener global model retrieved
     Event::listen('eloquent.retrieved: *', function ($eventName, $data) use (&$totalModelCount, &$modelTypes) {
         $model = $data[0] ?? null;
         if ($model instanceof \Illuminate\Database\Eloquent\Model) {
@@ -40,63 +40,52 @@ function benchmark(string $functionName, callable $callback): void
         'query_count' => count(DB::getQueryLog()),
         'total_model_count' => $totalModelCount,
         'model_types' => $modelTypes,
-        'execution_time' => round($duration, 4).'s',
+        'execution_time' => round($duration, 4) . 's',
     ]);
 
     expect($result)->not()->toBeNull();
 }
 
-/**
- * Menghitung jumlah instance model Eloquent yang sedang ada di memory.
- * Menggunakan Reflection ke Eloquent\Model::$instances.
- */
-function getLoadedModelCount(): int
-{
-    $total = 0;
-    foreach (get_declared_classes() as $class) {
-        if (is_subclass_of($class, \Illuminate\Database\Eloquent\Model::class)) {
-            $instances = (new \ReflectionClass($class))->getStaticProperties()['instances'] ?? null;
-            if (is_array($instances)) {
-                $total += count($instances);
-            }
-        }
-    }
+// ===============================================
+// BENCHMARKED TESTS
+// ===============================================
 
-    return $total;
-}
-
-test('benchmark getCurrentLaporanData with real data', function () {
+test('benchmark getCurrentLaporanData with and without cache', function () {
     $laporan = LaporanImut::where('status', LaporanImut::STATUS_COMPLETE)->first();
 
     if (! $laporan) {
         $this->markTestSkipped('Tidak ada laporan dengan status COMPLETE di database.');
     }
 
-    benchmark('getCurrentLaporanData', function () use ($laporan) {
-        return LaporanImutFacade::getCurrentLaporanData($laporan);
-    });
+    // Pertama: tanpa cache
+    benchmark('getCurrentLaporanData - first run (no cache)', fn() => LaporanImutFacade::getCurrentLaporanData($laporan));
+
+    // Kedua: dengan cache
+    benchmark('getCurrentLaporanData - second run (cached)', fn() => LaporanImutFacade::getCurrentLaporanData($laporan));
 });
 
-test('benchmark getChartDataForLastLaporan with real data', function () {
-    benchmark('getChartDataForLastLaporan', function () {
-        return LaporanImutFacade::getChartDataForLastLaporan(6);
-    });
+test('benchmark getChartDataForLastLaporan with and without cache', function () {
+    // Pertama
+    benchmark('getChartDataForLastLaporan - first run (no cache)', fn() => LaporanImutFacade::getChartDataForLastLaporan(6));
+
+    // Kedua
+    benchmark('getChartDataForLastLaporan - second run (cached)', fn() => LaporanImutFacade::getChartDataForLastLaporan(6));
 });
 
-test('benchmark getPenilaianGroupedByProfile with real data', function () {
+test('benchmark getPenilaianGroupedByProfile with and without cache', function () {
     $laporan = LaporanImut::first();
 
     if (! $laporan) {
         $this->markTestSkipped('Tidak ada laporan di database.');
     }
 
-    benchmark('getPenilaianGroupedByProfile', function () use ($laporan) {
-        return LaporanImutFacade::getPenilaianGroupedByProfile($laporan->id);
-    });
+    benchmark('getPenilaianGroupedByProfile - first run (no cache)', fn() => LaporanImutFacade::getPenilaianGroupedByProfile($laporan->id));
+
+    benchmark('getPenilaianGroupedByProfile - second run (cached)', fn() => LaporanImutFacade::getPenilaianGroupedByProfile($laporan->id));
 });
 
-test('benchmark getLaporanList with real data', function () {
-    benchmark('getLaporanList', function () {
-        return LaporanImutFacade::getLaporanList();
-    });
+test('benchmark getLaporanList with and without cache', function () {
+    benchmark('getLaporanList - first run (no cache)', fn() => LaporanImutFacade::getLaporanList());
+
+    benchmark('getLaporanList - second run (cached)', fn() => LaporanImutFacade::getLaporanList());
 });

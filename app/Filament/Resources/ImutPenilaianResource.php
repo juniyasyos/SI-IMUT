@@ -105,9 +105,11 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         })
                         ->disabled(
                             fn($livewire) =>
-                            $livewire->isLaporanPeriodClosed()
-                                && ! Auth::user()?->can('update_profile_penilaian_imut::penilaian')
-                                && ! Auth::user()?->can('force_editable_imut::penilaian')
+                            ! $livewire->isLaporanPeriodClosed() || // ← metode terbalik lebih jelas
+                                (
+                                    ! Auth::user()?->can('update_profile_penilaian_imut::penilaian')
+                                    && ! Auth::user()?->can('force_editable_imut::penilaian')
+                                )
                         )
                         ->searchable()
                         ->preload()

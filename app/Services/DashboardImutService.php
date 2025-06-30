@@ -78,9 +78,9 @@ class DashboardImutService
                 ),
                 'descriptionIcon' => 'heroicon-o-arrow-trending-up',
                 'icon' => $this->resolveIcon($payload['tercapai'] ?? 0, $payload['totalIndikator'] ?? 1),
-                'color' => fn ($d) => $this->resolvePercentageColor($d['tercapai'] ?? 0, $d['totalIndikator'] ?? 1),
+                'color' => fn($d) => $this->resolvePercentageColor($d['tercapai'] ?? 0, $d['totalIndikator'] ?? 1),
                 'chart' => 'tercapai',
-                'format' => fn ($v) => "$v / ".($payload['totalIndikator'] ?? 1),
+                'format' => fn($v) => "$v / " . ($payload['totalIndikator'] ?? 1),
             ],
             [
                 'key' => 'unitMelapor',
@@ -91,9 +91,9 @@ class DashboardImutService
                 ),
                 'descriptionIcon' => 'heroicon-o-user-plus',
                 'icon' => 'heroicon-o-user-group',
-                'color' => fn ($d) => $this->resolvePercentageColor($d['unitMelapor'] ?? 0, $d['totalUnit'] ?? 1),
+                'color' => fn($d) => $this->resolvePercentageColor($d['unitMelapor'] ?? 0, $d['totalUnit'] ?? 1),
                 'chart' => 'unitMelapor',
-                'format' => fn ($v) => "$v / ".($payload['totalUnit'] ?? 1).' Unit',
+                'format' => fn($v) => "$v / " . ($payload['totalUnit'] ?? 1) . ' Unit',
             ],
             [
                 'key' => 'belumDinilai',
@@ -105,7 +105,7 @@ class DashboardImutService
                 ),
                 'descriptionIcon' => 'heroicon-o-pencil-square',
                 'icon' => 'heroicon-o-clock',
-                'color' => fn ($d) => ($d['belumDinilai'] ?? 0) > 5 ? 'danger' : 'warning',
+                'color' => fn($d) => ($d['belumDinilai'] ?? 0) > 5 ? 'danger' : 'warning',
                 'chart' => 'belumDinilai',
             ],
         ];
@@ -132,15 +132,15 @@ class DashboardImutService
                 'indikator' => 'Capaian indikator stabil dalam dua periode terakhir.',
                 'unit' => 'Jumlah unit pelapor tidak berubah.',
                 'indikator belum dinilai' => 'Tidak ada perubahan pada indikator yang belum dinilai.',
-                default => ucfirst($unit).' stabil tanpa perubahan.',
+                default => ucfirst($unit) . ' stabil tanpa perubahan.',
             };
         }
 
         // Interpretasi terbalik (semakin kecil semakin baik)
         if ($inverse) {
             return $diff > 0
-                ? ucfirst($unit)." meningkat sebesar $abs dibandingkan periode sebelumnya — arah negatif."
-                : ucfirst($unit)." menurun sebesar $abs — ini pertanda positif.";
+                ? ucfirst($unit) . " meningkat sebesar $abs dibandingkan periode sebelumnya — arah negatif."
+                : ucfirst($unit) . " menurun sebesar $abs — ini pertanda positif.";
         }
 
         // Interpretasi normal (semakin besar semakin baik)
@@ -154,7 +154,7 @@ class DashboardImutService
             'indikator belum dinilai' => $diff > 0
                 ? "$abs indikator tambahan belum dinilai — perlu perhatian."
                 : "$abs indikator telah dinilai sejak periode sebelumnya — perkembangan positif.",
-            default => ucfirst($unit).($diff > 0
+            default => ucfirst($unit) . ($diff > 0
                 ? " naik sebesar $abs dibanding sebelumnya."
                 : " turun sebesar $abs dari sebelumnya."),
         };

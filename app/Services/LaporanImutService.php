@@ -21,30 +21,30 @@ class LaporanImutService
 
     public function getLatestLaporan(): ?LaporanImut
     {
-        $today = Carbon::today();
 
-        // return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
-        try {
-            $laporan = LaporanImut::select(['id', 'assessment_period_start', 'status'])
-                ->where('status', LaporanImut::STATUS_PROCESS)
-                ->whereDate('assessment_period_start', '<=', $today)
-                ->whereDate('assessment_period_end', '>=', $today)
-                ->orderByDesc('assessment_period_start')
-                ->first();
+        return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
+            try {
+                $today = Carbon::today();
+                $laporan = LaporanImut::select(['id', 'assessment_period_start', 'status'])
+                    ->where('status', LaporanImut::STATUS_PROCESS)
+                    ->whereDate('assessment_period_start', '<=', $today)
+                    ->whereDate('assessment_period_end', '>=', $today)
+                    ->orderByDesc('assessment_period_start')
+                    ->first();
 
-            if ($laporan) {
-                return $laporan;
+                if ($laporan) {
+                    return $laporan;
+                }
+
+                // fallback jika tidak ada laporan dengan status PROCESS di periode aktif
+                return LaporanImut::select(['id', 'assessment_period_start', 'status'])
+                    ->latest('assessment_period_start')
+                    ->first();
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengambil laporan terbaru: ' . $e->getMessage());
+                return null;
             }
-
-            // fallback jika tidak ada laporan dengan status PROCESS di periode aktif
-            return LaporanImut::select(['id', 'assessment_period_start', 'status'])
-                ->latest('assessment_period_start')
-                ->first();
-        } catch (\Throwable $e) {
-            Log::error('Gagal mengambil laporan terbaru: ' . $e->getMessage());
-            return null;
-        }
-        // });
+        });
     }
 
 
@@ -53,7 +53,11 @@ class LaporanImutService
         $cacheKey = CacheKey::dashboardSiimutChartData();
 
         return Cache::remember($cacheKey, now()->addDays(7), function () use ($limit) {
-            $laporanList = $this->getRecentLaporanList($limit);
+            $laporanList =  $laporanList = Cache::remember(
+                CacheKey::recentLaporanList($limit),
+                now()->addHours(12),
+                fn() => $this->getRecentLaporanList($limit)
+            );
 
             // 1. Ambil semua laporan ID
             $laporanIds = $laporanList->pluck('id');
@@ -84,7 +88,11 @@ class LaporanImutService
 
                 return [
                     'tercapai' => $this->countTercapai($indikatorAktif, $penilaianByProfile, $laporanId),
-                    'unitMelapor' => $penilaian->pluck('laporanUnitKerja.unit_kerja_id')->unique()->count(),
+                    'unitMelapor' => $penilaian
+                        ->filter(fn($p) => is_null($p->numerator_value) && is_null($p->denominator_value))
+                        ->pluck('laporanUnitKerja.unit_kerja_id')
+                        ->unique()
+                        ->count(),
                     'belumDinilai' => $this->countBelumDinilai($penilaian),
                 ];
             })->toArray();
@@ -114,12 +122,13 @@ class LaporanImutService
                 // Hitung unit melapor dan belum dinilai
                 $allPenilaian = $penilaian->flatten();
                 $unitMelapor = $allPenilaian
+                    ->filter(fn($p) => !is_null($p->numerator_value) && !is_null($p->denominator_value))
                     ->pluck('laporanUnitKerja.unit_kerja_id')
                     ->unique()
                     ->count();
 
                 $belumDinilai = $allPenilaian->filter(
-                    fn($p) => is_null($p->numerator_value) || is_null($p->denominator_value)
+                    fn($p) => ! is_null($p->numerator_value) || ! is_null($p->denominator_value)
                 )->count();
 
                 // Load total unit kerja
@@ -142,40 +151,48 @@ class LaporanImutService
 
     public function getPenilaianGroupedByProfile(int $laporanId): Collection
     {
-        return ImutPenilaian::select([
-            'id',
-            'imut_profil_id',
-            'laporan_unit_kerja_id',
-            'numerator_value',
-            'denominator_value',
-        ])
-            ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
-            ->whereNotNull('numerator_value')
-            ->whereNotNull('denominator_value')
-            ->get()
-            ->groupBy('imut_profil_id');
+        $cacheKey = CacheKey::penilaianGroupedByProfile($laporanId);
+
+        return Cache::remember($cacheKey, now()->addHours(12), function () use ($laporanId) {
+            return ImutPenilaian::select([
+                'id',
+                'imut_profil_id',
+                'laporan_unit_kerja_id',
+                'numerator_value',
+                'denominator_value',
+            ])
+                ->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+                ->whereNotNull('numerator_value')
+                ->whereNotNull('denominator_value')
+                ->get()
+                ->groupBy('imut_profil_id');
+        });
     }
 
     public function getLaporanList(array $filters = [], ?int $limit = null): Collection
     {
-        $query = LaporanImut::with('unitKerjas')
-            ->orderByDesc('assessment_period_start');
+        $cacheKey = CacheKey::laporanList($filters, $limit);
 
-        if (! empty($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
+        return Cache::remember($cacheKey, now()->addHours(12), function () use ($filters, $limit) {
+            $query = LaporanImut::with('unitKerjas')
+                ->orderByDesc('assessment_period_start');
 
-        if (! empty($filters['start_date'])) {
-            $query->whereDate('assessment_period_start', '>=', $filters['start_date']);
-        }
+            if (! empty($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
 
-        if (! empty($filters['end_date'])) {
-            $query->whereDate('assessment_period_end', '<=', $filters['end_date']);
-        }
+            if (! empty($filters['start_date'])) {
+                $query->whereDate('assessment_period_start', '>=', $filters['start_date']);
+            }
 
-        return $limit
-            ? $query->limit($limit)->get()->sortBy('assessment_period_start')->values()
-            : $query->get()->sortBy('assessment_period_start')->values();
+            if (! empty($filters['end_date'])) {
+                $query->whereDate('assessment_period_end', '<=', $filters['end_date']);
+            }
+
+            return $limit
+                ? $query->limit($limit)->get()->sortBy('assessment_period_start')->values()
+                : $query->get()->sortBy('assessment_period_start')->values();
+        });
     }
 
     /** ================= PRIVATE HELPERS ================= */
@@ -199,22 +216,26 @@ class LaporanImutService
 
     private function getRecentLaporanList(int $limit): Collection
     {
-        $laporan = LaporanImut::with('unitKerjas')
-            ->orderByDesc('assessment_period_start')
-            ->limit($limit)
-            ->get();
+        $key = CacheKey::recentLaporanList($limit);
 
-        if ($laporan->count() < $limit) {
-            $additional = LaporanImut::where('status', '!=', LaporanImut::STATUS_PROCESS)
+        return Cache::remember($key, now()->addHours(6), function () use ($limit) {
+            $laporan = LaporanImut::with('unitKerjas')
                 ->orderByDesc('assessment_period_start')
-                ->limit($limit - $laporan->count())
-                ->with('unitKerjas')
+                ->limit($limit)
                 ->get();
 
-            $laporan = $laporan->concat($additional);
-        }
+            if ($laporan->count() < $limit) {
+                $additional = LaporanImut::where('status', '!=', LaporanImut::STATUS_PROCESS)
+                    ->orderByDesc('assessment_period_start')
+                    ->limit($limit - $laporan->count())
+                    ->with('unitKerjas')
+                    ->get();
 
-        return $laporan->sortBy('assessment_period_start')->values();
+                $laporan = $laporan->concat($additional);
+            }
+
+            return $laporan->sortBy('assessment_period_start')->values();
+        });
     }
 
     private function getAktifIndikatorWithProfiles(Collection $laporanIds): Collection
