@@ -54,6 +54,11 @@ class CacheKey
 
     public static function imutPenilaianImutDataUnitKerja($imutDataId, $year, $unitKerjaId = null): string
     {
-        return 'imut_penilaian_'.$imutDataId.'_'.$year.($unitKerjaId ? '_uk_'.$unitKerjaId : '');
+        return 'imut_penilaian_' . $imutDataId . '_' . $year . ($unitKerjaId ? '_uk_' . $unitKerjaId : '');
+    }
+
+    public static function recentLaporanList(int $limit = 6): string
+    {
+        return "laporan.recent_list.limit_{$limit}";
     }
 }
