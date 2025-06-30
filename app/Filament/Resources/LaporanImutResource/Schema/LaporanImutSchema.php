@@ -10,6 +10,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Illuminate\Support\Facades\Auth;
 
 class LaporanImutSchema
@@ -29,7 +30,7 @@ class LaporanImutSchema
                         ->default(function () {
                             $now = Carbon::now();
 
-                            return 'Laporan IMUT Periode '.$now->translatedFormat('m/Y');
+                            return 'Laporan IMUT Periode ' . $now->translatedFormat('m/Y');
                         }),
 
                     DatePicker::make('assessment_period_start')
@@ -37,19 +38,57 @@ class LaporanImutSchema
                         ->placeholder('YYYY-MM-DD')
                         ->required()
                         ->reactive()
-                        ->default(now()->format('Y-m-d')),
+                        ->default(now()->format('Y-m-d'))
+                        ->afterStateUpdated(function (callable $set, $state) {
+                            if ($state > now()->toDateString()) {
+                                $set('status', 'coming_soon');
+                            } else {
+                                $set('status', 'process');
+                            }
+                        }),
 
                     DatePicker::make('assessment_period_end')
                         ->label('Berakhirnya Periode Asesmen')
                         ->placeholder('YYYY-MM-DD')
                         ->required()
-                        ->minDate(fn (callable $get) => $get('assessment_period_start'))
-                        ->rule('after_or_equal:assessment_period_start'),
+                        ->minDate(fn(callable $get) => $get('assessment_period_start'))
+                        ->rule('after_or_equal:assessment_period_start')
+                        ->afterStateUpdated(function (callable $set, $state) {
+                            if ($state < now()->toDateString()) {
+                                $set('status', 'complete');
+                            } else {
+                                $set('status', 'process');
+                            }
+                        }),
+
+                    ToggleButtons::make('status')
+                        ->label('Status Laporan')
+                        ->options([
+                            'process' => 'Dalam Proses',
+                            'complete' => 'Selesai',
+                            'coming_soon' => 'Segera Hadir',
+                        ])
+                        ->icons([
+                            'process' => 'heroicon-o-arrow-path',
+                            'complete' => 'heroicon-o-check-circle',
+                            'coming_soon' => 'heroicon-o-clock',
+                        ])
+                        ->colors([
+                            'process' => 'warning',
+                            'complete' => 'success',
+                            'coming_soon' => 'gray',
+                        ])
+                        ->default('process')
+                        ->inline()
+                        ->disabled() // user tidak bisa mengubah
+                        ->dehydrated() // tetap ikut terkirim ke server
+                        ->extraAttributes(['readonly' => true]) // HTML readonly agar UI-nya tidak bisa diubah
+                        ->helperText('Status laporan ditentukan otomatis berdasarkan tanggal berakhirnya periode asesmen.'),
 
                     Select::make('created_by')
                         ->label('Dibuat oleh')
                         ->options(User::pluck('name', 'id'))
-                        ->default(fn () => Auth::id())
+                        ->default(fn() => Auth::id())
                         ->disabled()
                         ->columnSpanFull(),
 

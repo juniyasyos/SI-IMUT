@@ -141,7 +141,6 @@ class ImutDataSeeder extends Seeder
 
             $profile = $indicator['profile'];
 
-            // Cek apakah semua key penting ada
             $requiredKeys = [
                 'rationale',
                 'quality_dimension',
@@ -164,10 +163,9 @@ class ImutDataSeeder extends Seeder
                 'responsible_person',
             ];
 
-            foreach ($requiredKeys as $key) {
-                if (! array_key_exists($key, $profile)) {
-                    throw new \Exception("Missing key in profile: '$key'");
-                }
+            $missing = array_diff($requiredKeys, array_keys($profile));
+            if (!empty($missing)) {
+                throw new \Exception("Missing keys in profile: " . implode(', ', $missing));
             }
 
             $indicatorType = in_array($profile['indicator_type'], ['process', 'outcome', 'output'])
@@ -177,19 +175,15 @@ class ImutDataSeeder extends Seeder
             $analysisPeriodType = $profile['analysis_period_type'];
             $analysisPeriodValue = (int) $profile['analysis_period_value'];
 
-            $start_periode = Carbon::now()->startOfYear();
+            $startPeriod = now()->startOfYear();
 
-            $end_periode = match ($analysisPeriodType) {
-                'mingguan' => $start_periode->copy()->addWeeks($analysisPeriodValue),
-                'bulanan' => $start_periode->copy()->addMonths($analysisPeriodValue),
-                'semester' => $start_periode->copy()->addMonths($analysisPeriodValue * 6),
-                default => $start_periode->copy(),
+            $endPeriod = match ($analysisPeriodType) {
+                'mingguan' => $startPeriod->copy()->addWeeks($analysisPeriodValue),
+                'bulanan' => $startPeriod->copy()->addMonths($analysisPeriodValue),
+                default => $startPeriod->copy(),
             };
 
-            $imutProfile = ImutProfile::firstOrCreate([
-                'imut_data_id' => $imutData->id,
-                'version' => 'version 1',
-            ], [
+            $baseAttributes = [
                 'rationale' => $profile['rationale'],
                 'quality_dimension' => $profile['quality_dimension'],
                 'objective' => $profile['objective'],
@@ -198,7 +192,6 @@ class ImutDataSeeder extends Seeder
                 'numerator_formula' => $profile['numerator_formula'],
                 'denominator_formula' => $profile['denominator_formula'],
                 'target_operator' => $profile['target_operator'] ?? '>=',
-                'target_value' => $profile['target_value'],
                 'inclusion_criteria' => $profile['inclusion_criteria'],
                 'exclusion_criteria' => $profile['exclusion_criteria'],
                 'data_source' => $profile['data_source'],
@@ -206,14 +199,49 @@ class ImutDataSeeder extends Seeder
                 'analysis_plan' => $profile['analysis_plan'],
                 'analysis_period_type' => $analysisPeriodType,
                 'analysis_period_value' => $analysisPeriodValue,
-                'start_period' => $start_periode->format('Y-m-d'),
-                'end_period' => $end_periode->format('Y-m-d'),
+                'start_period' => $startPeriod->format('Y-m-d'),
+                'end_period' => $endPeriod->format('Y-m-d'),
                 'data_collection_method' => $profile['data_collection_method'],
                 'sampling_method' => $profile['sampling_method'],
                 'data_collection_tool' => $profile['data_collection_tool'],
                 'responsible_person' => $profile['responsible_person'],
-            ]);
+            ];
 
+            // Daftar versi yang tersedia dan peningkatan target value
+            $allVersions = [
+                'version 1' => 0,
+                'version 2' => 10,
+                'version 3' => 20,
+            ];
+
+            // Ambil secara acak maksimal 3 versi
+            $versionKeys = array_keys($allVersions);
+            shuffle($versionKeys);
+            $selectedVersions = array_slice($versionKeys, 0, rand(1, 3));
+
+            // Simpan referensi terakhir untuk keperluan penilaian
+            $lastImutProfile = null;
+
+            foreach ($selectedVersions as $index => $versionKey) {
+                $attributes = $baseAttributes;
+                $targetIncrement = $allVersions[$versionKey];
+
+                if ($profile['target_value'] === 100) {
+                    $attributes['target_value'] = $profile['target_value'] + $targetIncrement;
+                } else {
+                    $attributes['target_value'] = $profile['target_value'] - $targetIncrement;
+                }
+
+                $createdAt = now()->copy()->subMonths(3 - $index);
+
+                $lastImutProfile = ImutProfile::firstOrCreate([
+                    'imut_data_id' => $imutData->id,
+                    'version' => $versionKey,
+                ], array_merge($attributes, [
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]));
+            }
         } catch (\Throwable $e) {
             dd([
                 'error' => $e->getMessage(),
@@ -221,11 +249,8 @@ class ImutDataSeeder extends Seeder
             ]);
         }
 
-        // Hanya buat laporan jika kategori adalah INM
-        if ($category->short_name === 'INM') {
-            // $this->createStandard($imutProfile);
-
-            // Relasi Unit Kerja
+        // Hanya buat laporan jika kategori adalah INM atau lainnya
+        if (in_array($category->short_name, ['INM', 'IMP-RS', 'IMIKP'])) {
             foreach ($this->unitKerjaIds as $unitId) {
                 $imutData->unitKerja()->syncWithoutDetaching([
                     $unitId => [
@@ -239,9 +264,12 @@ class ImutDataSeeder extends Seeder
                 $this->createBenchmarking($imutData);
             }
 
-            $this->createPenilaian($imutProfile);
+            if ($lastImutProfile) {
+                $this->createPenilaian($lastImutProfile);
+            }
         }
     }
+
 
     private function createBenchmarking(ImutData $imutData): void
     {
@@ -267,6 +295,8 @@ class ImutDataSeeder extends Seeder
                     'region_name' => $regionName,
                     'year' => $year,
                     'month' => $month,
+                    'created_at' => $end->copy()->subDays(rand(0, 2)),
+                    'updated_at' => $end->copy()->subDays(rand(0, 2)),
                 ]);
             }
         }
@@ -293,6 +323,8 @@ class ImutDataSeeder extends Seeder
                     $denominator
                 );
 
+                $createdAt = Carbon::create($laporan->assessment_period_end)->copy()->subDays(rand(0, 3));
+
                 ImutPenilaian::create([
                     'imut_profil_id' => $imutProfile->id,
                     'laporan_unit_kerja_id' => $pivotId,
@@ -300,6 +332,8 @@ class ImutDataSeeder extends Seeder
                     'recommendations' => $this->faker->sentence(15),
                     'numerator_value' => $numerator,
                     'denominator_value' => $denominator,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
                 ]);
             }
         }

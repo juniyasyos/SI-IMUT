@@ -382,7 +382,8 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->label('Numerator')
                         ->numeric()
                         ->placeholder('0.00')
-                        ->required()
+                        ->nullable()
+                        ->default(0)
                         ->reactive()
                         ->readOnly(
                             fn($livewire) =>
@@ -398,7 +399,8 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->label('Denominator')
                         ->numeric()
                         ->placeholder('0.00')
-                        ->required()
+                        ->default(0)
+                        ->nullable()
                         ->reactive()
                         ->readOnly(
                             fn($livewire) =>

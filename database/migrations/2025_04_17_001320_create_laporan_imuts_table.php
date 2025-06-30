@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name')->unique();
             $table->string('slug')->unique();
-            $table->enum('status', ['process', 'complete', 'canceled'])->default('process');
+            $table->enum('status', ['process', 'complete', 'coming_soon'])->default('process');
             $table->date('assessment_period_start');
             $table->date('assessment_period_end');
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
