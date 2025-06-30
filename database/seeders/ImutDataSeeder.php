@@ -175,51 +175,56 @@ class ImutDataSeeder extends Seeder
             $analysisPeriodType = $profile['analysis_period_type'];
             $analysisPeriodValue = (int) $profile['analysis_period_value'];
 
-            // Setup versi acak (maks 3)
+            $startPeriod = now()->startOfYear();
+
+            $endPeriod = match ($analysisPeriodType) {
+                'mingguan' => $startPeriod->copy()->addWeeks($analysisPeriodValue),
+                'bulanan' => $startPeriod->copy()->addMonths($analysisPeriodValue),
+                default => $startPeriod->copy(),
+            };
+
+            $baseAttributes = [
+                'rationale' => $profile['rationale'],
+                'quality_dimension' => $profile['quality_dimension'],
+                'objective' => $profile['objective'],
+                'operational_definition' => $profile['operational_definition'],
+                'indicator_type' => $indicatorType,
+                'numerator_formula' => $profile['numerator_formula'],
+                'denominator_formula' => $profile['denominator_formula'],
+                'target_operator' => $profile['target_operator'] ?? '>=',
+                'inclusion_criteria' => $profile['inclusion_criteria'],
+                'exclusion_criteria' => $profile['exclusion_criteria'],
+                'data_source' => $profile['data_source'],
+                'data_collection_frequency' => $profile['data_collection_frequency'],
+                'analysis_plan' => $profile['analysis_plan'],
+                'analysis_period_type' => $analysisPeriodType,
+                'analysis_period_value' => $analysisPeriodValue,
+                'start_period' => $startPeriod->format('Y-m-d'),
+                'end_period' => $endPeriod->format('Y-m-d'),
+                'data_collection_method' => $profile['data_collection_method'],
+                'sampling_method' => $profile['sampling_method'],
+                'data_collection_tool' => $profile['data_collection_tool'],
+                'responsible_person' => $profile['responsible_person'],
+            ];
+
+            // Daftar versi yang tersedia dan peningkatan target value
             $allVersions = [
                 'version 1' => 0,
                 'version 2' => 10,
                 'version 3' => 20,
             ];
 
-            $selectedVersions = array_slice(
-                array_rand(array_flip($allVersions), rand(1, 3)),
-                0,
-                null,
-                true
-            );
-
-            if (!is_array($selectedVersions)) {
-                $selectedVersions = [$selectedVersions];
-            }
+            // Ambil secara acak maksimal 3 versi
+            $versionKeys = array_keys($allVersions);
+            shuffle($versionKeys);
+            $selectedVersions = array_slice($versionKeys, 0, rand(1, 3));
 
             // Simpan referensi terakhir untuk keperluan penilaian
             $lastImutProfile = null;
-            $versionIndex = 0;
 
-            foreach ($selectedVersions as $version) {
-                $targetIncrement = $allVersions[$version];
-                $attributes = [
-                    'rationale' => $profile['rationale'],
-                    'quality_dimension' => $profile['quality_dimension'],
-                    'objective' => $profile['objective'],
-                    'operational_definition' => $profile['operational_definition'],
-                    'indicator_type' => $indicatorType,
-                    'numerator_formula' => $profile['numerator_formula'],
-                    'denominator_formula' => $profile['denominator_formula'],
-                    'target_operator' => $profile['target_operator'] ?? '>=',
-                    'inclusion_criteria' => $profile['inclusion_criteria'],
-                    'exclusion_criteria' => $profile['exclusion_criteria'],
-                    'data_source' => $profile['data_source'],
-                    'data_collection_frequency' => $profile['data_collection_frequency'],
-                    'analysis_plan' => $profile['analysis_plan'],
-                    'analysis_period_type' => $analysisPeriodType,
-                    'analysis_period_value' => $analysisPeriodValue,
-                    'data_collection_method' => $profile['data_collection_method'],
-                    'sampling_method' => $profile['sampling_method'],
-                    'data_collection_tool' => $profile['data_collection_tool'],
-                    'responsible_person' => $profile['responsible_person'],
-                ];
+            foreach ($selectedVersions as $index => $versionKey) {
+                $attributes = $baseAttributes;
+                $targetIncrement = $allVersions[$versionKey];
 
                 if ($profile['target_value'] === 100) {
                     $attributes['target_value'] = $profile['target_value'] + $targetIncrement;
@@ -227,27 +232,15 @@ class ImutDataSeeder extends Seeder
                     $attributes['target_value'] = $profile['target_value'] - $targetIncrement;
                 }
 
-                // Atur created_at dan periode historis
-                $createdAt = now()->copy()->subMonths(count($selectedVersions) - $versionIndex);
-                $startPeriod = $createdAt->copy()->startOfMonth();
-                $endPeriod = match ($analysisPeriodType) {
-                    'mingguan' => $startPeriod->copy()->addWeeks($analysisPeriodValue),
-                    'bulanan' => $startPeriod->copy()->addMonths($analysisPeriodValue),
-                    default => $startPeriod->copy()->endOfMonth(),
-                };
-
-                $attributes['start_period'] = $startPeriod->format('Y-m-d');
-                $attributes['end_period'] = $endPeriod->format('Y-m-d');
+                $createdAt = now()->copy()->subMonths(3 - $index);
 
                 $lastImutProfile = ImutProfile::firstOrCreate([
                     'imut_data_id' => $imutData->id,
-                    'version' => $version,
+                    'version' => $versionKey,
                 ], array_merge($attributes, [
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                 ]));
-
-                $versionIndex++;
             }
         } catch (\Throwable $e) {
             dd([
@@ -256,7 +249,7 @@ class ImutDataSeeder extends Seeder
             ]);
         }
 
-        // Hanya buat laporan jika kategori adalah INM/IMP-RS/IMIKP
+        // Hanya buat laporan jika kategori adalah INM atau lainnya
         if (in_array($category->short_name, ['INM', 'IMP-RS', 'IMIKP'])) {
             foreach ($this->unitKerjaIds as $unitId) {
                 $imutData->unitKerja()->syncWithoutDetaching([
