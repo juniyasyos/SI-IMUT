@@ -42,43 +42,45 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => LaporanUnitKerja::getLaporanByUnitKerjaDetails($this->imutDataId, $this->unitKerjaId))
+            ->query(fn() => LaporanUnitKerja::getLaporanByUnitKerjaDetails($this->imutDataId, $this->unitKerjaId))
             ->columns([
                 TextColumn::make('laporan_name')
                     ->label('Nama Laporan')
-                    ->searchable(query: fn (EloquentBuilder $query, string $search) => $query->where('laporan_imuts.name', 'like', "%{$search}%")),
+                    ->searchable(query: fn(EloquentBuilder $query, string $search) => $query->where('laporan_imuts.name', 'like', "%{$search}%")),
 
                 TextColumn::make('laporan_status')
                     ->label('Laporan Status')
                     ->badge()
                     ->alignCenter()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'coming_soon' => 'gray',
                         'process' => 'primary',
                         'complete' => 'success',
                     })
                     ->sortable(),
 
+                $this->makeSearchableColumn('imut_profil', 'Profile', '.imut_profil.version'),
+
                 TextColumn::make('numerator_value')
                     ->label('N')
                     ->alignCenter()
                     ->toggleable()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total N')
-                            ->using(fn (Builder $query) => number_format($query->sum('numerator_value'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('numerator_value'), 2))
                     ),
 
                 TextColumn::make('denominator_value')
                     ->label('D')
                     ->alignCenter()
                     ->toggleable()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total D')
-                            ->using(fn (Builder $query) => number_format($query->sum('denominator_value'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('denominator_value'), 2))
                     ),
 
                 TextColumn::make('percentage')
@@ -86,8 +88,8 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
                     ->alignCenter()
                     ->toggleable()
                     ->suffix('%')
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
-                    ->color(fn ($record) => match (true) {
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->color(fn($record) => match (true) {
                         ! is_numeric($record->percentage) || ! is_numeric($record->imut_standard) => null,
 
                         match ($record->imut_standard_type_operator) {
@@ -142,7 +144,7 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
                 SelectFilter::make('imut_kategori')
                     ->label('Imut Kategori')
                     ->options(
-                        fn () => ImutCategory::query()
+                        fn() => ImutCategory::query()
                             ->pluck('short_name', 'id')
                             ->toArray()
                     )
@@ -182,7 +184,7 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
             ->label($label)
             ->toggleable()
             ->searchable(
-                query: fn (EloquentBuilder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
+                query: fn(EloquentBuilder $query, string $search) => $query->where($dbColumn, 'like', "%{$search}%")
             );
     }
 

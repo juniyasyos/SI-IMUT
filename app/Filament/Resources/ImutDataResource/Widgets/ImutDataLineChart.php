@@ -33,6 +33,11 @@ class ImutDataLineChart extends ApexChartWidget
 
     public ImutData $imutData;
 
+    protected function hasFilterForm(): bool
+    {
+        return true;
+    }
+
     protected function getFormSchema(): array
     {
         $years = LaporanImut::selectRaw('YEAR(assessment_period_start) as year')
@@ -97,7 +102,7 @@ class ImutDataLineChart extends ApexChartWidget
 
                                         ColorPicker::make("benchmark_colors.$id")
                                             ->label('Warna')
-                                            ->default('#'.substr(md5($name), 0, 6))
+                                            ->default('#' . substr(md5($name), 0, 6))
                                             ->reactive(),
                                     ])
                                     ->columns(2),
@@ -227,7 +232,7 @@ class ImutDataLineChart extends ApexChartWidget
         return LaporanImut::whereYear('assessment_period_start', $year)
             ->orderBy('assessment_period_start')
             ->pluck('assessment_period_start')
-            ->map(fn ($date) => \Carbon\Carbon::parse($date)->translatedFormat('F Y'))
+            ->map(fn($date) => \Carbon\Carbon::parse($date)->translatedFormat('F Y'))
             ->unique()
             ->values()
             ->toArray();
@@ -243,7 +248,7 @@ class ImutDataLineChart extends ApexChartWidget
         $penilaianData = Cache::remember(
             CacheKey::imutPenilaian($imutDataId, $year),
             now()->addMinutes(30),
-            fn () => DB::table('imut_penilaians')
+            fn() => DB::table('imut_penilaians')
                 ->join('laporan_unit_kerjas', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
                 ->join('laporan_imuts', 'laporan_imuts.id', '=', 'laporan_unit_kerjas.laporan_imut_id')
                 ->join('imut_profil', 'imut_profil.id', '=', 'imut_penilaians.imut_profil_id')
@@ -251,7 +256,11 @@ class ImutDataLineChart extends ApexChartWidget
                 ->where('imut_data.id', $imutDataId)
                 ->whereYear('laporan_imuts.assessment_period_start', $year)
                 ->whereNull('laporan_imuts.deleted_at')
-                ->selectRaw("DATE_FORMAT(laporan_imuts.assessment_period_start, '%Y-%m') as periode, SUM(imut_penilaians.numerator_value) as total_num, SUM(imut_penilaians.denominator_value) as total_denum, AVG(imut_profil.target_value) as target")
+                ->selectRaw("
+                DATE_FORMAT(laporan_imuts.assessment_period_start, '%Y-%m') as periode,
+                SUM(imut_penilaians.numerator_value) as total_num,
+                SUM(imut_penilaians.denominator_value) as total_denum,
+                AVG(imut_profil.target_value) as target")
                 ->groupBy('periode')
                 ->orderBy('periode')
                 ->get()
@@ -261,7 +270,7 @@ class ImutDataLineChart extends ApexChartWidget
         $dataTarget = [];
 
         foreach ($penilaianData as $row) {
-            $label = \Carbon\Carbon::parse($row->periode.'-01')->translatedFormat('F Y');
+            $label = \Carbon\Carbon::parse($row->periode . '-01')->translatedFormat('F Y');
             $nilai = $row->total_denum > 0 ? round(($row->total_num / $row->total_denum) * 100, 2) : 0;
             $target = round($row->target, 2);
 
@@ -278,13 +287,13 @@ class ImutDataLineChart extends ApexChartWidget
             [
                 'name' => 'Nilai IMUT',
                 'type' => $tipeNilai,
-                'data' => array_map(fn ($l) => $dataNilai[$l] ?? 0, $labels),
+                'data' => array_map(fn($l) => $dataNilai[$l] ?? 0, $labels),
                 'color' => $this->filterFormData['color_nilai'] ?? '#3b82f6',
             ],
             [
                 'name' => 'Target Standar',
                 'type' => $tipeTarget,
-                'data' => array_map(fn ($l) => $dataTarget[$l] ?? 0, $labels),
+                'data' => array_map(fn($l) => $dataTarget[$l] ?? 0, $labels),
                 'color' => $this->filterFormData['color_target'] ?? '#f59e0b',
             ],
         ];
@@ -294,15 +303,15 @@ class ImutDataLineChart extends ApexChartWidget
             $benchmarking = Cache::remember(
                 $benchmarkKey,
                 now()->addMinutes(30),
-                fn () => ImutBenchmarking::query()
+                fn() => ImutBenchmarking::query()
                     ->with('regionType:id,type')
                     ->select('year', 'month', 'benchmark_value', 'region_type_id')
                     ->where('year', $year)
-                    ->when($regionTypeId, fn ($q) => $q->whereIn('region_type_id', (array) $regionTypeId))
+                    ->when($regionTypeId, fn($q) => $q->whereIn('region_type_id', (array) $regionTypeId))
                     ->get()
             );
 
-            $benchmarkGrouped = $benchmarking->groupBy(fn ($item) => sprintf('%04d-%02d', $item->year, $item->month));
+            $benchmarkGrouped = $benchmarking->groupBy(fn($item) => sprintf('%04d-%02d', $item->year, $item->month));
             $regionSeries = [];
 
             foreach ($benchmarkGrouped as $periodeKey => $items) {
@@ -316,12 +325,12 @@ class ImutDataLineChart extends ApexChartWidget
 
             foreach ($regionSeries as $regionId => $seriesGroup) {
                 foreach ($seriesGroup as $name => $data) {
-                    if (collect($labels)->contains(fn ($l) => isset($data[$l]))) {
+                    if (collect($labels)->contains(fn($l) => isset($data[$l]))) {
                         $series[] = [
                             'name' => $name,
                             'type' => $this->filterFormData['benchmark_types'][$regionId] ?? 'column',
-                            'data' => array_map(fn ($l) => $data[$l] ?? null, $labels),
-                            'color' => $this->filterFormData['benchmark_colors'][$regionId] ?? '#'.substr(md5($name), 0, 6),
+                            'data' => array_map(fn($l) => $data[$l] ?? null, $labels),
+                            'color' => $this->filterFormData['benchmark_colors'][$regionId] ?? '#' . substr(md5($name), 0, 6),
                         ];
                     }
                 }

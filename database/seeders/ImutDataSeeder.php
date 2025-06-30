@@ -208,33 +208,40 @@ class ImutDataSeeder extends Seeder
                 'responsible_person' => $profile['responsible_person'],
             ];
 
-            // Daftar versi yang tersedia dan peningkatan target value
-            $allVersions = [
-                '2022-Q1' => -10,
-                '2022-Q4' => 0,
-                '2023-Q2' => 10,
-                '2024-Q1' => 15,
-                '2025-Q1' => 20,
-            ];
+            // ============================================
+            // >> VERSI KUARTAL - 2 TAHUN << (Khusus < 100)
+            // ============================================
+            $initialTarget = (float) $profile['target_value'];
+            $targetOperator = $profile['target_operator'] ?? '>=';
 
-            // Ambil secara acak maksimal 3 versi
-            $versionKeys = array_keys($allVersions);
-            shuffle($versionKeys);
-            $selectedVersions = array_slice($versionKeys, 0, rand(1, 3));
+            // Lewati indikator yang sudah target 100
+            if ($initialTarget >= 100) {
+                return;
+            }
 
-            // Simpan referensi terakhir untuk keperluan penilaian
+            $versionList = [];
+            $startQuarter = now()->copy()->subYears(2)->startOfQuarter();
+            for ($i = 0; $i < 8; $i++) {
+                $quarter = ceil($startQuarter->month / 3);
+                $versionList[] = $startQuarter->year . '-Q' . $quarter;
+                $startQuarter->addQuarter();
+            }
+
             $lastImutProfile = null;
+            $currentTarget = $initialTarget;
+            $maxTarget = 100;
+            $targetStep = 5;
 
-            $baseCreatedAt = now()->copy()->subYears(3);
-            foreach ($selectedVersions as $index => $versionKey) {
+            foreach ($versionList as $index => $versionKey) {
+                if ($currentTarget >= $maxTarget) {
+                    break;
+                }
+
+                $nextTarget = min($currentTarget + $targetStep, $maxTarget);
                 $attributes = $baseAttributes;
-                $targetIncrement = $allVersions[$versionKey];
+                $attributes['target_value'] = $nextTarget;
 
-                $attributes['target_value'] = $profile['target_value'] === 100
-                    ? $profile['target_value'] + $targetIncrement
-                    : $profile['target_value'] - $targetIncrement;
-
-                $createdAt = $baseCreatedAt->copy()->addMonths($index * 12);
+                $createdAt = now()->copy()->subQuarters(8 - $index);
 
                 $lastImutProfile = ImutProfile::firstOrCreate([
                     'imut_data_id' => $imutData->id,
@@ -243,32 +250,34 @@ class ImutDataSeeder extends Seeder
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                 ]));
+
+                $currentTarget = $nextTarget;
+            }
+
+            // Tambahkan ke unit kerja & penilaian bila perlu
+            if (in_array($category->short_name, ['INM', 'IMP-RS', 'IMIKP'])) {
+                foreach ($this->unitKerjaIds as $unitId) {
+                    $imutData->unitKerja()->syncWithoutDetaching([
+                        $unitId => [
+                            'assigned_by' => $this->adminUserId ?? 1,
+                            'assigned_at' => now(),
+                        ],
+                    ]);
+                }
+
+                if ($category->is_benchmark_category) {
+                    $this->createBenchmarking($imutData);
+                }
+
+                if ($lastImutProfile) {
+                    $this->createPenilaian($lastImutProfile);
+                }
             }
         } catch (\Throwable $e) {
             dd([
                 'error' => $e->getMessage(),
                 'indicator' => $indicator,
             ]);
-        }
-
-        // Hanya buat laporan jika kategori adalah INM atau lainnya
-        if (in_array($category->short_name, ['INM', 'IMP-RS', 'IMIKP'])) {
-            foreach ($this->unitKerjaIds as $unitId) {
-                $imutData->unitKerja()->syncWithoutDetaching([
-                    $unitId => [
-                        'assigned_by' => $this->adminUserId ?? 1,
-                        'assigned_at' => now(),
-                    ],
-                ]);
-            }
-
-            if ($category->is_benchmark_category) {
-                $this->createBenchmarking($imutData);
-            }
-
-            if ($lastImutProfile) {
-                $this->createPenilaian($lastImutProfile);
-            }
         }
     }
 

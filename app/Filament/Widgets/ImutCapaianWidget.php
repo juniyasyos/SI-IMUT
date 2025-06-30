@@ -70,7 +70,7 @@ class ImutCapaianWidget extends ApexChartWidget
         $categories = ImutCategory::orderBy('short_name')->pluck('short_name')->toArray();
         $dataPerKategori = $this->calculateAchievementData($laporans, $categories);
 
-        $series = collect($categories)->map(fn ($shortName) => [
+        $series = collect($categories)->map(fn($shortName) => [
             'name' => $shortName,
             'type' => 'column',
             'data' => $dataPerKategori[$shortName] ?? array_fill(0, count($xLabels), 0),
@@ -122,9 +122,12 @@ class ImutCapaianWidget extends ApexChartWidget
      */
     protected function getCachedLaporans()
     {
-        return Cache::remember(CacheKey::imutLaporans(), now()->addMinutes(5), fn () => LaporanImut::with([
-            'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
-        ])->orderBy('assessment_period_start')->get()
+        return Cache::remember(
+            CacheKey::imutLaporans(),
+            now()->addMinutes(5),
+            fn() => LaporanImut::with([
+                'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
+            ])->where('assessment_period_start', '>=', now()->subMonths(6))->orderBy('assessment_period_start')->get()
         );
     }
 
@@ -142,8 +145,8 @@ class ImutCapaianWidget extends ApexChartWidget
             }
 
             return $start->month === $end->month
-                ? $start->day.' - '.$end->day.' '.$start->translatedFormat('F Y')
-                : $start->translatedFormat('j F').' - '.$end->translatedFormat('j F Y');
+                ? $start->day . ' - ' . $end->day . ' ' . $start->translatedFormat('F Y')
+                : $start->translatedFormat('j F') . ' - ' . $end->translatedFormat('j F Y');
         })->toArray();
     }
 
