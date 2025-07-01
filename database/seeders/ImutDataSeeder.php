@@ -209,55 +209,71 @@ class ImutDataSeeder extends Seeder
             ];
 
             // ============================================
-            // >> VERSI KUARTAL DINAMIS (Tambah/Kurang)
+            // >> VERSI KUARTAL DINAMIS REALISTIS <<
             // ============================================
-            $initialTarget = (float) $profile['target_value'];
-            $targetOperator = $profile['target_operator'] ?? '>=';
 
-            // Set total tahun yang kamu inginkan (misalnya: 2 tahun)
-            $totalYears = 2;
-            $totalQuarters = $totalYears * 4;
+            $initialTarget   = (float) $profile['target_value'];
+            $targetOperator  = $profile['target_operator'] ?? '>=';
+            $totalYears      = 2;
+            $totalQuarters   = $totalYears * 4;
+            $startQuarter    = Carbon::create(2024, 1, 1)->startOfQuarter();
+            $versionList     = [];
 
-            // Awal dari Januari tahun 2024
-            $startQuarter = Carbon::create(2024, 1, 1)->startOfQuarter();
-            $versionList = [];
-
+            // Buat daftar versi kuartal, misal ["2024-Q1", "2024-Q2", …]
             for ($i = 0; $i < $totalQuarters; $i++) {
-                $quarter = ceil($startQuarter->month / 3);
-                $versionList[] = $startQuarter->year . '-Q' . $quarter;
+                $q = ceil($startQuarter->month / 3);
+                $versionList[] = 'verion-' . $startQuarter->year . '-Q' . $q;
                 $startQuarter->addQuarter();
             }
 
-            $lastImutProfile = null;
             $currentTarget = $initialTarget;
-            $targetStep = 5;
-            $minTarget = 0;
-            $maxTarget = 100;
+            $lastImutProfile = null;
 
+            // Fungsi bantu: hitung step acak, tapi tetap kecil (2–8%)
+            $getRandomStep = fn() => rand(2, 8);
+
+            // Loop tiap kuartal
             foreach ($versionList as $index => $versionKey) {
-                $nextTarget = $currentTarget;
-
-                // Naik perlahan kalau < 100
-                if ($currentTarget < 100) {
-                    $nextTarget = min($currentTarget + $targetStep, 100);
+                // Untuk kuartal pertama, jangan lompat jauh—beri variasi kecil
+                if ($index === 0) {
+                    $step = $getRandomStep();
+                } else {
+                    $step = $getRandomStep();
                 }
 
-                // Turun perlahan kalau > 100
-                if ($currentTarget > 100) {
-                    $nextTarget = max($currentTarget - $targetStep, 100);
+                // Tentukan arah perubahan sesuai operator
+                if (in_array($targetOperator, ['>=', '>'])) {
+                    // kalau target awal < 100, naik perlahan
+                    if ($currentTarget < 100) {
+                        $currentTarget = min($currentTarget + $step, 100);
+                    }
+                    // kalau sudah >= 100, bisa turun sedikit (misal karena fluktuasi)
+                    elseif ($currentTarget > 100) {
+                        $currentTarget = max($currentTarget - $getRandomStep(), 100);
+                    }
+                } else {
+                    // operator <= atau < : target menurun ke rendah
+                    if ($currentTarget > 0) {
+                        $currentTarget = max($currentTarget - $step, 0);
+                    }
+                    // kalau sampai 0, naik sedikit fluktuasi
+                    elseif ($currentTarget < 0) {
+                        $currentTarget = min($currentTarget + $getRandomStep(), 0);
+                    }
                 }
 
-                // Tetap 100 jika sudah stabil
-                $currentTarget = $nextTarget;
+                // Bulatkan ke integer
+                $currentTarget = round($currentTarget);
 
-                $attributes = $baseAttributes;
+                // Siapkan attributes dan simpan profile
+                $attributes               = $baseAttributes;
                 $attributes['target_value'] = $currentTarget;
 
                 $createdAt = now()->copy()->subQuarters($totalQuarters - $index);
 
                 $lastImutProfile = ImutProfile::firstOrCreate([
                     'imut_data_id' => $imutData->id,
-                    'version' => $versionKey,
+                    'version'      => $versionKey,
                 ], array_merge($attributes, [
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
