@@ -4,7 +4,7 @@ const FILES_TO_CACHE = [
   "/build/manifest.json",
   "/build/assets/app-H1PJOR-A.js",
   "/build/assets/theme-BaRuycBO.css",
-  "/build/assets/app-2kHcjIiO.css",
+  "/build/assets/app-CAgXCrWO.css",
   "/build/assets/vendor-xsH4HHeE.js",
   "/css/filament/filament/app.css",
 ];
