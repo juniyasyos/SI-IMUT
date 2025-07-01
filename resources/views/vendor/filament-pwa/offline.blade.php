@@ -905,13 +905,15 @@
         </style>
     @endif
 </head>
+
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
     <!-- component -->
-    <div class="bg-black text-white">
+    <div class="text-white bg-black">
         <div class="flex h-screen">
             <div class="m-auto text-center">
                 <div>
-                    <svg width="450" height="338" viewBox="0 0 450 338" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="450" height="338" viewBox="0 0 450 338" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0)">
                             <path
                                 d="M321.749 231.118C321.749 261.706 304.982 272.387 284.299 272.387C263.616 272.387 246.849 261.706 246.849 231.118C246.849 200.529 284.299 161.616 284.299 161.616C284.299 161.616 321.749 200.529 321.749 231.118Z"
@@ -943,7 +945,8 @@
                             <path
                                 d="M91.7996 68.7669C91.7996 68.7669 102.883 66.6204 106.736 76.3238C110.59 86.0273 118.504 113.701 118.504 113.701C118.504 113.701 139.683 128.905 143.536 128.406C147.388 127.906 153.973 128.925 152.765 133.483C151.557 138.041 152.094 143.21 149.313 143.843C146.532 144.477 142.109 138.43 138.724 141.342C135.339 144.255 105.171 133.617 103.234 131.413C101.297 129.209 85.2021 81.4807 85.2021 81.4807C85.2021 81.4807 85.846 68.6114 91.7996 68.7669Z"
                                 fill="#E7D040" />
-                            <path d="M115.57 273.656L116.84 285.233L106.166 288.266L100.065 285.233V275.034L115.57 273.656Z"
+                            <path
+                                d="M115.57 273.656L116.84 285.233L106.166 288.266L100.065 285.233V275.034L115.57 273.656Z"
                                 fill="#A0616A" />
                             <path
                                 d="M86.8481 281.099L88.1188 292.676L77.4439 295.708L71.3438 292.676V282.477L86.8481 281.099Z"
@@ -1003,13 +1006,12 @@
                         </defs>
                     </svg>
                 </div>
-                <p class="text-sm md:text-base text-yellow-300 p-2 mb-4">You aren't connected to a working internet
+                <p class="p-2 mb-4 text-sm text-yellow-300 md:text-base">You aren't connected to a working internet
                     connection</p>
                 <a href="/"
-                    class="bg-transparent hover:bg-yellow-300 text-yellow-300 hover:text-white rounded shadow hover:shadow-lg py-2 px-4 border border-yellow-300 hover:border-transparent">
+                    class="px-4 py-2 text-yellow-300 bg-transparent border border-yellow-300 rounded shadow hover:bg-yellow-300 hover:text-white hover:shadow-lg hover:border-transparent">
                     Retry</a>
             </div>
         </div>
     </div>
 </body>
-

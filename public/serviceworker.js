@@ -1,63 +1,68 @@
 importScripts('/serviceworker-files.js');
 
-const CACHE_NAME = "siimut-cache-v1";
+const CACHE_NAME = "siimut-cache-v2";
+
+// Install Service Worker dan cache assets statis
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
       return cache.addAll(FILES_TO_CACHE);
     })
   );
-});
-
-// Install Service Worker dan cache assets
-self.addEventListener("install", async (event) => {
-    event.waitUntil(
-        (async () => {
-            const cache = await caches.open(CACHE_NAME);
-            await cache.addAll(FILES_TO_CACHE);
-        })()
-    );
-    self.skipWaiting();
+  self.skipWaiting();
 });
 
 // Hapus cache lama saat activate
-self.addEventListener("activate", async (event) => {
-    event.waitUntil(
-        (async () => {
-            const keys = await caches.keys();
-            await Promise.all(
-                keys
-                    .filter((key) => key.startsWith("pwa-") && key !== CACHE_NAME)
-                    .map((key) => caches.delete(key))
-            );
-        })()
-    );
-    self.clients.claim();
+self.addEventListener("activate", function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys
+          .filter(function (key) {
+            return key !== CACHE_NAME;
+          })
+          .map(function (key) {
+            return caches.delete(key);
+          })
+      );
+    })
+  );
+  self.clients.claim();
 });
 
-// Fetch event handler dengan strategi "Cache First, Fallback to Network"
-self.addEventListener("fetch", async (event) => {
-    event.respondWith(
-        (async () => {
-            try {
-                // Coba cari di cache dulu
-                const cachedResponse = await caches.match(event.request);
-                if (cachedResponse) return cachedResponse;
+// Fetch event handler
+self.addEventListener("fetch", function (event) {
+  if (event.request.method !== "GET") return;
 
-                // Jika tidak ada di cache, fetch dari network
-                const networkResponse = await fetch(event.request);
+  const url = new URL(event.request.url);
+  const excludedPaths = ["/login", "/register", "/logout"];
+  const isExcluded = excludedPaths.some(path =>
+    url.pathname === path || url.pathname.startsWith(path + "/")
+  );
 
-                // Simpan response ke cache jika request adalah GET
-                if (event.request.method === "GET") {
-                    const cache = await caches.open(CACHE_NAME);
-                    cache.put(event.request, networkResponse.clone());
-                }
+  event.respondWith(
+    caches.match(event.request).then(function (cachedResponse) {
+      // Jika ada di cache, langsung return
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-                return networkResponse;
-            } catch (error) {
-                // Jika gagal, tampilkan halaman offline
-                return caches.match(OFFLINE_URL);
-            }
-        })()
-    );
+      return fetch(event.request)
+        .then(function (networkResponse) {
+          // Hanya cache jika bukan halaman dinamis
+          if (!isExcluded && event.request.mode !== "navigate") {
+            caches.open(CACHE_NAME).then(function (cache) {
+              cache.put(event.request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
+        })
+        .catch(function () {
+          // Jika offline dan ini adalah halaman navigasi (misalnya ke `/`)
+          if (event.request.mode === "navigate") {
+            return caches.match("/offline");
+          }
+        });
+    })
+  );
 });
