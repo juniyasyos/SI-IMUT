@@ -97,7 +97,6 @@ class AdminPanelProvider extends PanelProvider
                 'Quality Indicators',
                 'System & Configurations',
             ])
-            ->plugin(FilamentProgressbarPlugin::make()->color('#29b'))
             ->plugins(
                 $this->getPlugins()
             )
@@ -107,6 +106,7 @@ class AdminPanelProvider extends PanelProvider
     private function getPlugins(): array
     {
         $plugins = [
+            FilamentProgressbarPlugin::make()->color('#29b'),
             ResizedColumnPlugin::make(),
             FilamentApexChartsPlugin::make(),
             DashStackThemePlugin::make(),
