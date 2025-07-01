@@ -100,7 +100,7 @@ class ImutDataSeeder extends Seeder
 
     private function createLaporanImut(): void
     {
-        for ($i = 0; $i < 36; $i++) {
+        for ($i = 0; $i < 12; $i++) {
             $month = $this->now->copy()->subMonths($i)->month;
             $year = $this->now->copy()->subMonths($i)->year;
 
@@ -220,7 +220,7 @@ class ImutDataSeeder extends Seeder
             }
 
             $versionList = [];
-            $startQuarter = now()->copy()->subYears(2)->startOfQuarter();
+            $startQuarter = now()->copy()->subYears(1)->startOfQuarter();
             for ($i = 0; $i < 8; $i++) {
                 $quarter = ceil($startQuarter->month / 3);
                 $versionList[] = $startQuarter->year . '-Q' . $quarter;
