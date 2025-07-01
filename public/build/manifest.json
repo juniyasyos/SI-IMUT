@@ -1,0 +1,25 @@
+{
+  "_vendor-xsH4HHeE.js": {
+    "file": "assets/vendor-xsH4HHeE.js",
+    "name": "vendor"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-CAgXCrWO.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/filament/admin/theme.css": {
+    "file": "assets/theme-BaRuycBO.css",
+    "src": "resources/css/filament/admin/theme.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-H1PJOR-A.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_vendor-xsH4HHeE.js"
+    ]
+  }
+}

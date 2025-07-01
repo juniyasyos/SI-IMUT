@@ -100,7 +100,7 @@ class ImutDataSeeder extends Seeder
 
     private function createLaporanImut(): void
     {
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 12; $i++) {
             $month = $this->now->copy()->subMonths($i)->month;
             $year = $this->now->copy()->subMonths($i)->year;
 
@@ -127,6 +127,7 @@ class ImutDataSeeder extends Seeder
             $this->laporanList[] = $laporan;
         }
     }
+
 
     private function processIndicator(array $indicator, ImutCategory $category): void
     {
@@ -207,66 +208,102 @@ class ImutDataSeeder extends Seeder
                 'responsible_person' => $profile['responsible_person'],
             ];
 
-            // Daftar versi yang tersedia dan peningkatan target value
-            $allVersions = [
-                'version 1' => 0,
-                'version 2' => 10,
-                'version 3' => 20,
-            ];
+            // ============================================
+            // >> VERSI KUARTAL DINAMIS REALISTIS <<
+            // ============================================
 
-            // Ambil secara acak maksimal 3 versi
-            $versionKeys = array_keys($allVersions);
-            shuffle($versionKeys);
-            $selectedVersions = array_slice($versionKeys, 0, rand(1, 3));
+            $initialTarget   = (float) $profile['target_value'];
+            $targetOperator  = $profile['target_operator'] ?? '>=';
+            $totalYears      = 2;
+            $totalQuarters   = $totalYears * 4;
+            $startQuarter    = Carbon::create(2024, 1, 1)->startOfQuarter();
+            $versionList     = [];
 
-            // Simpan referensi terakhir untuk keperluan penilaian
+            // Buat daftar versi kuartal, misal ["2024-Q1", "2024-Q2", …]
+            for ($i = 0; $i < $totalQuarters; $i++) {
+                $q = ceil($startQuarter->month / 3);
+                $versionList[] = 'verion-' . $startQuarter->year . '-Q' . $q;
+                $startQuarter->addQuarter();
+            }
+
+            $currentTarget = $initialTarget;
             $lastImutProfile = null;
 
-            foreach ($selectedVersions as $index => $versionKey) {
-                $attributes = $baseAttributes;
-                $targetIncrement = $allVersions[$versionKey];
+            // Fungsi bantu: hitung step acak, tapi tetap kecil (2–8%)
+            $getRandomStep = fn() => rand(2, 8);
 
-                if ($profile['target_value'] === 100) {
-                    $attributes['target_value'] = $profile['target_value'] + $targetIncrement;
+            // Loop tiap kuartal
+            foreach ($versionList as $index => $versionKey) {
+                // Untuk kuartal pertama, jangan lompat jauh—beri variasi kecil
+                if ($index === 0) {
+                    $step = $getRandomStep();
                 } else {
-                    $attributes['target_value'] = $profile['target_value'] - $targetIncrement;
+                    $step = $getRandomStep();
                 }
 
-                $createdAt = now()->copy()->subMonths(3 - $index);
+                // Tentukan arah perubahan sesuai operator
+                if (in_array($targetOperator, ['>=', '>'])) {
+                    // kalau target awal < 100, naik perlahan
+                    if ($currentTarget < 100) {
+                        $currentTarget = min($currentTarget + $step, 100);
+                    }
+                    // kalau sudah >= 100, bisa turun sedikit (misal karena fluktuasi)
+                    elseif ($currentTarget > 100) {
+                        $currentTarget = max($currentTarget - $getRandomStep(), 100);
+                    }
+                } else {
+                    // operator <= atau < : target menurun ke rendah
+                    if ($currentTarget > 0) {
+                        $currentTarget = max($currentTarget - $step, 0);
+                    }
+                    // kalau sampai 0, naik sedikit fluktuasi
+                    elseif ($currentTarget < 0) {
+                        $currentTarget = min($currentTarget + $getRandomStep(), 0);
+                    }
+                }
+
+                // Bulatkan ke integer
+                $currentTarget = round($currentTarget);
+
+                // Siapkan attributes dan simpan profile
+                $attributes               = $baseAttributes;
+                $attributes['target_value'] = $currentTarget;
+
+                $createdAt = now()->copy()->subQuarters($totalQuarters - $index);
 
                 $lastImutProfile = ImutProfile::firstOrCreate([
                     'imut_data_id' => $imutData->id,
-                    'version' => $versionKey,
+                    'version'      => $versionKey,
                 ], array_merge($attributes, [
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                 ]));
+            }
+
+            // Tambahkan ke unit kerja & penilaian bila perlu
+            if (in_array($category->short_name, ['INM', 'IMP-RS', 'IMIKP'])) {
+                foreach ($this->unitKerjaIds as $unitId) {
+                    $imutData->unitKerja()->syncWithoutDetaching([
+                        $unitId => [
+                            'assigned_by' => $this->adminUserId ?? 1,
+                            'assigned_at' => now(),
+                        ],
+                    ]);
+                }
+
+                if ($category->is_benchmark_category) {
+                    $this->createBenchmarking($imutData);
+                }
+
+                if ($lastImutProfile) {
+                    $this->createPenilaian($lastImutProfile);
+                }
             }
         } catch (\Throwable $e) {
             dd([
                 'error' => $e->getMessage(),
                 'indicator' => $indicator,
             ]);
-        }
-
-        // Hanya buat laporan jika kategori adalah INM atau lainnya
-        if (in_array($category->short_name, ['INM', 'IMP-RS', 'IMIKP'])) {
-            foreach ($this->unitKerjaIds as $unitId) {
-                $imutData->unitKerja()->syncWithoutDetaching([
-                    $unitId => [
-                        'assigned_by' => $this->adminUserId ?? 1,
-                        'assigned_at' => now(),
-                    ],
-                ]);
-            }
-
-            if ($category->is_benchmark_category) {
-                $this->createBenchmarking($imutData);
-            }
-
-            if ($lastImutProfile) {
-                $this->createPenilaian($lastImutProfile);
-            }
         }
     }
 
@@ -275,11 +312,11 @@ class ImutDataSeeder extends Seeder
     {
         $regionTypes = RegionType::all();
 
-        for ($i = 0; $i < 3; $i++) {
-            $start = Carbon::create($this->now->copy()->subMonths($i)->year, $this->now->copy()->subMonths($i)->month, 1);
-            $end = $start->copy()->endOfMonth();
+        foreach ($this->laporanList as $laporan) {
+            $start = Carbon::create($laporan->assessment_period_start);
             $month = $start->month;
             $year = $start->year;
+            $createdAt = $start->copy()->addDays(rand(0, 10));
 
             foreach ($regionTypes as $type) {
                 $regionName = match ($type->type) {
@@ -295,46 +332,49 @@ class ImutDataSeeder extends Seeder
                     'region_name' => $regionName,
                     'year' => $year,
                     'month' => $month,
-                    'created_at' => $end->copy()->subDays(rand(0, 2)),
-                    'updated_at' => $end->copy()->subDays(rand(0, 2)),
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
                 ]);
             }
         }
     }
 
+
     private function createPenilaian(ImutProfile $imutProfile): void
     {
         foreach ($this->laporanList as $laporan) {
-            foreach ($this->unitKerjaIds as $unitId) {
-                $pivotId = DB::table('laporan_unit_kerjas')
-                    ->where('laporan_imut_id', $laporan->id)
-                    ->where('unit_kerja_id', $unitId)
-                    ->value('id');
+            if ($laporan->status !== 'coming_soon') {
+                foreach ($this->unitKerjaIds as $unitId) {
+                    $pivotId = DB::table('laporan_unit_kerjas')
+                        ->where('laporan_imut_id', $laporan->id)
+                        ->where('unit_kerja_id', $unitId)
+                        ->value('id');
 
-                if (! $pivotId) {
-                    $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
+                    if (! $pivotId) {
+                        $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
 
-                    continue;
+                        continue;
+                    }
+
+                    $denominator = $this->faker->numberBetween(80, 120);
+                    $numerator = $this->faker->numberBetween(
+                        (int) ($denominator * 0.7),
+                        $denominator
+                    );
+
+                    $createdAt = Carbon::create($laporan->assessment_period_end)->copy()->subDays(rand(0, 3));
+
+                    ImutPenilaian::create([
+                        'imut_profil_id' => $imutProfile->id,
+                        'laporan_unit_kerja_id' => $pivotId,
+                        'analysis' => $this->faker->sentence(2),
+                        'recommendations' => $this->faker->sentence(15),
+                        'numerator_value' => $numerator,
+                        'denominator_value' => $denominator,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ]);
                 }
-
-                $denominator = $this->faker->numberBetween(80, 120);
-                $numerator = $this->faker->numberBetween(
-                    (int) ($denominator * 0.7),
-                    $denominator
-                );
-
-                $createdAt = Carbon::create($laporan->assessment_period_end)->copy()->subDays(rand(0, 3));
-
-                ImutPenilaian::create([
-                    'imut_profil_id' => $imutProfile->id,
-                    'laporan_unit_kerja_id' => $pivotId,
-                    'analysis' => $this->faker->sentence(2),
-                    'recommendations' => $this->faker->sentence(15),
-                    'numerator_value' => $numerator,
-                    'denominator_value' => $denominator,
-                    'created_at' => $createdAt,
-                    'updated_at' => $createdAt,
-                ]);
             }
         }
     }

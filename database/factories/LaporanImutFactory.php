@@ -21,10 +21,10 @@ class LaporanImutFactory extends Factory
 
         return [
             'name' => $this->faker->unique()->word(),
-            'status' => $this->faker->randomElement(['process', 'complete', 'canceled']),
+            'status' => $this->faker->randomElement(['process', 'complete', 'coming_soon']),
             'assessment_period_start' => now()->subDays(rand(30, 365)),
             'assessment_period_end' => now()->subDays(rand(0, 29)),
-            'created_by' => $admin?->id ?? User::factory(), 
+            'created_by' => $admin?->id ?? User::factory(),
             'created_at' => now(),
             'updated_at' => now(),
         ];

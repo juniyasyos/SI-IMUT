@@ -23,8 +23,6 @@ export default defineConfig({
             output: {
                 manualChunks: (id) => {
                     if (id.includes("node_modules")) return "vendor";
-                    // if (id.includes("resources/js")) return "scripts";
-                    // if (id.includes("resources/css")) return "styles";
                 },
             },
         },

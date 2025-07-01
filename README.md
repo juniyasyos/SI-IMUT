@@ -4,6 +4,10 @@
 ![PHP Version](https://img.shields.io/badge/PHP-8.3-blue?style=flat-square&logo=php)
 ![Laravel Version](https://img.shields.io/badge/Laravel-11.0-red?style=flat-square&logo=laravel)
 ![Filament Version](https://img.shields.io/badge/Filament-3.2-purple?style=flat-square)
+![GitHub Repo stars](https://img.shields.io/github/stars/juniyasyos/SI-IMUT?style=flat-square)
+![GitHub forks](https://img.shields.io/github/forks/juniyasyos/SI-IMUT?style=flat-square)
+![GitHub watchers](https://img.shields.io/github/watchers/juniyasyos/SI-IMUT?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/juniyasyos/SI-IMUT?style=flat-square)
 
 **SIIMUT (Sistem Indikator Mutu untuk Rumah Sakit)** adalah platform berbasis web yang dirancang untuk **memantau, menganalisis, dan meningkatkan mutu layanan kesehatan** di rumah sakit Indonesia. Sistem ini selaras dengan standar **Kementerian Kesehatan RI, Komisi Akreditasi Rumah Sakit (KARS), dan SNARS**, memungkinkan institusi kesehatan untuk **mengotomatiskan pengelolaan indikator mutu** guna mendukung peningkatan kualitas layanan berbasis data.  
 

@@ -38,6 +38,7 @@ class LaporanImutService
 
                 // fallback jika tidak ada laporan dengan status PROCESS di periode aktif
                 return LaporanImut::select(['id', 'assessment_period_start', 'status'])
+                    ->where('status', LaporanImut::STATUS_COMPLETE)
                     ->latest('assessment_period_start')
                     ->first();
             } catch (\Throwable $e) {

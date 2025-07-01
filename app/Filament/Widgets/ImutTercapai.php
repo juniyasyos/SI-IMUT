@@ -36,13 +36,15 @@ class ImutTercapai extends BaseWidget
 
         return ImutData::query()
             ->where('status', true)
-            ->whereHas('latestProfile.penilaian', fn ($q) => $q->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
-                ->whereNotNull('numerator_value')
-                ->whereNotNull('denominator_value')
+            ->whereHas(
+                'latestProfile.penilaian',
+                fn($q) => $q->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
+                    ->whereNotNull('numerator_value')
+                    ->whereNotNull('denominator_value')
             )
             ->with([
-                'latestProfile' => fn ($q) => $q->with([
-                    'penilaian' => fn ($q) => $q->whereHas('laporanUnitKerja', fn ($q) => $q->where('laporan_imut_id', $laporanId))
+                'latestProfile' => fn($q) => $q->with([
+                    'penilaian' => fn($q) => $q->whereHas('laporanUnitKerja', fn($q) => $q->where('laporan_imut_id', $laporanId))
                         ->whereNotNull('numerator_value')
                         ->whereNotNull('denominator_value'),
                 ]),
@@ -59,7 +61,7 @@ class ImutTercapai extends BaseWidget
                 ->columns([
                     Tables\Columns\TextColumn::make('message')
                         ->label('Informasi')
-                        ->getStateUsing(fn () => 'Tidak ada laporan terbaru')
+                        ->getStateUsing(fn() => 'Tidak ada laporan terbaru')
                         ->extraAttributes(['class' => 'text-center text-gray-500']),
                 ]);
         }
@@ -75,16 +77,28 @@ class ImutTercapai extends BaseWidget
                     ->label('Indikator')
                     ->wrap(),
 
+                Tables\Columns\TextColumn::make('categories.short_name')
+                    ->label(__('filament-forms::imut-data.fields.imut_kategori_id'))
+                    ->badge()
+                    ->sortable()
+                    ->color(function ($record) {
+                        $colors = ['primary', 'success', 'warning', 'danger', 'info', 'gray'];
+                        $id = $record->categories->id ?? 0;
+
+                        return $colors[$id % count($colors)];
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false),
+
                 Tables\Columns\TextColumn::make('unit_melapor')
                     ->label('Unit Melapor')
-                    ->getStateUsing(fn ($record) => $this->formatUnitMelapor($record->latestProfile, $totalUnit)),
+                    ->getStateUsing(fn($record) => $this->formatUnitMelapor($record->latestProfile, $totalUnit)),
 
                 Tables\Columns\TextColumn::make('tercapai')
                     ->label('Unit Tercapai')
                     ->tooltip('Jumlah unit kerja yang mencapai target dari yang sudah menilai')
                     ->badge()
-                    ->getStateUsing(fn ($record) => $this->formatTercapai($record->latestProfile))
-                    ->color(fn ($record) => $this->getBadgeColor($record->latestProfile)),
+                    ->getStateUsing(fn($record) => $this->formatTercapai($record->latestProfile))
+                    ->color(fn($record) => $this->getBadgeColor($record->latestProfile)),
             ]);
     }
 
@@ -138,14 +152,14 @@ class ImutTercapai extends BaseWidget
         return ! $profile
             ? collect()
             : $profile->penilaian
-                ->whereNotNull('numerator_value')
-                ->whereNotNull('denominator_value')
-                ->groupBy('laporan_unit_kerja_id');
+            ->whereNotNull('numerator_value')
+            ->whereNotNull('denominator_value')
+            ->groupBy('laporan_unit_kerja_id');
     }
 
     protected function countTercapai(Collection $grouped, $profile): int
     {
-        return $grouped->filter(fn (Collection $penilaians) => $penilaians->contains(fn ($p) => $p->denominator_value != 0 && $this->isTercapai($p, $profile)))->count();
+        return $grouped->filter(fn(Collection $penilaians) => $penilaians->contains(fn($p) => $p->denominator_value != 0 && $this->isTercapai($p, $profile)))->count();
     }
 
     protected function isTercapai($penilaian, $profile): bool

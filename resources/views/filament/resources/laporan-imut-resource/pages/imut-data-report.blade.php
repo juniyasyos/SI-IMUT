@@ -7,7 +7,7 @@
         $styles = [
             'process' => ['label' => 'Proses', 'color' => 'warning'],
             'complete' => ['label' => 'Selesai', 'color' => 'success'],
-            'canceled' => ['label' => 'Dibatalkan', 'color' => 'danger'],
+            'coming_soon' => ['label' => 'Akan Datang', 'color' => 'gray'],
         ];
 
         $current = $status ? $styles[$status] ?? null : null;

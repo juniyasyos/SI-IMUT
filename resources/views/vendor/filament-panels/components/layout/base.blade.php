@@ -104,6 +104,7 @@
     </head>
 
     <body
+
         {{ $attributes
                 ->merge(($livewire ?? null)?->getExtraBodyAttributes() ?? [], escape: false)
                 ->class([
@@ -112,6 +113,16 @@
                     'min-h-screen bg-gray-50 font-normal text-gray-950 antialiased dark:bg-gray-950 dark:text-white',
                 ]) }}
     >
+    <div id="loading-screen" style="display: none; position: fixed; z-index: 9999; background: rgba(255, 255, 255, 0.8); top: 0; left: 0; width: 100%; height: 100%; text-align: center;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+            <svg class="w-10 h-10 text-gray-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            <p class="mt-2 text-gray-600">Loading...</p>
+        </div>
+    </div>
+
         {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::BODY_START, scopes: $livewire->getRenderHookScopes()) }}
 
         {{ $slot }}
@@ -141,5 +152,26 @@
         {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SCRIPTS_AFTER, scopes: $livewire->getRenderHookScopes()) }}
 
         {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::BODY_END, scopes: $livewire->getRenderHookScopes()) }}
+            <script>
+            document.addEventListener("livewire:load", () => {
+                Livewire.hook('message.sent', () => {
+                    document.getElementById('loading-screen').style.display = 'block';
+                });
+
+                Livewire.hook('message.processed', () => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const loadingScreen = document.getElementById('loading-screen');
+                document.body.addEventListener('click', (e) => {
+                    const target = e.target.closest('a');
+                    if (target && target.href && target.target !== '_blank') {
+                        loadingScreen.style.display = 'block';
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

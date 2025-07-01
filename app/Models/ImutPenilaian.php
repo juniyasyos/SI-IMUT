@@ -54,6 +54,8 @@ class ImutPenilaian extends Model implements HasMedia
 
     public function clearCache()
     {
+        $this->loadMissing(['profile', 'laporanUnitKerja.laporanImut']); // Load relasi yang diperlukan
+
         $laporanUnitKerja = $this->laporanUnitKerja;
 
         if ($laporanUnitKerja) {
@@ -65,14 +67,13 @@ class ImutPenilaian extends Model implements HasMedia
             Cache::forget(CacheKey::dashboardSiimutChartData());
 
             $laporanImut = $laporanUnitKerja->laporanImut;
-            if ($laporanImut && $this->imutProfil) {
-                $imutDataId = $this->imutProfil->imut_data_id;
+            if ($laporanImut && $this->profile) {
+                $imutDataId = $this->profile->imut_data_id;
                 $year = \Carbon\Carbon::parse($laporanImut->assessment_period_start)->year;
 
-                // Hapus cache penilaian
+                Cache::forget(CacheKey::imutPenilaianImutDataUnitKerja($imutDataId, $year, $unitKerjaId));
                 Cache::forget(CacheKey::imutPenilaian($imutDataId, $year));
 
-                // Hapus cache benchmarking untuk semua region_type yang ada di DB
                 $regionTypeIds = RegionType::query()->pluck('id');
                 foreach ($regionTypeIds as $regionTypeId) {
                     Cache::forget(CacheKey::imutBenchmarking($year, $regionTypeId));
@@ -84,10 +85,11 @@ class ImutPenilaian extends Model implements HasMedia
         Cache::forget(CacheKey::latestLaporan());
     }
 
+
     protected static function booted()
     {
-        static::saved(fn ($penilaian) => $penilaian->clearCache());
-        static::deleted(fn ($penilaian) => $penilaian->clearCache());
+        static::saved(fn($penilaian) => $penilaian->clearCache());
+        static::deleted(fn($penilaian) => $penilaian->clearCache());
     }
 
     /**
@@ -122,5 +124,4 @@ class ImutPenilaian extends Model implements HasMedia
     {
         return $this->hasOne(ImutProfile::class)->where('id', $profileId);
     }
-
 }
