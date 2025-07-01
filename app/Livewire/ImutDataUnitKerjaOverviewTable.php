@@ -59,7 +59,7 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
                     })
                     ->sortable(),
 
-                $this->makeSearchableColumn('imut_profil', 'Profile', '.imut_profil.version'),
+                $this->makeSearchableColumn('imut_profil', 'Profile', 'imut_profil.version'),
 
                 TextColumn::make('numerator_value')
                     ->label('N')
