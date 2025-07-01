@@ -47,6 +47,12 @@ class ImutDataReport extends Component implements HasForms, HasTable
                         return $query->where('imut_data.title', 'like', "%{$search}%");
                     }),
 
+                TextColumn::make('imut_kategori')
+                    ->label('Imut Kategori')
+                    ->toggleable()
+                    ->alignCenter()
+                    ->badge(),
+
                 TextColumn::make('total_numerator')
                     ->label('N')
                     ->alignCenter()

@@ -54,8 +54,8 @@ class LaporanUnitKerja extends Model
      */
     protected static function booted()
     {
-        static::saved(fn ($laporan) => $laporan->clearCache());
-        static::deleted(fn ($laporan) => $laporan->clearCache());
+        static::saved(fn($laporan) => $laporan->clearCache());
+        static::deleted(fn($laporan) => $laporan->clearCache());
     }
 
     /**
@@ -118,10 +118,12 @@ class LaporanUnitKerja extends Model
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
             ->leftJoin('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
             ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
+            ->leftJoin('imut_kategori', 'imut_data.imut_kategori_id', '=', 'imut_kategori.id')
             ->select(
                 'imut_data.id as id',
                 'imut_data.title as imut_data_title',
                 'laporan_unit_kerjas.laporan_imut_id',
+                'imut_kategori.short_name as imut_kategori',
                 DB::raw('COALESCE(SUM(imut_penilaians.numerator_value), 0) as total_numerator'),
                 DB::raw('COALESCE(SUM(imut_penilaians.denominator_value), 0) as total_denominator'),
                 DB::raw('
