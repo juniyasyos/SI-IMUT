@@ -1,11 +1,13 @@
-const CACHE_NAME = `pwa-v${new Date().getTime()}`;
-const OFFLINE_URL = "/offline";
-const FILES_TO_CACHE = [
-    OFFLINE_URL,
-    "/css/app.css",
-    "/js/app.js",
-    " // Jika " merupakan array, pastikan sudah didefinisikan sebelumnya
-];
+importScripts('/serviceworker-files.js');
+
+const CACHE_NAME = "siimut-cache-v1";
+self.addEventListener('install', function (event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(FILES_TO_CACHE);
+    })
+  );
+});
 
 // Install Service Worker dan cache assets
 self.addEventListener("install", async (event) => {

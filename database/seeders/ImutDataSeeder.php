@@ -327,36 +327,38 @@ class ImutDataSeeder extends Seeder
     private function createPenilaian(ImutProfile $imutProfile): void
     {
         foreach ($this->laporanList as $laporan) {
-            foreach ($this->unitKerjaIds as $unitId) {
-                $pivotId = DB::table('laporan_unit_kerjas')
-                    ->where('laporan_imut_id', $laporan->id)
-                    ->where('unit_kerja_id', $unitId)
-                    ->value('id');
+            if ($laporan->status !== 'coming_soon') {
+                foreach ($this->unitKerjaIds as $unitId) {
+                    $pivotId = DB::table('laporan_unit_kerjas')
+                        ->where('laporan_imut_id', $laporan->id)
+                        ->where('unit_kerja_id', $unitId)
+                        ->value('id');
 
-                if (! $pivotId) {
-                    $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
+                    if (! $pivotId) {
+                        $this->command->warn("Pivot laporan_unit_kerja tidak ditemukan untuk laporan ID $laporan->id dan unit ID $unitId");
 
-                    continue;
+                        continue;
+                    }
+
+                    $denominator = $this->faker->numberBetween(80, 120);
+                    $numerator = $this->faker->numberBetween(
+                        (int) ($denominator * 0.7),
+                        $denominator
+                    );
+
+                    $createdAt = Carbon::create($laporan->assessment_period_end)->copy()->subDays(rand(0, 3));
+
+                    ImutPenilaian::create([
+                        'imut_profil_id' => $imutProfile->id,
+                        'laporan_unit_kerja_id' => $pivotId,
+                        'analysis' => $this->faker->sentence(2),
+                        'recommendations' => $this->faker->sentence(15),
+                        'numerator_value' => $numerator,
+                        'denominator_value' => $denominator,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ]);
                 }
-
-                $denominator = $this->faker->numberBetween(80, 120);
-                $numerator = $this->faker->numberBetween(
-                    (int) ($denominator * 0.7),
-                    $denominator
-                );
-
-                $createdAt = Carbon::create($laporan->assessment_period_end)->copy()->subDays(rand(0, 3));
-
-                ImutPenilaian::create([
-                    'imut_profil_id' => $imutProfile->id,
-                    'laporan_unit_kerja_id' => $pivotId,
-                    'analysis' => $this->faker->sentence(2),
-                    'recommendations' => $this->faker->sentence(15),
-                    'numerator_value' => $numerator,
-                    'denominator_value' => $denominator,
-                    'created_at' => $createdAt,
-                    'updated_at' => $createdAt,
-                ]);
             }
         }
     }
