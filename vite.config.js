@@ -10,23 +10,46 @@ export default defineConfig({
                 "resources/js/app.js",
                 "resources/css/filament/admin/theme.css",
             ],
-            refresh: ["app/Livewire/**", "app/Filament/**", "app/Providers/**"],
+            refresh: [
+                "app/Livewire/**",
+                "app/Filament/**",
+                "app/Providers/**",
+                "resources/views/**/*.blade.php",
+            ],
             prefetch: true,
         }),
-        compression({ algorithm: "gzip" }),
-        compression({ algorithm: "brotliCompress", ext: ".br" }),
+
+        // Gzip compression
+        compression({
+            algorithm: "gzip",
+            ext: ".gz",
+            deleteOriginFile: false,
+        }),
+
+        // Brotli compression
+        compression({
+            algorithm: "brotliCompress",
+            ext: ".br",
+            deleteOriginFile: false,
+        }),
     ],
+
     build: {
-        minify: true,
+        minify: "esbuild",
         sourcemap: false,
+        manifest: true,
         rollupOptions: {
             output: {
-                manualChunks: (id) => {
+                manualChunks(id) {
                     if (id.includes("node_modules")) return "vendor";
-                    // if (id.includes("resources/js")) return "scripts";
-                    // if (id.includes("resources/css")) return "styles";
+                    if (id.includes("resources/js")) return "app";
+                    if (id.includes("resources/css")) return "styles";
                 },
+                chunkFileNames: "assets/[name]-[hash].js",
+                entryFileNames: "assets/[name]-[hash].js",
+                assetFileNames: "assets/[name]-[hash].[ext]",
             },
         },
-    },
+        emptyOutDir: true,
+    }
 });

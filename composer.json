@@ -39,6 +39,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "leandrocfe/filament-apex-charts": "^3.2",
+        "njxqlus/filament-progressbar": "*",
         "nwidart/laravel-modules": "^12.0",
         "owenvoke/blade-fontawesome": "^2.8",
         "pxlrbt/filament-excel": "^2.3",

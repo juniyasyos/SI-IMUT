@@ -18,6 +18,13 @@ find public/build/assets -type f \( -name "*.js" -o -name "*.css" \) | while rea
     echo "  \"$filepath\"," >> $OUTPUT_FILE
 done
 
+# Ambil semua .js dan .css di public/build/assets
+find public/css/filament/filament -type f \( -name "*.js" -o -name "*.css" \) | while read file; do
+    # Hapus "public" dari path, ubah jadi path relatif dari root
+    filepath="/${file#public/}"
+    echo "  \"$filepath\"," >> $OUTPUT_FILE
+done
+
 # Tutup array
 echo "];" >> $OUTPUT_FILE
 

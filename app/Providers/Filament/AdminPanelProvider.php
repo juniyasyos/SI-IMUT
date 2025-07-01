@@ -35,6 +35,7 @@ use Juniyasyos\FilamentPWA\FilamentPWAPlugin;
 use Juniyasyos\FilamentSettingsHub\FilamentSettingsHubPlugin;
 use Laravel\Socialite\Contracts\User as SocialiteUserContract;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -61,9 +62,9 @@ class AdminPanelProvider extends PanelProvider
             ->path('')
             ->login(Login::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->when($this->settings->login_enabled ?? true, fn ($panel) => $panel->login(Login::class))
-            ->when($this->settings->registration_enabled ?? true, fn ($panel) => $panel->registration())
-            ->when($this->settings->password_reset_enabled ?? true, fn ($panel) => $panel->passwordReset())
+            ->when($this->settings->login_enabled ?? true, fn($panel) => $panel->login(Login::class))
+            ->when($this->settings->registration_enabled ?? true, fn($panel) => $panel->registration())
+            ->when($this->settings->password_reset_enabled ?? true, fn($panel) => $panel->passwordReset())
             ->emailVerification()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -96,6 +97,7 @@ class AdminPanelProvider extends PanelProvider
                 'Quality Indicators',
                 'System & Configurations',
             ])
+            ->plugin(FilamentProgressbarPlugin::make()->color('#29b'))
             ->plugins(
                 $this->getPlugins()
             )
