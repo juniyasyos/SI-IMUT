@@ -7,7 +7,6 @@ OUTPUT_FILE="public/serviceworker-files.js"
 echo "const FILES_TO_CACHE = [" > $OUTPUT_FILE
 
 # Tambahan manual file awal
-echo '  "/",' >> $OUTPUT_FILE
 echo '  "/offline",' >> $OUTPUT_FILE
 echo '  "/build/manifest.json",' >> $OUTPUT_FILE
 
