@@ -162,22 +162,24 @@ class LaporanImut extends Model
     }
 
     /**
-     * Accessor otomatis update status menjadi `complete` jika waktu sudah lewat
+     * Accessor otomatis update status menjadi sesuai dengan kasus real
      */
     public function getStatusAttribute(string $value): string
     {
         $today = now()->startOfDay();
-        $endDate = $this->assessment_period_end->startOfDay();
+        $start = $this->assessment_period_start->startOfDay();
+        $end = $this->assessment_period_end->startOfDay();
 
-        if (
-            $value === self::STATUS_PROCESS &&
-            $endDate->lt($today)
-        ) {
-            $this->updateQuietly(['status' => self::STATUS_COMPLETE]);
+        $newStatus = match (true) {
+            $today->lt($start) => self::STATUS_COMINGSOON,
+            $today->lte($end) => self::STATUS_PROCESS,
+            default => self::STATUS_COMPLETE,
+        };
 
-            return self::STATUS_COMPLETE;
+        if ($value !== $newStatus) {
+            $this->updateQuietly(['status' => $newStatus]);
         }
 
-        return $value;
+        return $newStatus;
     }
 }

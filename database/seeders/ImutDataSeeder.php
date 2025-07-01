@@ -209,19 +209,20 @@ class ImutDataSeeder extends Seeder
             ];
 
             // ============================================
-            // >> VERSI KUARTAL - 2 TAHUN << (Khusus < 100)
+            // >> VERSI KUARTAL DINAMIS (Tambah/Kurang)
             // ============================================
             $initialTarget = (float) $profile['target_value'];
             $targetOperator = $profile['target_operator'] ?? '>=';
 
-            // Lewati indikator yang sudah target 100
-            if ($initialTarget >= 100) {
-                return;
-            }
+            // Set total tahun yang kamu inginkan (misalnya: 2 tahun)
+            $totalYears = 2;
+            $totalQuarters = $totalYears * 4;
 
+            // Awal dari Januari tahun 2024
+            $startQuarter = Carbon::create(2024, 1, 1)->startOfQuarter();
             $versionList = [];
-            $startQuarter = now()->copy()->subYears(1)->startOfQuarter();
-            for ($i = 0; $i < 8; $i++) {
+
+            for ($i = 0; $i < $totalQuarters; $i++) {
                 $quarter = ceil($startQuarter->month / 3);
                 $versionList[] = $startQuarter->year . '-Q' . $quarter;
                 $startQuarter->addQuarter();
@@ -229,19 +230,30 @@ class ImutDataSeeder extends Seeder
 
             $lastImutProfile = null;
             $currentTarget = $initialTarget;
-            $maxTarget = 100;
             $targetStep = 5;
+            $minTarget = 0;
+            $maxTarget = 100;
 
             foreach ($versionList as $index => $versionKey) {
-                if ($currentTarget >= $maxTarget) {
-                    break;
+                $nextTarget = $currentTarget;
+
+                // Naik perlahan kalau < 100
+                if ($currentTarget < 100) {
+                    $nextTarget = min($currentTarget + $targetStep, 100);
                 }
 
-                $nextTarget = min($currentTarget + $targetStep, $maxTarget);
-                $attributes = $baseAttributes;
-                $attributes['target_value'] = $nextTarget;
+                // Turun perlahan kalau > 100
+                if ($currentTarget > 100) {
+                    $nextTarget = max($currentTarget - $targetStep, 100);
+                }
 
-                $createdAt = now()->copy()->subQuarters(8 - $index);
+                // Tetap 100 jika sudah stabil
+                $currentTarget = $nextTarget;
+
+                $attributes = $baseAttributes;
+                $attributes['target_value'] = $currentTarget;
+
+                $createdAt = now()->copy()->subQuarters($totalQuarters - $index);
 
                 $lastImutProfile = ImutProfile::firstOrCreate([
                     'imut_data_id' => $imutData->id,
@@ -250,8 +262,6 @@ class ImutDataSeeder extends Seeder
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                 ]));
-
-                $currentTarget = $nextTarget;
             }
 
             // Tambahkan ke unit kerja & penilaian bila perlu
