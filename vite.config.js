@@ -13,19 +13,8 @@ export default defineConfig({
             refresh: ["app/Livewire/**", "app/Filament/**", "app/Providers/**"],
             prefetch: true,
         }),
-       // Gzip compression
-        compression({
-            algorithm: "gzip",
-            ext: ".gz",
-            deleteOriginFile: false,
-        }),
-
-        // Brotli compression
-        compression({
-            algorithm: "brotliCompress",
-            ext: ".br",
-            deleteOriginFile: false,
-        }),
+        compression({ algorithm: "gzip" }),
+        compression({ algorithm: "brotliCompress", ext: ".br" }),
     ],
     build: {
         minify: true,
@@ -34,8 +23,6 @@ export default defineConfig({
             output: {
                 manualChunks: (id) => {
                     if (id.includes("node_modules")) return "vendor";
-                    if (id.includes("resources/js")) return "scripts";
-                    if (id.includes("resources/css")) return "styles";
                 },
             },
         },
