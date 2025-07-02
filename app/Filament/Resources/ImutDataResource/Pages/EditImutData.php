@@ -123,7 +123,7 @@ class EditImutData extends EditRecord
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
-            ->visible(fn ($record) => Auth::user()?->can('delete_imut::data') || $record->creator === Auth::user()->id)
+            ->disabled(fn ($record) => Auth::user()?->can('delete_imut::data') || $record->creator === Auth::user()->id)
             ->modalHeading(__('filament-forms::imut-data.actions.delete.modal_heading'))
             ->modalDescription(__('filament-forms::imut-data.actions.delete.modal_description'))
             ->modalIcon('heroicon-o-exclamation-triangle')
