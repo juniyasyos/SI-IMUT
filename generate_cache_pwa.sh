@@ -13,8 +13,7 @@ echo '  "/build/manifest.json",' >> $OUTPUT_FILE
 # Fungsi untuk menambahkan semua file js/css dari folder tertentu
 add_assets_from() {
     local folder="$1"
-    find "$folder" -type f \( -name "*.js" -o -name "*.css" \) | while read file; do
-        # Hapus "public" dari path, ubah jadi path relatif dari root
+    find "$folder" -type f \( -name "*.js" -o -name "*.css" -o -name "*.woff2" -o -name "*.svg" -o -name "*.json" -o -name "*.png" \) | while read file; do
         filepath="/${file#public/}"
         echo "  \"$filepath\"," >> $OUTPUT_FILE
     done
@@ -22,6 +21,8 @@ add_assets_from() {
 
 # Tambahkan semua asset dari folder berikut
 add_assets_from "public/build/assets"
+add_assets_from "public/images/assets"
+add_assets_from "public/images/icons"
 add_assets_from "public/css/filament/filament"
 add_assets_from "public/css/filament/forms"
 add_assets_from "public/css/filament/support"

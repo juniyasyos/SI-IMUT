@@ -2,7 +2,6 @@ importScripts('/serviceworker-files.js');
 
 const CACHE_NAME = "siimut-cache-v2";
 
-// Install Service Worker dan cache assets statis
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
@@ -12,7 +11,6 @@ self.addEventListener('install', function (event) {
   self.skipWaiting();
 });
 
-// Hapus cache lama saat activate
 self.addEventListener("activate", function (event) {
   event.waitUntil(
     caches.keys().then(function (keys) {
@@ -30,7 +28,6 @@ self.addEventListener("activate", function (event) {
   self.clients.claim();
 });
 
-// Fetch event handler
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") return;
 
@@ -41,15 +38,13 @@ self.addEventListener("fetch", function (event) {
   );
 
   event.respondWith(
-    caches.match(event.request).then(function (cachedResponse) {
-      // Jika ada di cache, langsung return
+    caches.match(event.request, { ignoreSearch: true }).then(function (cachedResponse) {
       if (cachedResponse) {
         return cachedResponse;
       }
 
       return fetch(event.request)
         .then(function (networkResponse) {
-          // Hanya cache jika bukan halaman dinamis
           if (!isExcluded && event.request.mode !== "navigate") {
             caches.open(CACHE_NAME).then(function (cache) {
               cache.put(event.request, networkResponse.clone());
@@ -58,7 +53,6 @@ self.addEventListener("fetch", function (event) {
           return networkResponse;
         })
         .catch(function () {
-          // Jika offline dan ini adalah halaman navigasi (misalnya ke `/`)
           if (event.request.mode === "navigate") {
             return caches.match("/offline");
           }
