@@ -21,7 +21,6 @@ class LaporanImutService
 
     public function getLatestLaporan(): ?LaporanImut
     {
-
         return Cache::remember(CacheKey::latestLaporan(), now()->addMinutes(30), function () {
             try {
                 $today = Carbon::today();

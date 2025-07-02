@@ -38,7 +38,7 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => LaporanUnitKerja::getReportByUnitKerja($this->laporanId))
+            ->query(fn() => LaporanUnitKerja::getReportByUnitKerja($this->laporanId))
             ->columns([
                 TextColumn::make('unit_name')
                     ->label('Unit Kerja')
@@ -48,28 +48,28 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                 TextColumn::make('total_numerator')
                     ->label('N')
                     ->alignCenter()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total N')
-                            ->using(fn (Builder $query) => number_format($query->sum('total_numerator'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('total_numerator'), 2))
                     ),
 
                 TextColumn::make('total_denominator')
                     ->label('D')
                     ->alignCenter()
-                    ->formatStateUsing(fn ($state) => Number::format($state, 2, locale: app()->getLocale()))
+                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
                     ->summarize(
                         Summarizer::make()
                             ->label('Total D')
-                            ->using(fn (Builder $query) => number_format($query->sum('total_denominator'), 2))
+                            ->using(fn(Builder $query) => number_format($query->sum('total_denominator'), 2))
                     ),
 
                 TextColumn::make('percentage')
                     ->label('Persentase (%)')
                     ->alignCenter()
                     ->suffix('%')
-                    ->color(fn ($record) => match (true) {
+                    ->color(fn($record) => match (true) {
                         ! is_numeric($record->percentage) || ! is_numeric($record->avg_standard) => null,
                         $record->percentage >= $record->avg_standard => 'success',
                         $record->percentage >= $record->avg_standard * 0.8 => 'warning',
@@ -98,13 +98,13 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                     ->label('Lihat Detail')
                     ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->url(fn ($record) => UnitKerjaImutDataReport::getUrl([
+                    ->url(fn($record) => UnitKerjaImutDataReport::getUrl([
                         'laporan_id' => $record->laporan_imut_id,
                         'unit_kerja_id' => $record->unit_kerja_id,
                     ])),
-                // ->openUrlInNewTab()
+                //
             ])
-            ->recordUrl(fn ($record) => UnitKerjaImutDataReport::getUrl([
+            ->recordUrl(fn($record) => UnitKerjaImutDataReport::getUrl([
                 'laporan_id' => $record->laporan_imut_id,
                 'unit_kerja_id' => $record->unit_kerja_id,
             ]))

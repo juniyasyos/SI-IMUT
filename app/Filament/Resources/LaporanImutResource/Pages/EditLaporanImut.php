@@ -38,7 +38,7 @@ class EditLaporanImut extends EditRecord
     {
         return [
             route('filament.admin.resources.laporan-imuts.index') => 'Laporan IMUT',
-            null => 'Edit: '.$this->record->name,
+            null => 'Edit: ' . $this->record->name,
         ];
     }
 
@@ -51,9 +51,9 @@ class EditLaporanImut extends EditRecord
                 ->label('Summary IMUT Data')
                 ->icon('heroicon-o-clipboard-document-list')
                 ->color('primary')
-                ->url(fn ($record) => \App\Services\LaporanRedirectService::getRedirectUrlForImutData($record->id))
-                ->openUrlInNewTab()
-                ->visible(fn () => Gate::any([
+                ->url(fn($record) => \App\Services\LaporanRedirectService::getRedirectUrlForImutData($record->id))
+
+                ->visible(fn() => Gate::any([
                     'view_imut_data_report_laporan::imut',
                     'view_imut_data_report_detail_laporan::imut',
                 ])),
@@ -62,9 +62,9 @@ class EditLaporanImut extends EditRecord
                 ->label('Summary Unit Kerja')
                 ->icon('heroicon-o-clipboard-document-list')
                 ->color('success')
-                ->url(fn ($record) => \App\Services\LaporanRedirectService::getRedirectUrlForUnitKerja($record->id))
-                ->openUrlInNewTab()
-                ->visible(fn () => Gate::any([
+                ->url(fn($record) => \App\Services\LaporanRedirectService::getRedirectUrlForUnitKerja($record->id))
+
+                ->visible(fn() => Gate::any([
                     'view_unit_kerja_report_laporan::imut',
                     'view_unit_kerja_report_detail_laporan::imut',
                 ])),

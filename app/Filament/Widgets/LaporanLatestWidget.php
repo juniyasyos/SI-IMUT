@@ -30,6 +30,6 @@ class LaporanLatestWidget extends Widget
             ->orderByDesc('assessment_period_start')
             ->first()
 
-            ?? LaporanImut::latest('assessment_period_start')->first();
+            ?? LaporanImut::latest('assessment_period_start')->where('status', LaporanImut::STATUS_COMPLETE)->first();
     }
 }

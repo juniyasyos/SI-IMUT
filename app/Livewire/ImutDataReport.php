@@ -110,7 +110,7 @@ class ImutDataReport extends Component implements HasForms, HasTable
                         'laporan_id' => $record->laporan_imut_id,
                         'imut_data_id' => $record->id,
                     ])),
-                // ->openUrlInNewTab()
+                //
             ])
             ->recordUrl(fn($record) => ImutDataUnitKerjaReport::getUrl([
                 'laporan_id' => $record->laporan_imut_id,

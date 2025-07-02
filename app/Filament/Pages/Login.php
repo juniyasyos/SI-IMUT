@@ -99,12 +99,16 @@ class Login extends BaseLogin
     {
         parent::mount();
 
-        $this->form->fill([
-            'nik' => '0000.00000',
-            'password' => 'adminpassword',
-            'remember' => true,
-        ]);
+        if (app()->isLocal()) {
+            // Autofill hanya aktif di env local/dev
+            $this->form->fill([
+                'nik' => '0000.00000',
+                'password' => 'adminpassword',
+                'remember' => true,
+            ]);
+        }
     }
+
 
     /**
      * @return array<int | string, string | Form>

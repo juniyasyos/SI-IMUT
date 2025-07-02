@@ -84,8 +84,7 @@ class UnitKerjaRelationManager extends RelationManager
                             'record_imut_data' => $record->imut_data_id,
                             'record_unit_kerja' => $record->unit_kerja_id
                         ]);
-                    })
-                    ->openUrlInNewTab(),
+                    }),
                 Tables\Actions\DetachAction::make()
                     ->label('Lepas')
                     ->requiresConfirmation(),
