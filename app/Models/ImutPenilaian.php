@@ -54,7 +54,7 @@ class ImutPenilaian extends Model implements HasMedia
 
     public function clearCache()
     {
-        $this->loadMissing(['profile', 'laporanUnitKerja.laporanImut']); // Load relasi yang diperlukan
+        $this->loadMissing(['profile', 'laporanUnitKerja.laporanImut']);
 
         $laporanUnitKerja = $this->laporanUnitKerja;
 
@@ -67,6 +67,7 @@ class ImutPenilaian extends Model implements HasMedia
             Cache::forget(CacheKey::dashboardSiimutChartData());
 
             $laporanImut = $laporanUnitKerja->laporanImut;
+
             if ($laporanImut && $this->profile) {
                 $imutDataId = $this->profile->imut_data_id;
                 $year = \Carbon\Carbon::parse($laporanImut->assessment_period_start)->year;
@@ -78,6 +79,9 @@ class ImutPenilaian extends Model implements HasMedia
                 foreach ($regionTypeIds as $regionTypeId) {
                     Cache::forget(CacheKey::imutBenchmarking($year, $regionTypeId));
                 }
+
+                Cache::forget(CacheKey::getPenilaianStats($laporanImut->id, false, 0));
+                Cache::forget(CacheKey::getPenilaianStats($laporanImut->id, true, auth()->id()));
             }
         }
 
@@ -85,12 +89,6 @@ class ImutPenilaian extends Model implements HasMedia
         Cache::forget(CacheKey::latestLaporan());
     }
 
-
-    protected static function booted()
-    {
-        static::saved(fn($penilaian) => $penilaian->clearCache());
-        static::deleted(fn($penilaian) => $penilaian->clearCache());
-    }
 
     /**
      * Get the options for logging activity.

@@ -6,6 +6,7 @@ use App\Filament\Resources\LaporanImutResource\Pages\ImutDataReport;
 use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaImutDataReport;
 use App\Filament\Resources\LaporanImutResource\Pages\UnitKerjaReport;
 use App\Models\ImutPenilaian;
+use App\Support\CacheKey;
 use App\Tables\Columns\ProgressColumn;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\Action;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class LaporanImutTable
 {
@@ -243,93 +245,67 @@ class LaporanImutTable
 
     protected static function calculateProgress($record): ?float
     {
-        $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
+        if (!self::userHasAccessToLaporan($record)) return null;
 
-        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
-            ->where('laporan_imut_id', $record->id)
-            ->whereIn('unit_kerja_id', $userUnitIds)
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($laporanUnitKerjaIds) || ! self::userHasAccessToLaporan($record)) {
-            return null;
-        }
-
-        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
-        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
-            ->whereNotNull('numerator_value')
-            ->whereNotNull('denominator_value')
-            ->count();
-
-        return $total > 0 ? round(($filled / $total) * 100, 2) : 0;
+        $stats = self::getPenilaianStats($record, true);
+        return $stats['total'] > 0 ? round(($stats['filled'] / $stats['total']) * 100, 2) : 0;
     }
 
     protected static function progressTooltip($record): ?string
     {
-        $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
+        $stats = self::getPenilaianStats($record, true);
 
-        $laporanUnitKerjaIds = DB::table('laporan_unit_kerjas')
-            ->where('laporan_imut_id', $record->id)
-            ->whereIn('unit_kerja_id', $userUnitIds)
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($laporanUnitKerjaIds)) return null;
-
-        $total = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)->count();
-        $filled = ImutPenilaian::whereIn('laporan_unit_kerja_id', $laporanUnitKerjaIds)
-            ->whereNotNull('numerator_value')
-            ->whereNotNull('denominator_value')
-            ->count();
-
-        return "$filled / $total Penilaian selesai";
+        if ($stats['total'] === 0) return null;
+        return "{$stats['filled']} / {$stats['total']} Penilaian selesai";
     }
 
     protected static function calculateUnitKerjaTerisi($record): float
     {
-        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
-            ->where('laporan_imut_id', $record->id)
-            ->get(['id']);
-
-        $totalUnitKerja = $laporanUnitKerjas->count();
-        $filledCount = 0;
-
-        foreach ($laporanUnitKerjas as $unit) {
-            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
-            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
-                ->whereNotNull('numerator_value')
-                ->whereNotNull('denominator_value')
-                ->count();
-
-            if ($total > 0 && $total === $filled) {
-                $filledCount++;
-            }
-        }
-
-        return $totalUnitKerja > 0 ? round(($filledCount / $totalUnitKerja) * 100, 2) : 0;
+        $stats = self::getPenilaianStats($record, false);
+        return $stats['unit_kerja_total'] > 0
+            ? round(($stats['unit_kerja_filled'] / $stats['unit_kerja_total']) * 100, 2)
+            : 0;
     }
 
     protected static function tooltipUnitKerjaTerisi($record): string
     {
-        $laporanUnitKerjas = DB::table('laporan_unit_kerjas')
-            ->where('laporan_imut_id', $record->id)
-            ->get(['id']);
+        $stats = self::getPenilaianStats($record, false);
+        return "{$stats['unit_kerja_filled']} dari {$stats['unit_kerja_total']} unit kerja sudah mengisi";
+    }
 
-        $totalUnitKerja = $laporanUnitKerjas->count();
-        $filledCount = 0;
+    protected static function getPenilaianStats($record, $filterByUserUnit = true): array
+    {
+        $userId = Auth::id();
+        $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
+        $cacheKey = CacheKey::getPenilaianStats($record->id, $filterByUserUnit, Auth::id());
 
-        foreach ($laporanUnitKerjas as $unit) {
-            $total = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)->count();
-            $filled = ImutPenilaian::where('laporan_unit_kerja_id', $unit->id)
-                ->whereNotNull('numerator_value')
-                ->whereNotNull('denominator_value')
-                ->count();
+        return Cache::remember($cacheKey, now()->addDays(7), function () use ($record, $filterByUserUnit, $userUnitIds) {
+            $query = ImutPenilaian::with('laporanUnitKerja')->whereHas('laporanUnitKerja', function ($q) use ($record, $userUnitIds, $filterByUserUnit) {
+                $q->where('laporan_imut_id', $record->id);
 
-            if ($total > 0 && $total === $filled) {
-                $filledCount++;
-            }
-        }
+                if ($filterByUserUnit) {
+                    $q->whereIn('unit_kerja_id', $userUnitIds);
+                }
+            });
 
-        return "{$filledCount} dari {$totalUnitKerja} unit kerja sudah mengisi";
+            $data = $query->get(['numerator_value', 'denominator_value', 'laporan_unit_kerja_id']);
+
+            $grouped = $data->groupBy('laporan_unit_kerja_id');
+
+            $unitKerjaFilled = $grouped->filter(function ($items) {
+                $total = $items->count();
+                $filled = $items->filter(fn($item) => $item->numerator_value !== null && $item->denominator_value !== null)->count();
+                return $total > 0 && $total === $filled;
+            });
+
+            $filled = $data->filter(fn($item) => $item->numerator_value !== null && $item->denominator_value !== null)->count();
+
+            return [
+                'total' => $data->count(),
+                'filled' => $filled,
+                'unit_kerja_total' => $grouped->count(),
+                'unit_kerja_filled' => $unitKerjaFilled->count(),
+            ];
+        });
     }
 }
