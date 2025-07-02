@@ -51,7 +51,10 @@ class ProfilesRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->visible(fn() => Gate::allows('create', ImutProfile::class))
+                    ->visible(function ($livewire) {
+                        $owner = $livewire->ownerRecord;
+                        return Auth::user()?->can('create_imut::profile') && $owner->created_by === Auth::id();
+                    })
                     ->url(fn($livewire) => ImutDataResource::getUrl('create-profile', [
                         'imutDataSlug' => $livewire->ownerRecord->slug,
                     ])),
