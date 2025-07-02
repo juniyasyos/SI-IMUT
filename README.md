@@ -31,7 +31,7 @@ Untuk menginstal dan menjalankan **SIIMUT**, ikuti langkah-langkah berikut:
 
 ### 1️⃣ Clone Repository  
 ```sh
-git clone https://github.com/juniyasyos/siimut_rs_citrahusada.git SIIMUT
+git clone https://github.com/juniyasyos/si-imut.git SIIMUT
 cd SIIMUT
 ```  
 
