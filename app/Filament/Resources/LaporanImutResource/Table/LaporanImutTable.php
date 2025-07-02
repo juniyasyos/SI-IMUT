@@ -277,34 +277,45 @@ class LaporanImutTable
     {
         $userId = Auth::id();
         $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
-        $cacheKey = CacheKey::getPenilaianStats($record->id, $filterByUserUnit, Auth::id());
+        $cacheKey = CacheKey::getPenilaianStats($record->id, $filterByUserUnit, $userId);
 
         return Cache::remember($cacheKey, now()->addDays(7), function () use ($record, $filterByUserUnit, $userUnitIds) {
-            $query = ImutPenilaian::with('laporanUnitKerja')->whereHas('laporanUnitKerja', function ($q) use ($record, $userUnitIds, $filterByUserUnit) {
-                $q->where('laporan_imut_id', $record->id);
+            // Ambil semua data penilaian sesuai kondisi
+            $query = ImutPenilaian::query()
+                ->select(['laporan_unit_kerja_id', 'numerator_value', 'denominator_value'])
+                ->whereHas('laporanUnitKerja', function ($q) use ($record, $userUnitIds, $filterByUserUnit) {
+                    $q->where('laporan_imut_id', $record->id);
 
-                if ($filterByUserUnit) {
-                    $q->whereIn('unit_kerja_id', $userUnitIds);
+                    if ($filterByUserUnit) {
+                        $q->whereIn('unit_kerja_id', $userUnitIds);
+                    }
+                });
+
+            $data = $query->get();
+
+            $unitKerjaMap = [];
+            $filledCount = 0;
+
+            foreach ($data as $item) {
+                $key = $item->laporan_unit_kerja_id;
+                $unitKerjaMap[$key]['total'] = ($unitKerjaMap[$key]['total'] ?? 0) + 1;
+
+                $isFilled = $item->numerator_value !== null && $item->denominator_value !== null;
+                if ($isFilled) {
+                    $unitKerjaMap[$key]['filled'] = ($unitKerjaMap[$key]['filled'] ?? 0) + 1;
+                    $filledCount++;
                 }
-            });
+            }
 
-            $data = $query->get(['numerator_value', 'denominator_value', 'laporan_unit_kerja_id']);
-
-            $grouped = $data->groupBy('laporan_unit_kerja_id');
-
-            $unitKerjaFilled = $grouped->filter(function ($items) {
-                $total = $items->count();
-                $filled = $items->filter(fn($item) => $item->numerator_value !== null && $item->denominator_value !== null)->count();
-                return $total > 0 && $total === $filled;
-            });
-
-            $filled = $data->filter(fn($item) => $item->numerator_value !== null && $item->denominator_value !== null)->count();
+            $unitKerjaFilledCount = collect($unitKerjaMap)->filter(function ($item) {
+                return $item['total'] === ($item['filled'] ?? 0) && $item['total'] > 0;
+            })->count();
 
             return [
                 'total' => $data->count(),
-                'filled' => $filled,
-                'unit_kerja_total' => $grouped->count(),
-                'unit_kerja_filled' => $unitKerjaFilled->count(),
+                'filled' => $filledCount,
+                'unit_kerja_total' => count($unitKerjaMap),
+                'unit_kerja_filled' => $unitKerjaFilledCount,
             ];
         });
     }
