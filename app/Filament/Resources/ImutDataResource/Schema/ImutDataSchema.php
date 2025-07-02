@@ -219,8 +219,7 @@ class ImutDataSchema
                                                 Action::make('goto_region_type_list')
                                                     ->icon('heroicon-m-list-bullet')
                                                     ->tooltip('Lihat daftar semua Region Type')
-                                                    ->url(fn() => ImutDataResource::getUrl('bencmarking-region-type'))
-                                                    ->openUrlInNewTab(),
+                                                    ->url(fn() => ImutDataResource::getUrl('bencmarking-region-type')),
                                             ])
                                                 ->label('Aksi'),
                                         ])

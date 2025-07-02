@@ -157,7 +157,7 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
                     ->label('Edit Penilaian')
                     ->icon('heroicon-o-pencil-square')
                     ->color('info')
-                    ->openUrlInNewTab()
+
                     ->url(function ($record) {
                         $laporanSlug = \App\Models\LaporanImut::findOrFail($record->laporan_imut_id)->slug;
 
