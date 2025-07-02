@@ -22,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ImutDataResource extends Resource implements HasShieldPermissions
 {
@@ -98,10 +99,11 @@ class ImutDataResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-            ->query(fn () => ImutDataTable::query())
+            ->query(fn() => ImutDataTable::query())
             ->columns(ImutDataTable::columns())
             ->headerActions([
-                ExportAction::make()->exporter(ImutDataExporter::class)
+                ExportAction::make()
+                    ->exporter(ImutDataExporter::class)
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -119,10 +121,10 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     DeleteBulkAction::make(),
 
                     RestoreBulkAction::make()
-                        ->visible(fn () => method_exists(static::getModel(), 'bootSoftDeletes')),
+                        ->visible(fn() => method_exists(static::getModel(), 'bootSoftDeletes')),
 
                     ForceDeleteBulkAction::make()
-                        ->visible(fn () => method_exists(static::getModel(), 'bootSoftDeletes')),
+                        ->visible(fn() => method_exists(static::getModel(), 'bootSoftDeletes')),
                 ]),
             ]);
     }

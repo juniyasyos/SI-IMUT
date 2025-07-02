@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Facades\LaporanImut;
+
 class CacheKey
 {
     public static function laporanImutDetail(int $laporanId, int $imutDataId): string
@@ -75,5 +77,14 @@ class CacheKey
         ];
 
         return 'laporan_list_' . md5(json_encode($keyData));
+    }
+
+    public static function getPenilaianStats(int $recordId, bool $filter, int $userId): string
+    {
+        $prefix = 'penilaian_stats';
+        $laporanId = $recordId;
+        $userPart = $filter ? "_user_{$userId}" : "_all";
+
+        return "{$prefix}:{$laporanId}{$userPart}";
     }
 }

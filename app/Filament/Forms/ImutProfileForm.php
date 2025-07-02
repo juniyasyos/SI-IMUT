@@ -22,6 +22,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ImutProfileForm
 {
@@ -35,6 +36,11 @@ class ImutProfileForm
         return [
             \Filament\Forms\Components\Hidden::make('imut_data_id'),
             Tabs::make('Form Profil Indikator')
+                ->disabled(fn($record) => !(
+                    optional($record->imutData)->created_by === Auth::id() ||
+                    Auth::user()?->can('force_editable_imut::profile')
+                ))
+                // ->disabled(!Auth::user()?->can('force_editable_imut::profile'))
                 ->tabs([
                     Tab::make('ℹ️ Informasi Dasar')
                         ->schema(self::basicInformationSchema()),
