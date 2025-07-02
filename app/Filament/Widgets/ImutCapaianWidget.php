@@ -127,7 +127,10 @@ class ImutCapaianWidget extends ApexChartWidget
             now()->addMinutes(5),
             fn() => LaporanImut::with([
                 'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
-            ])->where('assessment_period_start', '>=', now()->subMonths(6))->orderBy('assessment_period_start')->get()
+            ])->where('assessment_period_start', '>=', now()
+                ->subMonths(6))
+                ->where('status', [LaporanImut::STATUS_COMPLETE, LaporanImut::STATUS_COMINGSOON])
+                ->orderBy('assessment_period_start')->get()
         );
     }
 
