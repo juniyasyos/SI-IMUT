@@ -27,7 +27,7 @@ class EditImutData extends EditRecord
                 Action::make('lihat_grafik')
                     ->label('📊 IMUT DATA')
                     ->color('primary')
-                    ->url(fn ($record) => \App\Filament\Resources\ImutDataResource\Pages\SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
+                    ->url(fn($record) => \App\Filament\Resources\ImutDataResource\Pages\SummaryImutDataDiagram::getUrl(['record' => $record->slug])),
 
                 RelationManagerAction::make('unit-kerja-relation')
                     ->slideOver()
@@ -40,7 +40,7 @@ class EditImutData extends EditRecord
                 ->button()
                 ->label('Lihat Grafik')
                 ->icon('heroicon-s-chart-bar')
-                ->visible(fn () => Auth::user()?->can('view_all_data_imut::data')),
+                ->visible(fn() => Auth::user()?->can('view_all_data_imut::data')),
 
             Action::make('lihat_berdasarkan_unit_kerja')
                 ->label('🏢 Lihat Grafik')
@@ -49,8 +49,8 @@ class EditImutData extends EditRecord
                     $user = Auth::user();
 
                     return $user->can('view_by_unit_kerja_imut::data') &&
-                           ! $user->can('view_all_data_imut::data') &&
-                           $user->unitKerjas->isNotEmpty();
+                        ! $user->can('view_all_data_imut::data') &&
+                        $user->unitKerjas->isNotEmpty();
                 })
                 ->url(function ($record) {
                     $user = Auth::user();
@@ -123,7 +123,8 @@ class EditImutData extends EditRecord
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
-            ->disabled(fn ($record) => Auth::user()?->can('delete_imut::data') || $record->creator === Auth::user()->id)
+            // ->disabled(fn($record) => Auth::user()?->can('delete_imut::data') && $record->creator === Auth::id())
+            ->visible(fn($record) => self::canEditProfilIndikator($record))
             ->modalHeading(__('filament-forms::imut-data.actions.delete.modal_heading'))
             ->modalDescription(__('filament-forms::imut-data.actions.delete.modal_description'))
             ->modalIcon('heroicon-o-exclamation-triangle')

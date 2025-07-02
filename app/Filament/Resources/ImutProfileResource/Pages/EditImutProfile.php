@@ -7,6 +7,7 @@ use App\Models\ImutData;
 use App\Models\ImutProfile;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class EditImutProfile extends EditRecord
 {
@@ -45,7 +46,7 @@ class EditImutProfile extends EditRecord
             $imutData
                 ? route('filament.admin.resources.imut-datas.edit', ['record' => $imutData->slug])
                 : '#' => $label,
-            null => 'Edit Profile | '.$this->record->version,
+            null => 'Edit Profile | ' . $this->record->version,
         ];
     }
 
@@ -57,5 +58,12 @@ class EditImutProfile extends EditRecord
     protected function getHeaderActions(): array
     {
         return [];
+    }
+
+    public static function canEditProfilIndikator(?Model $record = null): bool
+    {
+        $user = Auth::user();
+
+        return $record?->created_by === $user?->id;
     }
 }

@@ -53,15 +53,19 @@ class ImutDataSchema
                                     ->columnSpan(1),
 
                                 Select::make('imut_kategori_id')
-                                    ->label(__('filament-forms::imut-data.fields.imut_kategori_id'))
-                                    ->relationship('categories', 'category_name', function ($query) {
-                                        $user = \Illuminate\Support\Facades\Auth::user();
+                                    ->label(__('Kategori'))
+                                    ->options(function () {
+                                        $user = Auth::user();
+
+                                        $query = \App\Models\ImutCategory::query();
+
                                         if (! ($user->can('create_imut::category') && $user->can('update_imut::category'))) {
                                             $query->where('is_use_global', true);
                                         }
+
+                                        return $query->pluck('category_name', 'id');
                                     })
                                     ->searchable()
-                                    ->preload()
                                     ->required()
                                     ->disabled(fn(?Model $record) => $record && $record->created_by !== Auth::id())
                                     ->hint(__('filament-forms::imut-data.form.main.category_hint')),
@@ -190,39 +194,41 @@ class ImutDataSchema
                                                 // ]),
                                             ]);
                                     })->push(
-                                        Tab::make('➕ Tambah Region Type')->schema([
-                                            Actions::make([
-                                                Action::make('create_region_type')
-                                                    ->icon('heroicon-m-plus')
-                                                    ->tooltip('Tambah Region Type baru')
-                                                    ->modalHeading('Tambah Region Type')
-                                                    ->form([
-                                                        TextInput::make('type')
-                                                            ->required()
-                                                            ->label('Nama Region Type')
-                                                            ->placeholder('Contoh: provinsi, rumah sakit, nasional'),
-                                                    ])
-                                                    ->action(function (array $data) {
-                                                        RegionType::create([
-                                                            'type' => $data['type'],
-                                                        ]);
+                                        Tab::make('➕ Tambah Region Type')
+                                            ->visible(Auth::user()->can('create_region::type::bencmarking'))
+                                            ->schema([
+                                                Actions::make([
+                                                    Action::make('create_region_type')
+                                                        ->icon('heroicon-m-plus')
+                                                        ->tooltip('Tambah Region Type baru')
+                                                        ->modalHeading('Tambah Region Type')
+                                                        ->form([
+                                                            TextInput::make('type')
+                                                                ->required()
+                                                                ->label('Nama Region Type')
+                                                                ->placeholder('Contoh: provinsi, rumah sakit, nasional'),
+                                                        ])
+                                                        ->action(function (array $data) {
+                                                            RegionType::create([
+                                                                'type' => $data['type'],
+                                                            ]);
 
-                                                        Notification::make()
-                                                            ->title('Berhasil')
-                                                            ->body('Region Type berhasil ditambahkan.')
-                                                            ->success()
-                                                            ->send();
+                                                            Notification::make()
+                                                                ->title('Berhasil')
+                                                                ->body('Region Type berhasil ditambahkan.')
+                                                                ->success()
+                                                                ->send();
 
-                                                        redirect(request()->header('Referer'));
-                                                    }),
+                                                            redirect(request()->header('Referer'));
+                                                        }),
 
-                                                Action::make('goto_region_type_list')
-                                                    ->icon('heroicon-m-list-bullet')
-                                                    ->tooltip('Lihat daftar semua Region Type')
-                                                    ->url(fn() => ImutDataResource::getUrl('bencmarking-region-type')),
+                                                    Action::make('goto_region_type_list')
+                                                        ->icon('heroicon-m-list-bullet')
+                                                        ->tooltip('Lihat daftar semua Region Type')
+                                                        ->url(fn() => ImutDataResource::getUrl('bencmarking-region-type')),
+                                                ])
+                                                    ->label('Aksi'),
                                             ])
-                                                ->label('Aksi'),
-                                        ])
 
                                     )
                                         ->toArray()
