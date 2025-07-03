@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Filament\Resources\ImutDataResource;
 use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
 use App\Models\LaporanUnitKerja;
-use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,12 +26,15 @@ class ProsesPenilaianImut implements ShouldQueue
     {
         try {
             DB::transaction(function () {
-                $laporan = LaporanImut::with('unitKerjas.imutData.latestProfile')->findOrFail($this->laporanId);
+                $laporan = LaporanImut::with('unitKerjas.imutData.latestProfile', 'unitKerjas.users')
+                    ->findOrFail($this->laporanId);
+
+                $indikatorKurangProfil = [];
 
                 foreach ($laporan->unitKerjas as $unitKerja) {
                     $laporanUnitKerja = LaporanUnitKerja::firstOrCreate([
                         'laporan_imut_id' => $laporan->id,
-                        'unit_kerja_id' => $unitKerja->id,
+                        'unit_kerja_id'   => $unitKerja->id,
                     ]);
 
                     foreach ($unitKerja->imutData as $imutData) {
@@ -42,16 +45,34 @@ class ProsesPenilaianImut implements ShouldQueue
                         $latestProfile = $imutData->latestProfile;
 
                         if (! $latestProfile) {
+                            $indikatorKurangProfil[] = $imutData->title;
                             continue;
                         }
 
                         ImutPenilaian::firstOrCreate([
-                            'imut_profil_id' => $latestProfile->id,
+                            'imut_profil_id'        => $latestProfile->id,
                             'laporan_unit_kerja_id' => $laporanUnitKerja->id,
                         ]);
                     }
                 }
 
+                // Notifikasi ke pembuat laporan jika ada indikator tanpa profil
+                if (! empty($indikatorKurangProfil)) {
+                    collect($indikatorKurangProfil)
+                        ->unique()
+                        ->each(function (string $title) use ($laporan) {
+                            Notification::make()
+                                ->title('⚠️ Indikator Belum Memiliki Profil')
+                                ->body("Indikator {$title} belum memiliki profil.\n\nSilakan lengkapi di menu Imut Data.")
+                                ->icon('heroicon-m-exclamation-triangle')
+                                ->color('warning')
+                                ->persistent()
+                                ->url(ImutDataResource::getUrl('index'))
+                                ->sendToDatabase($laporan->createdBy);
+                        });
+                }
+
+                // Notifikasi umum ke semua user unit kerja
                 $users = $laporan->unitKerjas->flatMap->users->unique('id');
 
                 foreach ($users as $user) {
@@ -61,20 +82,11 @@ class ProsesPenilaianImut implements ShouldQueue
                         ->icon('heroicon-m-clipboard-document-check')
                         ->color('success')
                         ->persistent()
-                        ->actions([
-                            Action::make('view')
-                                ->label('Lihat Laporan')
-                                ->button()
-                                ->url(
-                                    LaporanImutResource::getUrl('index'),
-                                    shouldOpenInNewTab: false
-                                ),
-                        ])
                         ->sendToDatabase($user);
                 }
             });
 
-            // Notifikasi untuk pembuat laporan
+            // Notifikasi akhir proses penilaian ke pembuat laporan
             $laporan = LaporanImut::findOrFail($this->laporanId);
 
             Notification::make()
