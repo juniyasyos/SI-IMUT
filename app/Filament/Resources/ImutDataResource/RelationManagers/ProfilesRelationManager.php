@@ -17,7 +17,7 @@ use Filament\Tables\Actions\ForceDeleteAction;
 use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables\Actions\{CreateAction, EditAction, DeleteAction, DeleteBulkAction, BulkActionGroup};
+use Filament\Tables\Actions\{Action, CreateAction, EditAction, DeleteAction, DeleteBulkAction, BulkActionGroup};
 use Illuminate\Support\Facades\Auth;
 
 class ProfilesRelationManager extends RelationManager
@@ -60,7 +60,8 @@ class ProfilesRelationManager extends RelationManager
                     ])),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->actions([
                 // ViewAction::make()
@@ -70,8 +71,9 @@ class ProfilesRelationManager extends RelationManager
                 //     TextInput::make('indicator_type')->disabled(),
                 //     TextInput::make('responsible_person')->disabled(),
                 // ]),
-                EditAction::make()
-                    // ->visible(! Auth::user()?->can('edit_imut::profile'))
+                Action::make('edit')
+                    ->label('Edit')
+                    ->icon('heroicon-m-pencil-square')
                     ->visible(true)
                     ->url(fn($record, $livewire) => ImutDataResource::getUrl('edit-profile', [
                         'imutDataSlug' => $livewire->ownerRecord->slug,
@@ -102,13 +104,17 @@ class ProfilesRelationManager extends RelationManager
                 RestoreAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
                 ForceDeleteAction::make()->visible(fn(Model $record) => method_exists($record, 'trashed') && $record->trashed()),
             ])
-            // ->bulkActions([
-            //     BulkActionGroup::make([
-            //         DeleteBulkAction::make()->disabled((!Auth::user()?->can('delete_imut::profile')) || Auth::user()?->can('force_editable_imut::profile')),
-            //         RestoreBulkAction::make(),
-            //         ForceDeleteBulkAction::make()
-            //     ]),
-            // ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->visible(
+                            (Auth::user()?->can('delete_imut::profile'))
+                                || Auth::user()?->can('force_editable_imut::profile')
+                        ),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make()
+                ]),
+            ])
             ->paginated(true)
             ->defaultPaginationPageOption(10);
     }

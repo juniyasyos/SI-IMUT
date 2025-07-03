@@ -32,7 +32,16 @@ class ImutDataSchema
     {
         return [
             Section::make('Informasi Unit Kerja')
-                ->visible(fn() => Auth::user()->can('view_unit::kerja') || ! Auth::user()->can('attach_imut_data_to_unit_kerja_unit::kerja'))
+                ->visible(function () {
+                    $user = Auth::user();
+
+                    if ($user->unitKerjas->isEmpty()) {
+                        return false;
+                    }
+
+                    return $user->can('view_unit::kerja') ||
+                        ! $user->can('attach_imut_data_to_unit_kerja_unit::kerja');
+                })
                 ->disabled()
                 ->schema([
                     Placeholder::make('unitKerjaInfo')

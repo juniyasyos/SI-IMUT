@@ -39,6 +39,7 @@ class ImutDataUnitKerjaOverviewTable extends Component implements HasForms, HasT
         $this->dispatch('$refresh');
     }
 
+
     public function table(Table $table): Table
     {
         return $table

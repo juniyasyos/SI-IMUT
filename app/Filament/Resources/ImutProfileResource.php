@@ -92,7 +92,8 @@ class ImutProfileResource extends Resource implements HasShieldPermissions
                     ->limit(20),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->actions([
                 // ViewAction::make(),

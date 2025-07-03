@@ -35,6 +35,12 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
         $this->dispatch('$refresh');
     }
 
+    public function getColumnsForView()
+    {
+        return $this->table->getColumns();
+    }
+
+
     public function table(Table $table): Table
     {
         return $table

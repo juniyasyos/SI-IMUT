@@ -206,7 +206,8 @@ class ImutCategoryResource extends Resource implements HasShieldPermissions
                     ->sortable(),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->actions([
                 EditAction::make()
