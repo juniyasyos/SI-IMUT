@@ -4,14 +4,18 @@ namespace App\Filament\Resources\ImutDataResource\Schema;
 
 use App\Filament\Resources\ImutDataResource;
 use App\Models\RegionType;
+use App\Models\UnitKerja;
 use App\Models\User;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
@@ -27,6 +31,24 @@ class ImutDataSchema
     public static function make(): array
     {
         return [
+            Section::make('Informasi Unit Kerja')
+                ->visible(fn() => Auth::user()->can('view_unit::kerja') || ! Auth::user()->can('attach_imut_data_to_unit_kerja_unit::kerja'))
+                ->disabled()
+                ->schema([
+                    Placeholder::make('unitKerjaInfo')
+                        ->label('Unit Kerja Pengguna')
+                        ->content(
+                            fn() =>
+                            Auth::user()->unitKerjas->isNotEmpty()
+                                ? Auth::user()->unitKerjas->map(function ($unit) {
+                                    $nama = $unit->unit_name;
+                                    $deskripsi = $unit->description ?? '-';
+                                    return "• {$nama} — {$deskripsi}";
+                                })->implode("\n")
+                                : 'Tidak ada unit kerja yang terkait dengan akun ini.'
+                        )
+                        ->columnSpanFull(),
+                ]),
             Tabs::make('')
                 ->columnSpan(['lg' => 2])
                 ->tabs([
@@ -102,7 +124,26 @@ class ImutDataSchema
                                 Hidden::make('created_by')
                                     ->default(fn() => Auth::id()),
                             ]),
+
+                            Section::make('Unit Kerja')
+                                ->description('Pilih unit kerja yang memiliki indikator mutu ini.')
+                                ->columnSpanFull()
+                                ->visible(fn() => Auth::user()->can('attach_imut_data_to_unit_kerja_unit::kerja'))
+                                ->schema([
+                                    CheckboxList::make('unitKerja')
+                                        ->label('Unit Kerja yang Bisa Menilai')
+                                        ->relationship('unitKerja', 'unit_name')
+                                        ->options(UnitKerja::pluck('unit_name', 'id')->toArray())
+                                        ->columns(3)
+                                        ->required()
+                                        ->bulkToggleable()
+                                        ->default(fn() => Auth::user()->unitKerjas()->pluck('unit_kerja.id')->toArray())
+                                        ->visible(fn() => Auth::user()->can('attach_imut_data_to_unit_kerja_unit::kerja'))
+                                        ->dehydrated(true)
+                                        ->name('unitKerjaIds'),
+                                ])
                         ]),
+
 
                     Tab::make('📍 Benchmarking')
                         ->schema([
