@@ -17,6 +17,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -109,7 +110,8 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
         return $table
             ->columns(LaporanImutTable::columns())
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->headerActions([
                 ExportAction::make()->exporter(LaporanImutExporter::class)
@@ -118,10 +120,8 @@ class LaporanImutResource extends Resource implements HasShieldPermissions
             ->bulkActions(
                 [
                     Tables\Actions\BulkActionGroup::make([
-                        Tables\Actions\RestoreBulkAction::make()
-                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
-                        Tables\Actions\ForceDeleteBulkAction::make()
-                            ->visible(fn(LaporanImut $record) => method_exists($record, 'trashed') && $record->trashed()),
+                        Tables\Actions\RestoreBulkAction::make(),
+                        Tables\Actions\ForceDeleteBulkAction::make(),
                     ]),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]

@@ -145,7 +145,8 @@ class UserResource extends Resource implements HasShieldPermissions
         return $table
             ->columns(self::tableColumns())
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
                 SelectFilter::make('roles')
                     ->label(__('filament-forms::users.filters.roles'))
                     ->relationship('roles', 'name')

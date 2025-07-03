@@ -139,7 +139,8 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
                     ->sortable(),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->headerActions([
                 ExportAction::make()->exporter(UnitKerjaExporter::class)

@@ -106,7 +106,8 @@ class ImutDataResource extends Resource implements HasShieldPermissions
                     ->exporter(ImutDataExporter::class)
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
                 SelectFilter::make('imut_kategori_id')
                     ->label('Kategori IMUT')
                     ->preload()

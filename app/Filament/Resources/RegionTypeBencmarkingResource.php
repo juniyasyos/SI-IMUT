@@ -107,7 +107,8 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
                     ->label('Created At'),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->actions([
                 EditAction::make()
@@ -116,7 +117,7 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
                     ->modal(),
 
                 DeleteAction::make()
-                    ->visible(fn ($record) => $record->name !== 'super_admin')
+                    ->visible(fn($record) => $record->name !== 'super_admin')
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         try {
@@ -139,14 +140,14 @@ class RegionTypeBencmarkingResource extends Resource implements HasShieldPermiss
 
                 RestoreAction::make()
                     ->visible(
-                        fn ($record) => Gate::allows('restore', $record) &&
+                        fn($record) => Gate::allows('restore', $record) &&
                             method_exists($record, 'trashed') &&
                             $record->trashed()
                     ),
 
                 ForceDeleteAction::make()
                     ->visible(
-                        fn ($record) => Gate::allows('forceDelete', $record) &&
+                        fn($record) => Gate::allows('forceDelete', $record) &&
                             method_exists($record, 'trashed') &&
                             $record->trashed()
                     )

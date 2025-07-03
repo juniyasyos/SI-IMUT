@@ -60,7 +60,8 @@ class ProfilesRelationManager extends RelationManager
                     ])),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('with'),
             ])
             ->actions([
                 // ViewAction::make()
