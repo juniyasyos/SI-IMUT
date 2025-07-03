@@ -52,6 +52,15 @@ class ImutPenilaian extends Model implements HasMedia
             ->useDisk('public');
     }
 
+    /**
+     * Boot model events
+     */
+    protected static function booted(): void
+    {
+        static::saved(fn(self $penilaian) => $penilaian->clearCache());
+        static::deleted(fn(self $penilaian) => $penilaian->clearCache());
+    }
+
     public function clearCache()
     {
         $this->loadMissing(['profile', 'laporanUnitKerja.laporanImut']);
@@ -79,10 +88,9 @@ class ImutPenilaian extends Model implements HasMedia
                 foreach ($regionTypeIds as $regionTypeId) {
                     Cache::forget(CacheKey::imutBenchmarking($year, $regionTypeId));
                 }
-
-                Cache::forget(CacheKey::getPenilaianStats($laporanImut->id, false, 0));
-                Cache::forget(CacheKey::getPenilaianStats($laporanImut->id, true, auth()->id()));
             }
+            Cache::forget(CacheKey::getPenilaianStats($laporanId, false));
+            Cache::forget(CacheKey::getPenilaianStats($laporanId, true));
         }
 
         Cache::forget(CacheKey::imutLaporans());
