@@ -35,6 +35,15 @@ class ImutDataReport extends Component implements HasForms, HasTable
         $this->dispatch('$refresh');
     }
 
+    public function getTableRecordKey($record): string
+    {
+        if (! $record || ! $record->getKey()) {
+            return (string) uniqid('record_', true); 
+        }
+
+        return (string) $record->getKey();
+    }
+
     public function table(Table $table): Table
     {
         return $table

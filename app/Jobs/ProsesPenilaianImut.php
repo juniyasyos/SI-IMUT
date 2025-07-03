@@ -7,6 +7,7 @@ use App\Filament\Resources\LaporanImutResource;
 use App\Models\ImutPenilaian;
 use App\Models\LaporanImut;
 use App\Models\LaporanUnitKerja;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,13 +62,14 @@ class ProsesPenilaianImut implements ShouldQueue
                     collect($indikatorKurangProfil)
                         ->unique()
                         ->each(function (string $title) use ($laporan) {
+                            $searchUrl = ImutDataResource::getUrl('index');
+
                             Notification::make()
                                 ->title('⚠️ Indikator Belum Memiliki Profil')
-                                ->body("Indikator {$title} belum memiliki profil.\n\nSilakan lengkapi di menu Imut Data.")
+                                ->body("Indikator {$title} belum memiliki profil.")
                                 ->icon('heroicon-m-exclamation-triangle')
                                 ->color('warning')
                                 ->persistent()
-                                ->url(ImutDataResource::getUrl('index'))
                                 ->sendToDatabase($laporan->createdBy);
                         });
                 }
