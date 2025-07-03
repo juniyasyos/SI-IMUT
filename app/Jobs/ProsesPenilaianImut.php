@@ -52,7 +52,6 @@ class ProsesPenilaianImut implements ShouldQueue
                     }
                 }
 
-                // Kirim notifikasi ke semua user yang berkaitan dengan unit kerja
                 $users = $laporan->unitKerjas->flatMap->users->unique('id');
 
                 foreach ($users as $user) {

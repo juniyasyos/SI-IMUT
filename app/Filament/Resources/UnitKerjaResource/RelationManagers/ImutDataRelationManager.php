@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\UnitKerjaResource\RelationManagers;
 
+use App\Filament\Resources\ImutDataResource;
 use App\Models\ImutData;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -26,12 +29,34 @@ class ImutDataRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('title')
                     ->label(__('filament-forms::imut-data-relationship-user.columns.title'))
+                    ->searchable()
                     ->weight(FontWeight::Bold),
 
                 TextColumn::make('categories.short_name')
                     ->label(__('filament-forms::imut-data-relationship-user.columns.category'))
                     ->badge()
-                    ->color('success'),
+                    ->searchable()
+                    ->color(function ($record) {
+                        $colors = ['primary', 'success', 'warning', 'danger', 'info', 'gray'];
+                        $id = $record->categories->id ?? 0;
+
+                        return $colors[$id % count($colors)];
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false),
+
+                TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime('d M Y, H:i')
+                    ->sortable()
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime('d M Y, H:i')
+                    ->sortable()
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 \Archilex\ToggleIconColumn\Columns\ToggleIconColumn::make('status')
                     ->label(__('filament-forms::imut-data.fields.status'))
@@ -49,6 +74,7 @@ class ImutDataRelationManager extends RelationManager
                 SelectFilter::make('imut_kategori_id')
                     ->label(__('filament-forms::imut-data-relationship-user.filters.category'))
                     ->multiple()
+                    ->preload()
                     ->relationship('categories', 'short_name'),
             ])
             ->headerActions([
@@ -85,6 +111,12 @@ class ImutDataRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['title']),
             ])
             ->actions([
+                Tables\Actions\Action::make('edit')
+                    ->label(__('Edit'))
+                    ->icon('heroicon-m-pencil-square')
+                    ->url(fn($record) => ImutDataResource::getUrl('edit', ['record' => $record->slug]))
+                    ->color('primary')
+                    ->visible(fn() => Gate::allows('update_imut::data')),
                 Tables\Actions\DetachAction::make()
                     ->requiresConfirmation()
                     ->visible(fn() => Gate::allows('attach_imut_data_to_unit_kerja_unit::kerja', User::class))
