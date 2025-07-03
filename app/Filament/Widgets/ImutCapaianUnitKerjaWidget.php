@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class ImutCapaianWidget extends ApexChartWidget
+class ImutCapaianUnitKerjaWidget extends ApexChartWidget
 {
-    protected static ?string $chartId = 'imutCapaianWidget';
+    protected static ?string $chartId = 'imutCapaianUnitKerjaWidget';
     protected static ?string $heading = 'Capaian IMUT setiap Kategori Semua Unit Kerja';
     protected static ?int $sort = 4;
     protected static MaxWidth|string $filterFormWidth = MaxWidth::ExtraLarge;
@@ -33,7 +33,11 @@ class ImutCapaianWidget extends ApexChartWidget
 
     public static function canView(): bool
     {
-        return Auth::user()?->can('widget_ImutCapaianWidget');
+        $user = Auth::user();
+
+        return $user
+            && $user->can('widget_ImutCapaianUnitKerjaWidget')
+            && $user->unitKerjas()->exists();
     }
 
     protected function getFormSchema(): array
@@ -80,23 +84,30 @@ class ImutCapaianWidget extends ApexChartWidget
         $xLabels = $this->generateXLabels($laporans);
         $series = $this->getChartService()->buildSeries($laporans, $this->filterFormData ?? []);
 
-        return ApexChartConfig::defaultOptions($series, $xLabels, xLableTitle:'IMUT Kategori', yLableTitle:'Capaian (%)');
+        return ApexChartConfig::defaultOptions($series, $xLabels, xLableTitle: 'IMUT Kategori', yLableTitle: 'Capaian (%)');
     }
 
     protected function getCachedLaporans()
     {
+        $user = Auth::user();
+        $unitKerjaIds = $user->unitKerjas->pluck('id')->toArray();
+
         return Cache::remember(
-            CacheKey::imutLaporans(),
+            CacheKey::imutLaporansForUnitKerjas($unitKerjaIds),
             now()->addMinutes(5),
             fn() => LaporanImut::with([
                 'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
             ])
                 ->where('assessment_period_start', '>=', now()->subMonths(6))
                 ->where('status', [LaporanImut::STATUS_COMPLETE, LaporanImut::STATUS_COMINGSOON])
+                ->whereHas('laporanUnitKerjas', function ($query) use ($unitKerjaIds) {
+                    $query->whereIn('unit_kerja_id', $unitKerjaIds);
+                })
                 ->orderBy('assessment_period_start')
                 ->get()
         );
     }
+
 
     protected function generateXLabels($laporans): array
     {

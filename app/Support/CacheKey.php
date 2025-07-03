@@ -83,4 +83,10 @@ class CacheKey
     {
         return "penilaian_stats:laporan:{$laporanId}:filter_by_user_unit:" . ($filterByUserUnit ? 'yes' : 'no');
     }
+
+    public static function imutLaporansForUnitKerjas(array $unitKerjaIds): string
+    {
+        $hash = md5(implode(',', $unitKerjaIds));
+        return "imut_laporans_unit_kerjas_{$hash}";
+    }
 }

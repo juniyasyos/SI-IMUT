@@ -53,7 +53,7 @@ class EditLaporanImut extends EditRecord
                 ->icon('heroicon-o-clipboard-document-list')
                 ->color('primary')
                 ->url(fn($record) => \App\Services\LaporanRedirectService::getRedirectUrlForImutData($record->id))
-
+                ->disabled(fn($record) => is_null($record->imutPenilaians))
                 ->visible(fn() => Gate::any([
                     'view_imut_data_report_laporan::imut',
                     'view_imut_data_report_detail_laporan::imut',
