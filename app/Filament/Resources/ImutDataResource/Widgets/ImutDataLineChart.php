@@ -49,12 +49,15 @@ class ImutDataLineChart extends ApexChartWidget
 
         $regionTypes = RegionType::pluck('type', 'id')->toArray();
 
+        $is_benchmarking = $this->imutData->categories->is_benchmark_category;
+
         return [
             Section::make('Filter Data')
                 ->schema([
                     Select::make('year')->label('Tahun')->options($years)->default(now()->year)->reactive(),
                     Select::make('region_type_id')->label('Benchmarking Region')->options($regionTypes)->multiple()->searchable()->reactive(),
-                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(true)->reactive(),
+                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(false)->reactive()->visible($is_benchmarking),
+                    Checkbox::make('show_dataLabels')->label('Tampilkan Nilai')->default(true)->reactive(),
                 ])
                 ->columns(2),
 
@@ -64,7 +67,7 @@ class ImutDataLineChart extends ApexChartWidget
                         Select::make('nilai_type')
                             ->label('Tipe Nilai IMUT')
                             ->options(['line' => 'Line', 'column' => 'Column'])
-                            ->default('column')
+                            ->default('line')
                             ->reactive(),
 
                         ColorPicker::make('color_nilai')
@@ -118,6 +121,7 @@ class ImutDataLineChart extends ApexChartWidget
     protected function getOptions(): array
     {
         $chartType = $this->filterFormData['chart_type'] ?? 'mixed';
+        $showdataLabels = $this->filterFormData['show_dataLabels'] ?? true;
 
         $seriesData = $this->getChartSeries($chartType);
         $xLabels = $this->getMonthLabels();
@@ -132,7 +136,8 @@ class ImutDataLineChart extends ApexChartWidget
             xLableTitle: 'Periode',
             yLableTitle: 'Nilai (%)',
             yAxisMin: 0,
-            yAxisMax: 100
+            yAxisMax: 120,
+            showDataLabels: $showdataLabels
         );
     }
 

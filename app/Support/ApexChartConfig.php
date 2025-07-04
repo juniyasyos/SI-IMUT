@@ -10,17 +10,24 @@ class ApexChartConfig
         string $xLableTitle = 'Periode',
         string $yLableTitle = 'Capaian (%)',
         int $yAxisMin = null,
-        int $yAxisMax = null
+        int $yAxisMax = null,
+        bool $showDataLabels = true
     ): array {
         $maxValue = collect($series)
             ->pluck('data')
             ->flatten()
             ->max();
-            
+
         $yAxisMax = $yAxisMax ?? (
-            ($maxValue > 50 && $maxValue < 100)
-            ? 100
-            : ceil($maxValue)
+            $maxValue < 50
+            ? ceil($maxValue)
+            : ($maxValue <= 100
+                ? 100
+                : ($maxValue <= 200
+                    ? ceil($maxValue)
+                    : 200
+                )
+            )
         );
         $yAxisMin = $yAxisMin ?? 0;
 
@@ -49,7 +56,21 @@ class ApexChartConfig
                     'borderRadius' => 4,
                 ],
             ],
-            'dataLabels' => ['enabled' => false],
+            'dataLabels' => [
+                'enabled' => $showDataLabels,
+                'offsetY' => 6,
+                'style' => [
+                    'fontSize' => '12px',
+                    'fontWeight' => 'semibold',
+                ],
+                'background' => [
+                    'enabled' => true,
+                    'borderRadius' => 4,
+                    'dropShadow' => [
+                        'enabled' => true,
+                    ]
+                ],
+            ],
             'series' => $series,
             'stroke' => [
                 'width' => array_fill(0, count($series), 3),

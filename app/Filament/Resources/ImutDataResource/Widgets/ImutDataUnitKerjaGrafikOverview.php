@@ -55,12 +55,15 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
 
         $unitKerjaOptions = UnitKerja::pluck('unit_name', 'id')->toArray();
 
+        $is_benchmarking = $this->imutData->categories->is_benchmark_category;
+
         return [
             Section::make('Filter Data')
                 ->schema([
                     Select::make('year')->label('Tahun')->options($years)->default(now()->year)->reactive(),
                     Select::make('unit_kerja_id')->label('Unit Kerja')->options($unitKerjaOptions)->default($this->unitKerja->id)->searchable()->required()->reactive(),
-                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(true)->reactive(),
+                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(false)->reactive()->visible($is_benchmarking),
+                    Checkbox::make('show_dataLabels')->label('Tampilkan Nilai')->default(true)->reactive(),
                 ])
                 ->columns(2),
 
@@ -70,7 +73,7 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
                         Select::make('nilai_type')
                             ->label('Tipe Nilai IMUT')
                             ->options(['line' => 'Line', 'column' => 'Column'])
-                            ->default('column')
+                            ->default('line')
                             ->reactive(),
 
                         ColorPicker::make('color_nilai')
@@ -124,6 +127,7 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
     protected function getOptions(): array
     {
         $chartType = $this->filterFormData['chart_type'] ?? 'mixed';
+        $showdataLabels = $this->filterFormData['show_dataLabels'] ?? true;
 
         $seriesData = $this->getChartSeries($chartType);
         $xLabels = $this->getMonthLabels();
@@ -136,7 +140,8 @@ class ImutDataUnitKerjaGrafikOverview extends ApexChartWidget
             series: $seriesData,
             xLabels: $xLabels,
             xLableTitle: 'Periode',
-            yLableTitle: 'Nilai (%)'
+            yLableTitle: 'Nilai (%)',
+            showDataLabels: $showdataLabels
         );
     }
 
