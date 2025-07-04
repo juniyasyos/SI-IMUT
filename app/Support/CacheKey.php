@@ -79,12 +79,15 @@ class CacheKey
         return 'laporan_list_' . md5(json_encode($keyData));
     }
 
-    public static function getPenilaianStats(int $recordId, bool $filter, int $userId): string
+    public static function getPenilaianStats(int $laporanId, bool $filterByUserUnit): string
     {
-        $prefix = 'penilaian_stats';
-        $laporanId = $recordId;
-        $userPart = $filter ? "_user_{$userId}" : "_all";
+        return "penilaian_stats:laporan:{$laporanId}:filter_by_user_unit:" . ($filterByUserUnit ? 'yes' : 'no');
+    }
 
-        return "{$prefix}:{$laporanId}{$userPart}";
+    public static function imutLaporansForUnitKerjas(array $unitKerjaIds): string
+    {
+        sort($unitKerjaIds);
+        $joinedIds = implode('_', $unitKerjaIds);
+        return "imut_laporans_unit_kerjas_{$joinedIds}";
     }
 }

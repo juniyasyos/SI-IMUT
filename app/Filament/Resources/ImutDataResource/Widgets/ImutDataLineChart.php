@@ -6,6 +6,7 @@ use App\Models\ImutBenchmarking;
 use App\Models\ImutData;
 use App\Models\LaporanImut;
 use App\Models\RegionType;
+use App\Support\ApexChartConfig;
 use App\Support\CacheKey;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\ColorPicker;
@@ -48,12 +49,15 @@ class ImutDataLineChart extends ApexChartWidget
 
         $regionTypes = RegionType::pluck('type', 'id')->toArray();
 
+        $is_benchmarking = $this->imutData->categories->is_benchmark_category;
+
         return [
             Section::make('Filter Data')
                 ->schema([
                     Select::make('year')->label('Tahun')->options($years)->default(now()->year)->reactive(),
                     Select::make('region_type_id')->label('Benchmarking Region')->options($regionTypes)->multiple()->searchable()->reactive(),
-                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(true)->reactive(),
+                    Checkbox::make('show_benchmarking')->label('Tampilkan Benchmarking')->default(false)->reactive()->visible($is_benchmarking),
+                    Checkbox::make('show_dataLabels')->label('Tampilkan Nilai')->default(true)->reactive(),
                 ])
                 ->columns(2),
 
@@ -63,7 +67,7 @@ class ImutDataLineChart extends ApexChartWidget
                         Select::make('nilai_type')
                             ->label('Tipe Nilai IMUT')
                             ->options(['line' => 'Line', 'column' => 'Column'])
-                            ->default('column')
+                            ->default('line')
                             ->reactive(),
 
                         ColorPicker::make('color_nilai')
@@ -117,113 +121,26 @@ class ImutDataLineChart extends ApexChartWidget
     protected function getOptions(): array
     {
         $chartType = $this->filterFormData['chart_type'] ?? 'mixed';
-        $colorNilai = $this->filterFormData['color_nilai'] ?? '#3b82f6';
-        $colorTarget = $this->filterFormData['color_target'] ?? '#f59e0b';
-
-        $benchmarkColors = ['#10b981', '#ef4444', '#6366f1', '#14b8a6'];
+        $showdataLabels = $this->filterFormData['show_dataLabels'] ?? true;
 
         $seriesData = $this->getChartSeries($chartType);
+        $xLabels = $this->getMonthLabels();
 
-        return [
-            'chart' => [
-                'type' => $chartType === 'mixed' ? 'line' : $chartType,
-                'height' => 450,
-                'stacked' => false,
-                'toolbar' => [
-                    'show' => true,
-                    'tools' => [
-                        'download' => true,
-                        'selection' => true,
-                        'zoom' => true,
-                        'zoomin' => true,
-                        'zoomout' => true,
-                        'reset' => true,
-                    ],
-                ],
-                'zoom' => ['enabled' => true],
-                'fontFamily' => 'inherit',
-            ],
-            'plotOptions' => [
-                'bar' => [
-                    'columnWidth' => '25%',
-                    'borderRadius' => 4,
-                ],
-            ],
-            'stroke' => [
-                'width' => [4, 4, 3, 3],
-                'curve' => 'smooth',
-            ],
-            'markers' => [
-                'size' => 5,
-                'hover' => [
-                    'sizeOffset' => 3,
-                ],
-            ],
-            'colors' => array_merge([$colorNilai, $colorTarget], $benchmarkColors),
-            'series' => $seriesData,
-            'xaxis' => [
-                'categories' => $this->getMonthLabels(),
-                'title' => ['text' => 'Periode'],
-                'labels' => [
-                    'rotate' => -45,
-                    'style' => [
-                        'fontSize' => '12px',
-                        'fontWeight' => 500,
-                    ],
-                ],
-                'axisBorder' => [
-                    'show' => true,
-                ],
-                'axisTicks' => [
-                    'show' => true,
-                ],
-            ],
-            'yaxis' => [
-                'min' => 0,
-                'max' => 100,
-                'title' => [
-                    'text' => 'Nilai (%)',
-                    'style' => [
-                        'fontWeight' => 600,
-                    ],
-                ],
-                'labels' => [
-                    'style' => [
-                        'fontSize' => '12px',
-                    ],
-                ],
-            ],
-            'tooltip' => [
-                'shared' => true,
-                'intersect' => false,
-                'x' => [
-                    'show' => true,
-                ],
-            ],
-            'legend' => [
-                'position' => 'bottom',
-                'horizontalAlign' => 'center',
-                'fontSize' => '13px',
-                'markers' => [
-                    'radius' => 12,
-                ],
-            ],
-            'grid' => [
-                'strokeDashArray' => 4,
-                'borderColor' => '#e5e7eb',
-            ],
-            'responsive' => [
-                [
-                    'breakpoint' => 768,
-                    'options' => [
-                        'chart' => ['height' => 320],
-                        'xaxis' => ['labels' => ['rotate' => -30]],
-                        'legend' => ['fontSize' => '11px'],
-                    ],
-                ],
-            ],
-        ];
+        if (empty($seriesData)) {
+            return ApexChartConfig::noDataOptions();
+        }
+
+        return ApexChartConfig::defaultOptions(
+            series: $seriesData,
+            xLabels: $xLabels,
+            xLableTitle: 'Periode',
+            yLableTitle: 'Nilai (%)',
+            yAxisMin: 0,
+            yAxisMax: 120,
+            showDataLabels: $showdataLabels
+        );
     }
+
 
     protected function getMonthLabels(): array
     {

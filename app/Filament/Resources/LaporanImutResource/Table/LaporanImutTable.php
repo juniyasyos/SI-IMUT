@@ -248,74 +248,114 @@ class LaporanImutTable
         if (!self::userHasAccessToLaporan($record)) return null;
 
         $stats = self::getPenilaianStats($record, true);
-        return $stats['total'] > 0 ? round(($stats['filled'] / $stats['total']) * 100, 2) : 0;
+
+        $total = $stats['penilaian_summary']['total'] ?? 0;
+        $filled = $stats['penilaian_summary']['filled'] ?? 0;
+
+        return $total > 0 ? round(($filled / $total) * 100, 2) : 0;
     }
 
     protected static function progressTooltip($record): ?string
     {
         $stats = self::getPenilaianStats($record, true);
+        $summary = $stats['penilaian_summary'];
 
-        if ($stats['total'] === 0) return null;
-        return "{$stats['filled']} / {$stats['total']} Penilaian selesai";
+        if (($summary['total'] ?? 0) === 0) return null;
+
+        return "Terdapat {$summary['filled']} dari {$summary['total']} data penilaian yang telah diisi.";
     }
 
     protected static function calculateUnitKerjaTerisi($record): float
     {
         $stats = self::getPenilaianStats($record, false);
-        return $stats['unit_kerja_total'] > 0
-            ? round(($stats['unit_kerja_filled'] / $stats['unit_kerja_total']) * 100, 2)
+        $summary = $stats['unit_kerja_summary'];
+
+        return $summary['total_unit_kerja'] > 0
+            ? round(($summary['unit_kerja_filled_count'] / $summary['total_unit_kerja']) * 100, 2)
             : 0;
     }
 
     protected static function tooltipUnitKerjaTerisi($record): string
     {
         $stats = self::getPenilaianStats($record, false);
-        return "{$stats['unit_kerja_filled']} dari {$stats['unit_kerja_total']} unit kerja sudah mengisi";
+        $summary = $stats['unit_kerja_summary'];
+
+        $tooltip = "{$summary['unit_kerja_filled_count']} dari {$summary['total_unit_kerja']} unit kerja telah mengisi seluruh data penilaian.";
+
+        if (!empty($summary['unit_kerja_unfilled_names'])) {
+            $names = implode(', ', $summary['unit_kerja_unfilled_names']);
+            $tooltip .= " (Unit kerja yang belum mengisi: {$names})";
+        }
+
+        return $tooltip;
     }
+
 
     protected static function getPenilaianStats($record, $filterByUserUnit = true): array
     {
         $userId = Auth::id();
         $userUnitIds = Auth::user()?->unitKerjas?->pluck('id')->toArray() ?? [];
-        $cacheKey = CacheKey::getPenilaianStats($record->id, $filterByUserUnit, $userId);
+        $cacheKey = CacheKey::getPenilaianStats($record->id, $filterByUserUnit);
 
         return Cache::remember($cacheKey, now()->addDays(7), function () use ($record, $filterByUserUnit, $userUnitIds) {
-            // Ambil semua data penilaian sesuai kondisi
-            $query = ImutPenilaian::query()
-                ->select(['laporan_unit_kerja_id', 'numerator_value', 'denominator_value'])
+            $penilaians = ImutPenilaian::with('laporanUnitKerja.unitKerja')
                 ->whereHas('laporanUnitKerja', function ($q) use ($record, $userUnitIds, $filterByUserUnit) {
                     $q->where('laporan_imut_id', $record->id);
 
                     if ($filterByUserUnit) {
                         $q->whereIn('unit_kerja_id', $userUnitIds);
                     }
-                });
+                })
+                ->get();
 
-            $data = $query->get();
+            $unitKerjaStats = [];
+            $totalPenilaian = 0;
+            $filledPenilaian = 0;
 
-            $unitKerjaMap = [];
-            $filledCount = 0;
+            foreach ($penilaians as $item) {
+                $laporanUnitKerja = $item->laporanUnitKerja;
+                $unitKerja = $laporanUnitKerja->unitKerja ?? null;
+                if (! $unitKerja) continue;
 
-            foreach ($data as $item) {
-                $key = $item->laporan_unit_kerja_id;
-                $unitKerjaMap[$key]['total'] = ($unitKerjaMap[$key]['total'] ?? 0) + 1;
+                $ukId = $laporanUnitKerja->id;
 
-                $isFilled = $item->numerator_value !== null && $item->denominator_value !== null;
-                if ($isFilled) {
-                    $unitKerjaMap[$key]['filled'] = ($unitKerjaMap[$key]['filled'] ?? 0) + 1;
-                    $filledCount++;
+                $unitKerjaStats[$ukId] ??= [
+                    'laporan_unit_kerja_id' => $laporanUnitKerja->id,
+                    'unit_kerja_id' => $unitKerja->id,
+                    'unit_kerja_name' => $unitKerja->unit_name,
+                    'total_penilaian' => 0,
+                    'filled_penilaian' => 0,
+                ];
+
+                $unitKerjaStats[$ukId]['total_penilaian']++;
+                $totalPenilaian++;
+
+                if ($item->numerator_value !== null && $item->denominator_value !== null) {
+                    $unitKerjaStats[$ukId]['filled_penilaian']++;
+                    $filledPenilaian++;
                 }
             }
 
-            $unitKerjaFilledCount = collect($unitKerjaMap)->filter(function ($item) {
-                return $item['total'] === ($item['filled'] ?? 0) && $item['total'] > 0;
-            })->count();
+            $unitKerjaComplete = collect($unitKerjaStats)
+                ->filter(fn($stat) => $stat['total_penilaian'] > 0 && $stat['total_penilaian'] === $stat['filled_penilaian'])
+                ->keyBy('unit_kerja_id');
+
+            $unitKerjaUnfilled = collect($unitKerjaStats)
+                ->reject(fn($stat) => $unitKerjaComplete->has($stat['unit_kerja_id']))
+                ->values();
 
             return [
-                'total' => $data->count(),
-                'filled' => $filledCount,
-                'unit_kerja_total' => count($unitKerjaMap),
-                'unit_kerja_filled' => $unitKerjaFilledCount,
+                'penilaian_summary' => [
+                    'total' => $totalPenilaian,
+                    'filled' => $filledPenilaian,
+                ],
+                'unit_kerja_summary' => [
+                    'total_unit_kerja' => count($unitKerjaStats),
+                    'unit_kerja_filled_count' => $unitKerjaComplete->count(),
+                    'unit_kerja_unfilled_count' => $unitKerjaUnfilled->count(),
+                    'unit_kerja_unfilled_names' => $unitKerjaUnfilled->pluck('unit_kerja_name')->toArray(),
+                ],
+                'unit_kerja_detail' => array_values($unitKerjaStats),
             ];
         });
     }

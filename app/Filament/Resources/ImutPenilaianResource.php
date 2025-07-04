@@ -386,7 +386,7 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->placeholder('0.00')
                         ->nullable()
                         ->default(0)
-                        ->reactive()
+                        ->debounce(1000)
                         ->readOnly(
                             fn($livewire) =>
                             $livewire->isLaporanPeriodClosed()
@@ -401,9 +401,9 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->label('Denominator')
                         ->numeric()
                         ->placeholder('0.00')
+                        ->debounce(1000)
                         ->default(0)
                         ->nullable()
-                        ->reactive()
                         ->readOnly(
                             fn($livewire) =>
                             $livewire->isLaporanPeriodClosed()
@@ -419,10 +419,12 @@ class ImutPenilaianResource extends Resource implements HasShieldPermissions
                         ->numeric()
                         ->placeholder('0.00')
                         ->readOnly()
+                        ->debounce(1000)
                         ->dehydrated(false)
                         ->afterStateHydrated(function (callable $set, callable $get) {
                             static::updateResult($set, $get);
                         }),
+
                     SpatieMediaLibraryFileUpload::make('document_upload')
                         ->label('Unggah Dokumen Pendukung')
                         ->collection(fn(callable $get) => $get('selected_collection') ?? 'default')

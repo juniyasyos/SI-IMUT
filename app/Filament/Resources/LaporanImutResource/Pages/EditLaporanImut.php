@@ -53,7 +53,7 @@ class EditLaporanImut extends EditRecord
                 ->icon('heroicon-o-clipboard-document-list')
                 ->color('primary')
                 ->url(fn($record) => \App\Services\LaporanRedirectService::getRedirectUrlForImutData($record->id))
-
+                ->disabled(fn($record) => is_null($record->imutPenilaians))
                 ->visible(fn() => Gate::any([
                     'view_imut_data_report_laporan::imut',
                     'view_imut_data_report_detail_laporan::imut',
@@ -125,6 +125,22 @@ class EditLaporanImut extends EditRecord
 
     protected function afterSave(): void
     {
+        $newUnitKerjaIds = $this->record->unitKerjas()->pluck('unit_kerja_id')->toArray();
+        $removedUnitKerjaIds = array_diff($this->originalUnitKerjaIds, $newUnitKerjaIds);
+
+        DB::transaction(function () use ($removedUnitKerjaIds) {
+            foreach ($removedUnitKerjaIds as $unitKerjaId) {
+                $laporanUnitKerja = LaporanUnitKerja::where('laporan_imut_id', $this->record->id)
+                    ->where('unit_kerja_id', $unitKerjaId)
+                    ->first();
+
+                if ($laporanUnitKerja) {
+                    ImutPenilaian::where('laporan_unit_kerja_id', $laporanUnitKerja->id)->delete();
+                    $laporanUnitKerja->delete();
+                }
+            }
+        });
+
         ProsesPenilaianImut::dispatch($this->record->id);
     }
 }

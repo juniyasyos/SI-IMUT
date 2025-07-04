@@ -51,46 +51,31 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                     ->width('30%')
                     ->searchable(),
 
-                TextColumn::make('total_numerator')
-                    ->label('N')
+                TextColumn::make('completion_summary')
+                    ->label('Capaian')
                     ->alignCenter()
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
-                    ->summarize(
-                        Summarizer::make()
-                            ->label('Total N')
-                            ->using(fn(Builder $query) => number_format($query->sum('total_numerator'), 2))
-                    ),
-
-                TextColumn::make('total_denominator')
-                    ->label('D')
-                    ->alignCenter()
-                    ->formatStateUsing(fn($state) => Number::format($state, 2, locale: app()->getLocale()))
-                    ->summarize(
-                        Summarizer::make()
-                            ->label('Total D')
-                            ->using(fn(Builder $query) => number_format($query->sum('total_denominator'), 2))
-                    ),
-
-                TextColumn::make('percentage')
-                    ->label('Persentase (%)')
-                    ->alignCenter()
-                    ->suffix('%')
+                    ->state(
+                        fn($record) =>
+                        number_format($record->filled_count ?? 0) . ' dari ' . number_format($record->total_count ?? 0) . ' imut sudah terisi'
+                    )
+                    ->tooltip(
+                        fn($record) =>
+                        'Persentase: ' . Number::format($record->percentage ?? 0, 2, locale: app()->getLocale()) . '%'
+                    )
                     ->color(fn($record) => match (true) {
-                        ! is_numeric($record->percentage) || ! is_numeric($record->avg_standard) => null,
+                        !is_numeric($record->percentage) || !is_numeric($record->avg_standard ?? null) => null,
                         $record->percentage >= $record->avg_standard => 'success',
-                        $record->percentage >= $record->avg_standard * 0.8 => 'warning',
+                        $record->percentage >= ($record->avg_standard * 0.8) => 'warning',
                         default => 'danger',
                     })
                     ->summarize(
                         Summarizer::make()
-                            ->label('Total Persentase')
+                            ->label('Total Capaian')
                             ->using(function (Builder $query) {
-                                $n = $query->sum('total_numerator');
-                                $d = $query->sum('total_denominator');
-
-                                return $d > 0 ? round(($n / $d) * 100, 2) : 0;
+                                $n = $query->sum('filled_count');
+                                $d = $query->sum('total_count');
+                                return $d > 0 ? Number::format(($n / $d) * 100, 2, locale: app()->getLocale()) . '%' : '0%';
                             })
-                            ->suffix('%')
                     ),
             ])
             ->headerActions([
