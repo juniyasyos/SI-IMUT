@@ -8,6 +8,7 @@ use App\Services\ImutChartSeriesService;
 use App\Support\ApexChartConfig;
 use App\Support\CacheKey;
 use Carbon\Carbon;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -59,26 +60,32 @@ class ImutCapaianUnitKerjaWidget extends ApexChartWidget
         return [
             Section::make('Konfigurasi Series')
                 ->schema(
-                    collect($categories)->values()->map(function ($shortName, $i) use ($colors) {
-                        return Fieldset::make($shortName)
-                            ->schema([
-                                Grid::make()
-                                    ->schema([
-                                        Select::make("series_types.{$shortName}")
-                                            ->label('Tipe')
-                                            ->options([
-                                                'column' => 'Column',
-                                                'line'   => 'Line',
-                                            ])
-                                            ->default('column')
-                                            ->reactive(),
-                                        ColorPicker::make("series_colors.{$shortName}")
-                                            ->label('Warna')
-                                            ->default($colors[$i % count($colors)])
-                                            ->reactive(),
-                                    ])->columns(2)
-                            ]);
-                    })->toArray()
+                    [
+                        Checkbox::make('show_dataLabels')
+                            ->label('Tampilkan Nilai')
+                            ->default(false)
+                            ->reactive(),
+                        ...collect($categories)->values()->map(function ($shortName, $i) use ($colors) {
+                            return Fieldset::make($shortName)
+                                ->schema([
+                                    Grid::make()
+                                        ->schema([
+                                            Select::make("series_types.{$shortName}")
+                                                ->label('Tipe')
+                                                ->options([
+                                                    'column' => 'Column',
+                                                    'line'   => 'Line',
+                                                ])
+                                                ->default('column')
+                                                ->reactive(),
+                                            ColorPicker::make("series_colors.{$shortName}")
+                                                ->label('Warna')
+                                                ->default($colors[$i % count($colors)])
+                                                ->reactive(),
+                                        ])->columns(2)
+                                ]);
+                        })->toArray()
+                    ]
                 )
                 ->columns(1),
         ];
@@ -87,6 +94,7 @@ class ImutCapaianUnitKerjaWidget extends ApexChartWidget
     protected function getOptions(): array
     {
         $laporans = $this->getCachedLaporans();
+        $showdataLabels = $this->filterFormData['show_dataLabels'] ?? true;
 
         if ($laporans->isEmpty()) {
             return ApexChartConfig::noDataOptions();
@@ -95,7 +103,13 @@ class ImutCapaianUnitKerjaWidget extends ApexChartWidget
         $xLabels = $this->generateXLabels($laporans);
         $series = $this->getChartService()->buildSeries($laporans, $this->filterFormData ?? []);
 
-        return ApexChartConfig::defaultOptions($series, $xLabels, xLableTitle: 'IMUT Kategori', yLableTitle: 'Capaian (%)');
+        return ApexChartConfig::defaultOptions(
+            $series,
+            $xLabels,
+            xLableTitle: 'IMUT Kategori',
+            yLableTitle: 'Capaian (%)',
+            showDataLabels: $showdataLabels
+        );
     }
 
     protected function getCachedLaporans()

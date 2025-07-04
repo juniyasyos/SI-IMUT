@@ -8,6 +8,7 @@ use App\Services\ImutChartSeriesService;
 use App\Support\ApexChartConfig;
 use App\Support\CacheKey;
 use Carbon\Carbon;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -43,8 +44,12 @@ class ImutCapaianWidget extends ApexChartWidget
 
         return [
             Section::make('Konfigurasi Series')
-                ->schema(
-                    collect($categories)->values()->map(function ($shortName, $i) use ($colors) {
+                ->schema([
+                    Checkbox::make('show_dataLabels')
+                        ->label('Tampilkan Nilai')
+                        ->default(false)
+                        ->reactive(),
+                    ...collect($categories)->values()->map(function ($shortName, $i) use ($colors) {
                         return Fieldset::make($shortName)
                             ->schema([
                                 Grid::make()
@@ -57,21 +62,24 @@ class ImutCapaianWidget extends ApexChartWidget
                                             ])
                                             ->default('column')
                                             ->reactive(),
+
                                         ColorPicker::make("series_colors.{$shortName}")
                                             ->label('Warna')
                                             ->default($colors[$i % count($colors)])
                                             ->reactive(),
-                                    ])->columns(2)
+                                    ])
+                                    ->columns(2),
                             ]);
-                    })->toArray()
-                )
-                ->columns(1),
+                    })->toArray(),
+                ])
+                ->columns(1)
         ];
     }
 
     protected function getOptions(): array
     {
         $laporans = $this->getCachedLaporans();
+        $showdataLabels = $this->filterFormData['show_dataLabels'] ?? true;
 
         if ($laporans->isEmpty()) {
             return ApexChartConfig::noDataOptions();
@@ -80,7 +88,13 @@ class ImutCapaianWidget extends ApexChartWidget
         $xLabels = $this->generateXLabels($laporans);
         $series = $this->getChartService()->buildSeries($laporans, $this->filterFormData ?? []);
 
-        return ApexChartConfig::defaultOptions($series, $xLabels, xLableTitle:'IMUT Kategori', yLableTitle:'Capaian (%)');
+        return ApexChartConfig::defaultOptions(
+            $series,
+            $xLabels,
+            xLableTitle: 'IMUT Kategori',
+            yLableTitle: 'Capaian (%)',
+            showDataLabels: $showdataLabels
+        );
     }
 
     protected function getCachedLaporans()
