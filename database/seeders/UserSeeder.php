@@ -36,8 +36,8 @@ class UserSeeder extends Seeder
 
         $data = json_decode(File::get($filePath), true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::error('Gagal mendecode file JSON: '.json_last_error_msg());
+        if (json_last_error() !== \JSON_ERROR_NONE) {
+            Log::error('Gagal mendecode file JSON: ' . json_last_error_msg());
 
             return;
         }
@@ -59,13 +59,13 @@ class UserSeeder extends Seeder
             $cleanName = trim($cleanName);
 
             // Generate email: nama tanpa spasi, lowercase
-            $baseEmail = Str::lower(Str::slug($cleanName, '')).'@example.com';
+            $baseEmail = Str::lower(Str::slug($cleanName, '')) . '@example.com';
 
             // Pastikan email unik
             $email = $baseEmail;
             $suffix = 1;
             while (User::where('email', $email)->exists()) {
-                $email = Str::lower(Str::slug($cleanName, '')).$suffix++.'@example.com';
+                $email = Str::lower(Str::slug($cleanName, '')) . $suffix++ . '@example.com';
             }
 
             $usersToInsert[] = [
@@ -88,6 +88,12 @@ class UserSeeder extends Seeder
         if (count($usersToInsert) > 0) {
             User::insert($usersToInsert);
             Log::info('Data pengguna berhasil dimasukkan ke dalam database.');
+
+            $newUsers = User::where('nik', '!=', '0000.00000')->get();
+
+            foreach ($newUsers as $user) {
+                $user->roles()->sync([3]);
+            }
         } else {
             Log::warning('Tidak ada data pengguna untuk dimasukkan.');
         }
