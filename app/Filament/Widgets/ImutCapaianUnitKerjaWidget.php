@@ -100,7 +100,6 @@ class ImutCapaianUnitKerjaWidget extends ApexChartWidget
 
     protected function getCachedLaporans()
     {
-        $user = Auth::user();
         $unitKerjaIds = Auth::user()->unitKerjas->pluck('id')->toArray();
 
         return
