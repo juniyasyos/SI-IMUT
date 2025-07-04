@@ -143,7 +143,6 @@ class UserResourceSchema
                                         $action->form([
                                             TextInput::make('name')
                                                 ->required()
-                                                ->unique('positions', 'name', ignoreRecord: true)
                                                 ->default($position->name),
                                             TextInput::make('description')
                                                 ->default($position->description),
