@@ -104,4 +104,9 @@ class UnitKerja extends Model
             ->withPivot(['assigned_by', 'assigned_at'])
             ->withTimestamps();
     }
+
+    public function laporanUnitKerjas()
+    {
+        return $this->hasMany(\App\Models\LaporanUnitKerja::class, 'unit_kerja_id');
+    }
 }

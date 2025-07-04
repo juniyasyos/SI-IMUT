@@ -6,6 +6,7 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Login;
 use App\Filament\Widgets\AccountWidget;
 use App\Filament\Widgets\FilamentInfoWidget;
+use App\Filament\Widgets\ImutCapaianUnitKerjaWidget;
 use App\Models\User;
 use App\Settings\KaidoSetting;
 use Asmit\ResizedColumn\ResizedColumnPlugin;
@@ -75,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                ImutCapaianUnitKerjaWidget::class
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -21,8 +21,7 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 class ImutCapaianUnitKerjaWidget extends ApexChartWidget
 {
     protected static ?string $chartId = 'imutCapaianUnitKerjaWidget';
-    protected static ?string $heading = 'Capaian IMUT setiap Kategori Semua Unit Kerja';
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 20;
     protected static MaxWidth|string $filterFormWidth = MaxWidth::ExtraLarge;
     protected int|string|array $columnSpan = 'full';
 
@@ -39,6 +38,18 @@ class ImutCapaianUnitKerjaWidget extends ApexChartWidget
             && $user->can('widget_ImutCapaianUnitKerjaWidget')
             && $user->unitKerjas()->exists();
     }
+
+    protected function getHeading(): ?string
+    {
+        $user = Auth::user();
+
+        $unitKerja = $user->unitKerjas->first();
+
+        return $unitKerja
+            ? 'Capaian IMUT setiap Kategori Untuk Unit ' . $unitKerja->unit_name
+            : static::$heading;
+    }
+
 
     protected function getFormSchema(): array
     {
@@ -90,24 +101,30 @@ class ImutCapaianUnitKerjaWidget extends ApexChartWidget
     protected function getCachedLaporans()
     {
         $user = Auth::user();
-        $unitKerjaIds = $user->unitKerjas->pluck('id')->toArray();
+        $unitKerjaIds = Auth::user()->unitKerjas->pluck('id')->toArray();
 
-        return Cache::remember(
-            CacheKey::imutLaporansForUnitKerjas($unitKerjaIds),
-            now()->addMinutes(5),
-            fn() => LaporanImut::with([
-                'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
-            ])
-                ->where('assessment_period_start', '>=', now()->subMonths(6))
-                ->where('status', [LaporanImut::STATUS_COMPLETE, LaporanImut::STATUS_COMINGSOON])
-                ->whereHas('laporanUnitKerjas', function ($query) use ($unitKerjaIds) {
-                    $query->whereIn('unit_kerja_id', $unitKerjaIds);
-                })
-                ->orderBy('assessment_period_start')
-                ->get()
-        );
+        return
+            Cache::remember(
+                CacheKey::imutLaporansForUnitKerjas($unitKerjaIds),
+                now()->addDay(1),
+                fn() => LaporanImut::with([
+                    'laporanUnitKerjas' => function ($query) use ($unitKerjaIds) {
+                        $query->whereIn('unit_kerja_id', $unitKerjaIds);
+                    },
+                    'laporanUnitKerjas.imutPenilaians.profile.imutData.categories',
+                ])
+                    ->whereHas('laporanUnitKerjas', function ($query) use ($unitKerjaIds) {
+                        $query->whereIn('unit_kerja_id', $unitKerjaIds);
+                    })
+                    ->where('assessment_period_start', '>=', now()->subMonths(6))
+                    ->whereIn('status', [
+                        LaporanImut::STATUS_COMPLETE,
+                        LaporanImut::STATUS_COMINGSOON
+                    ])
+                    ->orderBy('assessment_period_start')
+                    ->get()
+            );
     }
-
 
     protected function generateXLabels($laporans): array
     {

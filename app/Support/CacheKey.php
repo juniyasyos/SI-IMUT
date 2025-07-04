@@ -86,7 +86,8 @@ class CacheKey
 
     public static function imutLaporansForUnitKerjas(array $unitKerjaIds): string
     {
-        $hash = md5(implode(',', $unitKerjaIds));
-        return "imut_laporans_unit_kerjas_{$hash}";
+        sort($unitKerjaIds);
+        $joinedIds = implode('_', $unitKerjaIds);
+        return "imut_laporans_unit_kerjas_{$joinedIds}";
     }
 }

@@ -16,8 +16,12 @@ class ApexChartConfig
             ->pluck('data')
             ->flatten()
             ->max();
-
-        $yAxisMax = $yAxisMax ?? ($maxValue > 100 ? ceil($maxValue) : 100);
+            
+        $yAxisMax = $yAxisMax ?? (
+            ($maxValue > 50 && $maxValue < 100)
+            ? 100
+            : ceil($maxValue)
+        );
         $yAxisMin = $yAxisMin ?? 0;
 
         return [
