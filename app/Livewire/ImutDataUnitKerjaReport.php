@@ -67,7 +67,7 @@ class ImutDataUnitKerjaReport extends Component implements HasForms, HasTable
                 TextColumn::make('imut_profil')
                     ->label('Imut Profil')
                     ->width('20%')
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 TextColumn::make('numerator_value')
