@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call(
             [
                 PositionSeeder::class,
-                UserSeeder::class,
                 ShieldSeeder::class,
+                UserSeeder::class,
                 UnitKerjaSeeder::class,
                 ImutCategorySeeder::class,
                 RegionTypeSeeder::class,
