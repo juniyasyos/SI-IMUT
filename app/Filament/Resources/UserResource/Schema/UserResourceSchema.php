@@ -137,15 +137,17 @@ class UserResourceSchema
                                 ->icon('heroicon-o-pencil-square')
                                 ->visible(fn(Get $get) => filled($get('position_id')))
                                 ->modalHeading(__('filament-forms::users.form.position.edit_modal_title'))
+                                ->form([
+                                    TextInput::make('name')
+                                        ->required(),
+                                    TextInput::make('description'),
+                                ])
                                 ->mountUsing(function (FieldAction $action, Get $get) {
                                     $position = Position::find($get('position_id'));
                                     if ($position) {
-                                        $action->form([
-                                            TextInput::make('name')
-                                                ->required()
-                                                ->default($position->name),
-                                            TextInput::make('description')
-                                                ->default($position->description),
+                                        $action->fill([
+                                            'name' => $position->name,
+                                            'description' => $position->description,
                                         ]);
                                     }
                                 })
@@ -163,7 +165,7 @@ class UserResourceSchema
                                 ->icon('heroicon-o-trash')
                                 ->color('danger')
                                 ->requiresConfirmation()
-                                ->visible(fn(Get $get) => filled($get('position_id')))
+                                // ->visible(fn(Get $get) => filled($get('position_id')))
                                 ->action(function (Get $get, Set $set) {
                                     $position = Position::find($get('position_id'));
                                     if ($position) {
