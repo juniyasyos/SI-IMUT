@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Position;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
@@ -91,8 +92,15 @@ class UserSeeder extends Seeder
 
             $newUsers = User::where('nik', '!=', '0000.00000')->get();
 
+            $unitKerjaRole = Role::where('name', 'unit_kerja')->first();
+
+            if (! $unitKerjaRole) {
+                Log::error('Role "unit_kerja" tidak ditemukan.');
+                return;
+            }
+
             foreach ($newUsers as $user) {
-                $user->roles()->sync([3]);
+                $user->roles()->sync([$unitKerjaRole->id]);
             }
         } else {
             Log::warning('Tidak ada data pengguna untuk dimasukkan.');

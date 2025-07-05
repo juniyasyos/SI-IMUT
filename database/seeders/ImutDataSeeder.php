@@ -32,6 +32,8 @@ class ImutDataSeeder extends Seeder
 
     protected $laporanList = [];
 
+    protected int $totalYears = 3;
+
     public function run(): void
     {
         DB::transaction(function () {
@@ -100,7 +102,9 @@ class ImutDataSeeder extends Seeder
 
     private function createLaporanImut(): void
     {
-        for ($i = 0; $i < 12; $i++) {
+        $totalMonths = $this->totalYears * 12;
+
+        for ($i = 0; $i < $totalMonths; $i++) {
             $month = $this->now->copy()->subMonths($i)->month;
             $year = $this->now->copy()->subMonths($i)->year;
 
@@ -127,6 +131,7 @@ class ImutDataSeeder extends Seeder
             $this->laporanList[] = $laporan;
         }
     }
+
 
 
     private function processIndicator(array $indicator, ImutCategory $category): void
@@ -214,9 +219,8 @@ class ImutDataSeeder extends Seeder
 
             $initialTarget   = (float) $profile['target_value'];
             $targetOperator  = $profile['target_operator'] ?? '>=';
-            $totalYears      = 2;
-            $totalQuarters   = $totalYears * 4;
-            $startQuarter    = Carbon::create(2024, 1, 1)->startOfQuarter();
+            $totalQuarters = $this->totalYears * 4;
+            $startQuarter = now()->copy()->subYears($this->totalYears)->startOfYear()->startOfQuarter();
             $versionList     = [];
 
             // Buat daftar versi kuartal, misal ["2024-Q1", "2024-Q2", …]

@@ -2,6 +2,7 @@
 
 use App\Facades\LaporanImut as LaporanImutFacade;
 use App\Models\LaporanImut;
+use Database\Seeders\DatabaseProductionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -10,8 +11,8 @@ use Illuminate\Support\Facades\Cache;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    Cache::flush(); // Penting agar cache tidak mengganggu test awal
-    $this->seed();
+    Cache::flush();
+    $this->seed(DatabaseProductionSeeder::class);
 });
 
 function benchmark(string $functionName, callable $callback): void

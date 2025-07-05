@@ -18,11 +18,11 @@ class SummaryUnitKerjaReportExport extends Exporter
             ExportColumn::make('unit_name')
                 ->label('Unit Kerja'),
 
-            ExportColumn::make('total_numerator')
-                ->label('Total N'),
+            ExportColumn::make('filled_count')
+                ->label('Sudah Terisi'),
 
-            ExportColumn::make('total_denominator')
-                ->label('Total D'),
+            ExportColumn::make('total_count')
+                ->label('Total Imut'),
 
             ExportColumn::make('percentage')
                 ->label('Persentase (%)'),
@@ -30,6 +30,12 @@ class SummaryUnitKerjaReportExport extends Exporter
     }
 
     // Override query untuk pakai custom query
+    /**
+     * Undocumented function
+     *
+     * @param Export $export
+     * @return Builder;
+     */
     public static function getEloquentQuery(Export $export): Builder
     {
         $laporanId = $export->options['laporan_id'] ?? null;

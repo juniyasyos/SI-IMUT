@@ -75,66 +75,51 @@ class LaporanUnitKerja extends Model
      * Mengambil laporan berdasarkan unit kerja dengan jumlah penilaian dan persentase pengisian.
      *
      * @param  int  $laporanId
-     * @return Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public static function getReportByUnitKerja(int $laporanId):Builder
+
+    public static function getReportByUnitKerja(int $laporanId): Builder
     {
         return self::query()
             ->where('laporan_unit_kerjas.laporan_imut_id', $laporanId)
             ->leftJoin('unit_kerja', 'laporan_unit_kerjas.unit_kerja_id', '=', 'unit_kerja.id')
             ->leftJoin('imut_penilaians', 'laporan_unit_kerjas.id', '=', 'imut_penilaians.laporan_unit_kerja_id')
-            ->leftJoin('imut_profil', 'imut_penilaians.imut_profil_id', '=', 'imut_profil.id')
-            ->leftJoin('imut_data', 'imut_profil.imut_data_id', '=', 'imut_data.id')
-            ->leftJoin('imut_kategori', 'imut_data.imut_kategori_id', '=', 'imut_kategori.id')
             ->select([
                 'laporan_unit_kerjas.id',
                 'laporan_unit_kerjas.unit_kerja_id',
                 'unit_kerja.unit_name',
                 'laporan_unit_kerjas.laporan_imut_id',
-                'imut_kategori.short_name as imut_kategori',
 
-                // Jumlah yang sudah diisi (numerator & denominator tidak null)
-                DB::raw("
-                SUM(
-                    CASE
-                        WHEN imut_penilaians.numerator_value IS NOT NULL
-                         AND imut_penilaians.denominator_value IS NOT NULL
-                        THEN 1
-                        ELSE 0
-                    END
-                ) as filled_count
-            "),
+                // Jumlah isian valid (N dan D tidak null)
+                DB::raw("SUM(
+                CASE
+                    WHEN imut_penilaians.numerator_value IS NOT NULL AND imut_penilaians.denominator_value IS NOT NULL
+                    THEN 1 ELSE 0
+                END
+            ) as filled_count"),
 
-                // Total seluruh penilaian (yang ada)
+                // Total seluruh penilaian
                 DB::raw("COUNT(imut_penilaians.id) as total_count"),
 
-                // Persentase pengisian data
-                DB::raw("
-                ROUND(
-                    CASE
-                        WHEN COUNT(imut_penilaians.id) > 0
-                        THEN
-                            SUM(
-                                CASE
-                                    WHEN imut_penilaians.numerator_value IS NOT NULL
-                                     AND imut_penilaians.denominator_value IS NOT NULL
-                                    THEN 1
-                                    ELSE 0
-                                END
-                            ) * 100.0 / COUNT(imut_penilaians.id)
-                        ELSE 0
-                    END
-                , 2) as percentage
-            "),
+                // Persentase pengisian
+                DB::raw("ROUND(
+                CASE
+                    WHEN COUNT(imut_penilaians.id) > 0 THEN
+                        SUM(CASE
+                            WHEN imut_penilaians.numerator_value IS NOT NULL AND imut_penilaians.denominator_value IS NOT NULL
+                            THEN 1 ELSE 0 END) * 100.0 / COUNT(imut_penilaians.id)
+                    ELSE 0
+                END, 2
+            ) as percentage"),
             ])
             ->groupBy(
                 'laporan_unit_kerjas.id',
                 'laporan_unit_kerjas.unit_kerja_id',
                 'unit_kerja.unit_name',
-                'laporan_unit_kerjas.laporan_imut_id',
-                'imut_kategori.short_name'
+                'laporan_unit_kerjas.laporan_imut_id'
             );
     }
+
 
     /**
      * Mengambil laporan berdasarkan data IMUT dengan total nilai dan persentase.

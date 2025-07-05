@@ -54,18 +54,12 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                 TextColumn::make('completion_summary')
                     ->label('Capaian')
                     ->alignCenter()
-                    ->state(
-                        fn($record) =>
-                        number_format($record->filled_count ?? 0) . ' dari ' . number_format($record->total_count ?? 0) . ' imut sudah terisi'
-                    )
-                    ->tooltip(
-                        fn($record) =>
-                        'Persentase: ' . Number::format($record->percentage ?? 0, 2, locale: app()->getLocale()) . '%'
-                    )
+                    ->state(fn($record) => number_format($record->filled_count ?? 0) . ' dari ' . number_format($record->total_count ?? 0) . ' imut sudah terisi')
+                    ->tooltip(fn($record) => 'Persentase: ' . Number::format($record->percentage ?? 0, 2, locale: app()->getLocale()) . '%')
                     ->color(fn($record) => match (true) {
-                        !is_numeric($record->percentage) || !is_numeric($record->avg_standard ?? null) => null,
-                        $record->percentage >= $record->avg_standard => 'success',
-                        $record->percentage >= ($record->avg_standard * 0.8) => 'warning',
+                        !is_numeric($record->percentage) => null,
+                        $record->percentage >= ($record->avg_standard ?? 100) => 'success',
+                        $record->percentage >= (($record->avg_standard ?? 100) * 0.8) => 'warning',
                         default => 'danger',
                     })
                     ->summarize(
@@ -77,6 +71,7 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                                 return $d > 0 ? Number::format(($n / $d) * 100, 2, locale: app()->getLocale()) . '%' : '0%';
                             })
                     ),
+
             ])
             ->headerActions([
                 ExportAction::make()->exporter(SummaryUnitKerjaReportExport::class)
