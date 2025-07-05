@@ -146,7 +146,7 @@ class ImutDataUnitKerjaReport extends Component implements HasForms, HasTable
                 $this->makeSearchableColumn('recommendations', 'Rekomendasi', 'imut_penilaians.recommendations'),
             ])
             ->headerActions([
-                ExportAction::make()->exporter(SummaryUnitKerjaReportDetailExport::class)
+                ExportAction::make()->exporter(SummaryUnitKerjaReportDetailExport::class)->label('Ekspor laporan IMUT Unit Kerja')
             ])
             ->filters([
                 SelectFilter::make('imut_kategori')
