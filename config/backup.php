@@ -211,8 +211,7 @@ return [
          * Here you can specify the notifiable to which the notifications should be sent. The default
          * notifiable will use the variables specified in this config file.
          */
-        // 'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
-         'notifiable' => App\Notifications\BackupNotifiable::class,
+        'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
 
         'mail' => [
             'to' => 'your@example.com',
