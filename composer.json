@@ -110,10 +110,13 @@
             "git clean -f && git reset --hard"
         ],
         "prod-setup": [
+            "git clean -f && git reset --hard && git pull",
+            "rm -rf ./storage/debugbar/*.json",
             "@php artisan migrate:fresh",
             "@php artisan db:seed --class=DatabaseProductionSeeder",
             "@php artisan shield:generate --all --panel=admin",
-            "@php artisan shield:super-admin --user=1"
+            "@php artisan shield:super-admin --user=1",
+            "git clean -f && git reset --hard"
         ],
         "dev-setup": [
             "@php artisan shield:generate --option=permissions --panel=admin"
