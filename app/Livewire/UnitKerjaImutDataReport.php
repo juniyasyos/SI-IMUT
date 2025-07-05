@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Filament\Exports\SummaryUnitKerjaReportDetailExport;
 use App\Models\ImutCategory;
 use App\Models\LaporanUnitKerja;
+use App\Models\UnitKerja;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
@@ -154,7 +155,10 @@ class UnitKerjaImutDataReport extends Component implements HasForms, HasTable
                     ->placeholder('Semua Kategori'),
             ])
             ->headerActions([
-                ExportAction::make()->exporter(SummaryUnitKerjaReportDetailExport::class)
+                ExportAction::make()
+                    ->exporter(SummaryUnitKerjaReportDetailExport::class)
+                    ->label(fn() => 'Export Laporan ' . UnitKerja::where('id', $this->unitKerjaId)->value('unit_name'))
+                    ->color('gray')
             ])
             ->actions([
                 Action::make('edit_penilaian')

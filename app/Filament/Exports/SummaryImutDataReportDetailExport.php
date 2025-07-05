@@ -2,6 +2,7 @@
 
 namespace App\Filament\Exports;
 
+use App\Models\ImutData;
 use App\Models\LaporanImut;
 use App\Models\LaporanUnitKerja;
 use App\Models\UnitKerja;
@@ -41,15 +42,15 @@ class SummaryImutDataReportDetailExport extends Exporter
     public static function getCompletedNotificationBody(Export $export): string
     {
         $laporanId = $export->options['laporan_id'] ?? null;
-        $unitKerjaId = $export->options['unit_kerja_id'] ?? null;
+        $imutDataId = $export->options['imut_data_id'] ?? null;
 
         $laporanName = LaporanImut::find($laporanId)?->title ?? 'Laporan';
-        $unitKerjaName = UnitKerja::find($unitKerjaId)?->unit_name ?? 'Unit Kerja';
+        $ImutdataTitle = ImutData::find($imutDataId)?->unit_name ?? 'Imut Data';
 
         $success = number_format($export->successful_rows);
         $fail = number_format($export->getFailedRowsCount());
 
-        $body = "Export data detail IMUT untuk *{$unitKerjaName}* dalam laporan *{$laporanName}* telah selesai. {$success} baris berhasil diekspor.";
+        $body = "Export data detail IMUT untuk *{$ImutdataTitle}* dalam laporan *{$laporanName}* telah selesai. {$success} baris berhasil diekspor.";
 
         if ($fail > 0) {
             $body .= " Namun, terdapat {$fail} baris yang gagal diekspor.";
@@ -61,14 +62,14 @@ class SummaryImutDataReportDetailExport extends Exporter
     public function getFileName(Export $export): string
     {
         $laporanId = $this->export->options['laporan_id'] ?? null;
-        $unitKerjaId = $this->export->options['unit_kerja_id'] ?? null;
+        $imutDataId = $export->options['imut_data_id'] ?? null;
 
-        $laporanName = LaporanImut::find($laporanId)?->title ?? 'laporan';
-        $unitKerjaName = UnitKerja::find($unitKerjaId)?->unit_name ?? 'unit';
+        $laporanName = LaporanImut::find($laporanId)?->slug ?? 'laporan';
+        $imutData = ImutData::find($imutDataId)?->slug ?? 'imut-data';
 
         return 'export-imut-detail-' .
-            Str::slug($laporanName) . '-' .
-            Str::slug($unitKerjaName) . '-' .
-            now()->format('Ymd_His') . '.xlsx';
+            $laporanName . '-' .
+            $imutData . '-' .
+            now()->format('Ymd_His');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Exports;
 
+use App\Models\LaporanImut;
 use App\Models\LaporanUnitKerja;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
@@ -18,6 +19,9 @@ class SummaryImutDataReportExport extends Exporter
             ExportColumn::make('imut_data_title')
                 ->label('Unit Kerja'),
 
+            ExportColumn::make('imut_kategori')
+                ->label('IMUT Kategori'),
+
             ExportColumn::make('total_numerator')
                 ->label('Total N'),
 
@@ -27,6 +31,15 @@ class SummaryImutDataReportExport extends Exporter
             ExportColumn::make('percentage')
                 ->label('Persentase (%)'),
         ];
+    }
+
+    public function getFileName(Export $export): string
+    {
+        $laporanId = $export->options['laporan_id'] ?? null;
+
+        $judul = LaporanImut::find($laporanId)?->slug ?? 'laporan';
+
+        return 'summary-IMUT-Data-' . $judul . '-' . now()->format('Ymd_His');
     }
 
     // Override query untuk pakai custom query

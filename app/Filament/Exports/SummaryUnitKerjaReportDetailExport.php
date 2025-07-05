@@ -62,8 +62,8 @@ class SummaryUnitKerjaReportDetailExport extends Exporter
         $laporanId = $this->export->options['laporan_id'] ?? null;
         $unitKerjaId = $this->export->options['unit_kerja_id'] ?? null;
 
-        $laporanName = LaporanImut::find($laporanId)?->title ?? 'laporan';
-        $unitKerjaName = UnitKerja::find($unitKerjaId)?->unit_name ?? 'unit';
+        $laporanName = LaporanImut::find($laporanId)?->slug ?? 'laporan';
+        $unitKerjaName = UnitKerja::find($unitKerjaId)?->slug ?? 'unit';
 
         return 'ringkasan-unit-kerja-' .
             Str::slug($laporanName) . '-' .

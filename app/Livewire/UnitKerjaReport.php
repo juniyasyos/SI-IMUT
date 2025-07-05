@@ -13,7 +13,10 @@ use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Container\Attributes\DB;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Number;
 use Livewire\Component;
@@ -54,6 +57,7 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
                 TextColumn::make('completion_summary')
                     ->label('Capaian')
                     ->alignCenter()
+                    ->toggleable()
                     ->state(fn($record) => number_format($record->filled_count ?? 0) . ' dari ' . number_format($record->total_count ?? 0) . ' imut sudah terisi')
                     ->tooltip(fn($record) => 'Persentase: ' . Number::format($record->percentage ?? 0, 2, locale: app()->getLocale()) . '%')
                     ->color(fn($record) => match (true) {
@@ -74,10 +78,10 @@ class UnitKerjaReport extends Component implements HasForms, HasTable
 
             ])
             ->headerActions([
-                ExportAction::make()->exporter(SummaryUnitKerjaReportExport::class)
+                ExportAction::make()->exporter(SummaryUnitKerjaReportExport::class)->color('gray')
             ])
             ->filters([
-                // ...
+                //
             ])
             ->actions([
                 Action::make('details')

@@ -38,7 +38,7 @@ class ImutDataReport extends Component implements HasForms, HasTable
     public function getTableRecordKey($record): string
     {
         if (! $record || ! $record->getKey()) {
-            return (string) uniqid('record_', true); 
+            return (string) uniqid('record_', true);
         }
 
         return (string) $record->getKey();
@@ -105,7 +105,7 @@ class ImutDataReport extends Component implements HasForms, HasTable
                     ),
             ])
             ->headerActions([
-                ExportAction::make()->exporter(SummaryImutDataReportExport::class)
+                ExportAction::make()->exporter(SummaryImutDataReportExport::class)->label('Ekspor laporan IMUT')
             ])
             ->filters([
                 // ...
