@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Path ke file .env (ubah jika perlu)
-ENV_FILE="../../.env"
+ENV_FILE=".env"
 
 # Validasi file .env
 if [ ! -f "$ENV_FILE" ]; then

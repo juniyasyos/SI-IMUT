@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ENV_FILE="../../.env"
+ENV_FILE=".env"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "❌ File .env tidak ditemukan di path: $ENV_FILE"
