@@ -2,7 +2,7 @@
 
 namespace App\Filament\Exports;
 
-use App\Facades\LaporanImut;
+use App\Models\LaporanImut;
 use App\Models\LaporanUnitKerja;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
