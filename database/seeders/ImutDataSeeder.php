@@ -32,7 +32,7 @@ class ImutDataSeeder extends Seeder
 
     protected $laporanList = [];
 
-    protected int $totalYears = 3;
+    protected int $totalYears = 1;
 
     public function run(): void
     {
