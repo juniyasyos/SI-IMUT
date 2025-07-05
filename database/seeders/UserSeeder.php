@@ -92,10 +92,10 @@ class UserSeeder extends Seeder
 
             $newUsers = User::where('nik', '!=', '0000.00000')->get();
 
-            $unitKerjaRole = Role::where('name', 'unit_kerja')->first();
+            $unitKerjaRole = Role::where('name', 'Unit Kerja')->first();
 
             if (! $unitKerjaRole) {
-                Log::error('Role "unit_kerja" tidak ditemukan.');
+                Log::error('Role "Unit Kerja" tidak ditemukan.');
                 return;
             }
 
