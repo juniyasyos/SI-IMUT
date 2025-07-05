@@ -15,8 +15,8 @@ return [
                  * The list of directories and files that will be included in the backup.
                  */
                 'include' => [
-                    // base_path(),
-                    storage_path()
+                    storage_path('app'),
+                    base_path('public'),
                 ],
 
                 /*
@@ -25,9 +25,10 @@ return [
                  * Directories used by the backup process will automatically be excluded.
                  */
                 'exclude' => [
-                    base_path(),
                     base_path('vendor'),
                     base_path('node_modules'),
+                    storage_path('logs'), // opsional, kalau tidak mau backup log
+                    storage_path('framework'), // opsional
                 ],
 
                 /*
@@ -198,19 +199,20 @@ return [
      */
     'notifications' => [
         'notifications' => [
-            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['database'],
+            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => ['database'],
+            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['database'],
+            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => ['database'],
+            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => ['database'],
+            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['database'],
         ],
 
         /*
          * Here you can specify the notifiable to which the notifications should be sent. The default
          * notifiable will use the variables specified in this config file.
          */
-        'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
+        // 'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
+         'notifiable' => App\Notifications\BackupNotifiable::class,
 
         'mail' => [
             'to' => 'your@example.com',
